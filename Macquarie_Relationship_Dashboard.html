@@ -347,7 +347,14 @@ tbody tr:hover td{background:var(--lavender-2)}
 .sp-bar .sp-msg{flex:1}
 .sp-bar .sp-btn{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 10px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);cursor:pointer}
 .sp-bar .sp-btn:hover{background:rgba(255,255,255,.08);color:#fff}
-.sp-saving{position:fixed;top:60px;right:20px;background:var(--purple-plum);color:#fff;font-size:11px;font-weight:600;letter-spacing:.05em;padding:8px 14px;z-index:300;display:none;animation:fadeout 2.5s forwards}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--white);border-top:3px solid var(--purple-primary);padding:24px 28px;width:660px;max-width:96vw;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:600;color:var(--purple-plum)}
+.modal-close{font-size:22px;border:none;background:none;cursor:pointer;color:var(--label-gray);padding:0 4px;line-height:1}
+.modal-close:hover{color:var(--dark-gray)}
+.sp-saving{position:fixed;top:60px;right:20px;.sp-saving{position:fixed;top:60px;right:20px;background:var(--purple-plum);color:#fff;font-size:11px;font-weight:600;letter-spacing:.05em;padding:8px 14px;z-index:300;display:none;animation:fadeout 2.5s forwards}
 @keyframes fadeout{0%,70%{opacity:1}100%{opacity:0;display:none}}
 </style>
 </head>
@@ -448,8 +455,16 @@ tbody tr:hover td{background:var(--lavender-2)}
 
   <div class="todo-section" id="todo-section">
     <div class="todo-header">
-      <div><div class="todo-title">Minimum to-do list</div><div class="todo-subtitle">High and critical priority — not engaged in 90+ days or never contacted</div></div>
-      <span style="font-size:11px;color:var(--label-gray)" id="todo-count"></span>
+      <div>
+        <div class="todo-title">Minimum to-do list</div>
+        <div class="todo-subtitle">Not engaged in 90+ days or never contacted</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <select id="todo-owner-filter" class="lf-input" style="font-size:11px;padding:3px 8px;width:auto;height:26px;border-color:var(--divider)" onchange="renderOverdueAlerts()">
+          <option value="ALL">All owners</option>
+        </select>
+        <span style="font-size:11px;color:var(--label-gray)" id="todo-count"></span>
+      </div>
     </div>
     <div class="todo-list" id="todo-list"></div>
   </div>
@@ -471,8 +486,10 @@ tbody tr:hover td{background:var(--lavender-2)}
       <div><div class="lf-label">Engagement type</div><select id="lf-type" class="lf-input"><option value="">Select type</option><option>Meeting — in person</option><option>Meeting — virtual</option><option>Call</option><option>Working session</option><option>Social / event</option><option>Email / written</option><option>Demo</option></select></div>
       <div class="log-form-wide"><div class="lf-label">What was discussed</div><input type="text" id="lf-summary" class="lf-input" placeholder="e.g. Covered AI visioning scope, agreed to ICLM demo in 2 weeks"></div>
       <div class="log-form-wide"><div class="lf-label">Additional notes</div><textarea id="lf-notes" class="lf-input" placeholder="e.g. Jess raised data categorisation concerns. Follow up: share data protection approach."></textarea></div>
-      <div><div class="lf-label">Relationship health after this meeting</div><select id="lf-health" class="lf-input"><option value="">No change</option><option>Strong</option><option>Good</option><option>Mild +</option><option>Neutral</option><option>At risk</option></select></div>
-      <div><div class="lf-label">Next action required</div><input type="text" id="lf-action" class="lf-input" placeholder="e.g. Schedule ICLM demo by 15 Jul"></div>
+      <div style="grid-column:1/-1;display:grid;grid-template-columns:1fr 2fr;gap:10px">
+        <div><div class="lf-label">Relationship health after this meeting</div><select id="lf-health" class="lf-input"><option value="">No change</option><option>Strong</option><option>Good</option><option>Mild +</option><option>Neutral</option><option>At risk</option></select></div>
+        <div><div class="lf-label">Next action required</div><input type="text" id="lf-action" class="lf-input" placeholder="e.g. Schedule ICLM demo by 15 Jul"></div>
+      </div>
     </div>
     <div class="log-actions">
       <button class="btn-primary" onclick="submitLog()">Save engagement</button>
@@ -622,7 +639,8 @@ tbody tr:hover td{background:var(--lavender-2)}
 <div id="p5" class="page">
   <div class="eyebrow" style="margin-bottom:6px">Configuration</div>
   <h1 style="margin-bottom:20px">Settings</h1>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:860px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;max-width:1100px">
+
     <div class="card" style="border-top:2px solid var(--purple-primary)">
       <div class="eyebrow" style="margin-bottom:14px">Accenture relationship owners</div>
       <div id="leads-manager-list" style="margin-bottom:14px"></div>
@@ -632,25 +650,101 @@ tbody tr:hover td{background:var(--lavender-2)}
       </div>
       <div style="font-size:11px;color:var(--label-gray);margin-top:8px">Format: firstname.lastname — e.g. galia.jenshel</div>
     </div>
+
     <div class="card" style="border-top:2px solid var(--purple-primary)">
-      <div class="eyebrow" style="margin-bottom:14px">ARS scores by quarter</div>
-      <div style="font-size:12px;color:var(--label-gray);line-height:1.6;margin-bottom:12px">Update ARS scores in the <code style="background:var(--neutral-light);padding:1px 5px">ARS_DATA</code> array in the HTML file. Each entry has a quarter label and a score out of 10.</div>
-      <div id="ars-current" style="font-size:12px;color:var(--dark-gray)"></div>
-    </div>
-    <div class="card" style="border-top:2px solid var(--red);grid-column:1/-1">
-      <div class="eyebrow" style="margin-bottom:8px;color:var(--red-text)">Danger zone</div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button onclick="clearAllData()" style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:8px 16px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer">Clear all engagement data</button>
-        <button onclick="clearCustomContacts()" style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:8px 16px;border:1px solid var(--amber);background:transparent;color:var(--amber-text);cursor:pointer">Clear custom contacts</button>
+      <div class="eyebrow" style="margin-bottom:14px">Engagement types</div>
+      <div id="etypes-manager-list" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-etype-input" class="lf-input" placeholder="e.g. Board presentation" style="flex:1" onkeydown="if(event.key==='Enter')addEtype()">
+        <button class="btn-primary" onclick="addEtype()">Add</button>
       </div>
-      <div style="font-size:11px;color:var(--label-gray);margin-top:8px">These actions affect all users — cannot be undone.</div>
+      <div style="font-size:11px;color:var(--label-gray);margin-top:8px">Added types appear in the engagement log dropdown</div>
     </div>
+
+    <div class="card" style="border-top:2px solid var(--purple-primary)">
+      <div class="eyebrow" style="margin-bottom:14px">Divisions</div>
+      <div id="divs-manager-list" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-div-input" class="lf-input" placeholder="e.g. RMG" style="flex:1" onkeydown="if(event.key==='Enter')addDiv()">
+        <button class="btn-primary" onclick="addDiv()">Add</button>
+      </div>
+      <div style="font-size:11px;color:var(--label-gray);margin-top:8px">Added divisions appear in directory and contact filters</div>
+    </div>
+
+    <div class="card" style="border-top:2px solid var(--purple-primary)">
+      <div class="eyebrow" style="margin-bottom:14px">Locations</div>
+      <div id="locs-manager-list" style="margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="new-loc-input" class="lf-input" placeholder="e.g. Toronto" style="flex:1" onkeydown="if(event.key==='Enter')addLoc()">
+        <button class="btn-primary" onclick="addLoc()">Add</button>
+      </div>
+      <div style="font-size:11px;color:var(--label-gray);margin-top:8px">Added locations appear in the add contact form</div>
+    </div>
+
   </div>
 </div>
 
 <div id="profile-page" class="page">
   <button class="back-btn" onclick="goBack()">← Back</button>
   <div id="profile-content"></div>
+</div>
+
+<!-- MODIFY ENGAGEMENT MODAL -->
+<div class="modal-overlay" id="modify-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Modify engagement</div>
+      <button class="modal-close" onclick="closeModifyModal()">×</button>
+    </div>
+    <div class="log-form-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <input type="hidden" id="mod-id">
+      <div><div class="lf-label">Accenture lead</div>
+        <select id="mod-owner" class="lf-input">
+          <option value="">Select lead</option>
+        </select>
+      </div>
+      <div><div class="lf-label">Macquarie contact</div>
+        <input type="text" id="mod-contact" class="lf-input" list="mod-contact-list">
+        <datalist id="mod-contact-list"></datalist>
+      </div>
+      <div><div class="lf-label">Date</div>
+        <input type="date" id="mod-date" class="lf-input">
+      </div>
+      <div><div class="lf-label">Engagement type</div>
+        <select id="mod-type" class="lf-input">
+          <option value="">Select type</option>
+          <option>Meeting — in person</option>
+          <option>Meeting — virtual</option>
+          <option>Call</option>
+          <option>Working session</option>
+          <option>Social / event</option>
+          <option>Email / written</option>
+          <option>Demo</option>
+        </select>
+      </div>
+      <div style="grid-column:1/-1"><div class="lf-label">What was discussed</div>
+        <input type="text" id="mod-summary" class="lf-input">
+      </div>
+      <div style="grid-column:1/-1"><div class="lf-label">Additional notes</div>
+        <textarea id="mod-notes" class="lf-input" rows="3"></textarea>
+      </div>
+      <div><div class="lf-label">Relationship health</div>
+        <select id="mod-health" class="lf-input">
+          <option value="">No change</option>
+          <option>Strong</option><option>Good</option><option>Mild +</option>
+          <option>Neutral</option><option>At risk</option>
+        </select>
+      </div>
+      <div><div class="lf-label">Next action required</div>
+        <input type="text" id="mod-action" class="lf-input">
+      </div>
+    </div>
+    <div class="log-actions">
+      <button class="btn-primary" onclick="saveModifiedEngagement()">Save changes</button>
+      <button class="btn-secondary" onclick="closeModifyModal()">Cancel</button>
+      <button onclick="deleteModifiedEngagement()" style="margin-left:auto;font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer">Delete engagement</button>
+    </div>
+  </div>
 </div>
 
 <!-- SYNC STATUS BAR -->
@@ -731,6 +825,114 @@ let _db=null,_dbRef=null,_fbInited=false;
 let _entries=null,_contacts=null,_extras=null;
 let _writeTimer=null;
 
+// ── ENGAGEMENT TYPES ──────────────────────────────────────
+const DEFAULT_ETYPES = ["Meeting — in person","Meeting — virtual","Call","Working session","Social / event","Email / written","Demo"];
+function loadEtypes(){ try{ return JSON.parse(localStorage.getItem("mq_etypes")||"null")||[...DEFAULT_ETYPES]; }catch(e){ return [...DEFAULT_ETYPES]; } }
+async function saveEtypes(arr){ localStorage.setItem("mq_etypes",JSON.stringify(arr)); await spPersist(); }
+
+function renderEtypesManager(){
+  const etypes = loadEtypes();
+  const el = document.getElementById("etypes-manager-list");
+  if(!el) return;
+  el.innerHTML = etypes.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--divider)"><span style="font-size:12px;flex:1">${t}</span>${i>=DEFAULT_ETYPES.length?`<button onclick="deleteEtype(${i})" style="font-size:10px;font-weight:600;padding:3px 8px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer">Remove</button>`:`<span style="font-size:10px;color:var(--label-gray)">default</span>`}</div>`).join("");
+  populateEtypeDropdowns();
+}
+async function addEtype(){
+  const input = document.getElementById("new-etype-input");
+  const val = (input.value||"").trim();
+  if(!val) return;
+  const etypes = loadEtypes();
+  if(etypes.includes(val)){ input.value=""; return; }
+  etypes.push(val);
+  await saveEtypes(etypes);
+  input.value = "";
+  renderEtypesManager();
+}
+async function deleteEtype(idx){
+  if(!confirm("Remove this engagement type?")) return;
+  const etypes = loadEtypes();
+  etypes.splice(idx,1);
+  await saveEtypes(etypes);
+  renderEtypesManager();
+}
+function populateEtypeDropdowns(){
+  const etypes = loadEtypes();
+  const opts = `<option value="">Select type</option>` + etypes.map(t=>`<option value="${t}">${t}</option>`).join("");
+  ["lf-type","mod-type"].forEach(id=>{ const el=document.getElementById(id); if(el){ const v=el.value; el.innerHTML=opts; el.value=v; } });
+}
+
+// ── DIVISIONS ──────────────────────────────────────────────
+const DEFAULT_DIVS = ["MacCap","MAM","BFS","CGM","COG","Group"];
+function loadDivs(){ try{ return JSON.parse(localStorage.getItem("mq_divs")||"null")||[...DEFAULT_DIVS]; }catch(e){ return [...DEFAULT_DIVS]; } }
+async function saveDivs(arr){ localStorage.setItem("mq_divs",JSON.stringify(arr)); await spPersist(); }
+
+function renderDivsManager(){
+  const divs = loadDivs();
+  const el = document.getElementById("divs-manager-list");
+  if(!el) return;
+  el.innerHTML = divs.map((d,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--divider)"><span style="font-size:12px;flex:1">${d}</span>${i>=DEFAULT_DIVS.length?`<button onclick="deleteDiv(${i})" style="font-size:10px;font-weight:600;padding:3px 8px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer">Remove</button>`:`<span style="font-size:10px;color:var(--label-gray)">default</span>`}</div>`).join("");
+  populateDivDropdowns();
+}
+async function addDiv(){
+  const input = document.getElementById("new-div-input");
+  const val = (input.value||"").trim();
+  if(!val) return;
+  const divs = loadDivs();
+  if(divs.includes(val)){ input.value=""; return; }
+  divs.push(val);
+  await saveDivs(divs);
+  input.value = "";
+  renderDivsManager();
+}
+async function deleteDiv(idx){
+  if(!confirm("Remove this division?")) return;
+  const divs = loadDivs();
+  divs.splice(idx,1);
+  await saveDivs(divs);
+  renderDivsManager();
+}
+function populateDivDropdowns(){
+  const divs = loadDivs();
+  const opts = `<option value="">Select division</option>` + divs.map(d=>`<option value="${d}">${d}</option>`).join("");
+  ["nc-div"].forEach(id=>{ const el=document.getElementById(id); if(el){ const v=el.value; el.innerHTML=opts; el.value=v; } });
+}
+
+// ── LOCATIONS ──────────────────────────────────────────────
+const DEFAULT_LOCS = ["Sydney","Melbourne","London","New York","Hong Kong","Singapore","Other"];
+function loadLocs(){ try{ return JSON.parse(localStorage.getItem("mq_locs")||"null")||[...DEFAULT_LOCS]; }catch(e){ return [...DEFAULT_LOCS]; } }
+async function saveLocs(arr){ localStorage.setItem("mq_locs",JSON.stringify(arr)); await spPersist(); }
+
+function renderLocsManager(){
+  const locs = loadLocs();
+  const el = document.getElementById("locs-manager-list");
+  if(!el) return;
+  el.innerHTML = locs.map((l,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--divider)"><span style="font-size:12px;flex:1">${l}</span>${i>=DEFAULT_LOCS.length?`<button onclick="deleteLoc(${i})" style="font-size:10px;font-weight:600;padding:3px 8px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer">Remove</button>`:`<span style="font-size:10px;color:var(--label-gray)">default</span>`}</div>`).join("");
+  populateLocDropdowns();
+}
+async function addLoc(){
+  const input = document.getElementById("new-loc-input");
+  const val = (input.value||"").trim();
+  if(!val) return;
+  const locs = loadLocs();
+  if(locs.includes(val)){ input.value=""; return; }
+  locs.push(val);
+  await saveLocs(locs);
+  input.value = "";
+  renderLocsManager();
+}
+async function deleteLoc(idx){
+  if(!confirm("Remove this location?")) return;
+  const locs = loadLocs();
+  locs.splice(idx,1);
+  await saveLocs(locs);
+  renderLocsManager();
+}
+function populateLocDropdowns(){
+  const locs = loadLocs();
+  const opts = `<option value="">Select</option>` + locs.map(l=>`<option value="${l}">${l}</option>`).join("");
+  ["nc-location"].forEach(id=>{ const el=document.getElementById(id); if(el){ const v=el.value; el.innerHTML=opts; el.value=v; } });
+}
+
 async function clearAllData(){
   if(!confirm("Delete ALL engagement logs for all users? This cannot be undone.")) return;
   await saveEntries([]);
@@ -743,6 +945,7 @@ async function clearCustomContacts(){
   refreshAll();
   alert("Custom contacts cleared.");
 }
+
 function tryFbInit(){
   // Only proceed once both SDK scripts have loaded
   if(!window._fbAppReady || !window._fbDbReady) return;
@@ -894,7 +1097,996 @@ const TABLE_DATA=[...PEOPLE,
   {id:null,first:"Florian",last:"Christ",title:"Senior Managing Director, Infrastructure Energy Transition",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads infrastructure, energy transition and real assets investment for MAM."},
   {id:null,first:"Lou",last:"Tricarico",title:"Managing Director, Specialised Asset Finance",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads specialised asset finance within MAM."},
   {id:null,first:"Luc",last:"Hennekens",title:"Portfolio Performance Group MD, MIRA",div:"MAM",location:"Singapore",owner:"jordan.griffiths",relLabel:"Unknown",eng:2,upcoming:"SFF (Nov)",urgency:"medium",remit:"Managing Director in MAM Portfolio Performance Group. Singapore-based."},
+  // ── New contacts from MMS extract July 2026 ──
+  {id:null,first:"Craig",last:"Griffin",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Sales Reinvention Roundtable and Salesforce World Tour."},
+  {id:null,first:"David",last:"McPartling",title:"Payments and Banking Executive, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged on payments and banking transformation topics including Bank of England and Agentic Commerce."},
+  {id:null,first:"Steve",last:"Pritchard",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Learning, Reinvented thought leadership report."},
+  // ── Exec and Group contacts with engagements ──
+  {id:null,first:"Nicole",last:"Sorbara",title:"COO and Head of Corporate Operations Group",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"critical",remit:"COO of Macquarie Group and Head of COG. Leads technology, data, AI, procurement and group operations. One of the most critical coverage gaps on the account. Stanford AI Course invite sent Sep 2025."},
+  {id:null,first:"Shemara",last:"Wikramanayake",title:"Managing Director and CEO (retiring November 2026)",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Outgoing Group CEO, retiring November 2026 when Greg Ward takes over. Julie Sweet 1:1 meeting in October 2025. TQ access offered via Company Secretary January 2026."},
 ];
+
+const SEED_ENGAGEMENTS = [
+  {
+    "id": 1700000000000,
+    "owner": "jordan.griffiths",
+    "contact": "Aamir Aziz",
+    "date": "2026-07-09",
+    "type": "Social / event",
+    "summary": "Invite: The Open at Royal Birkdale golf",
+    "notes": "David Smith invited Aamir to Open golf experience that Accenture is sponsoring.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-09T00:00:00.000Z"
+  },
+  {
+    "id": 1700000001000,
+    "owner": "jordan.griffiths",
+    "contact": "Aamir Aziz",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000002000,
+    "owner": "jordan.griffiths",
+    "contact": "Adam Hain",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000003000,
+    "owner": "wendy.saintruth",
+    "contact": "Adam Prettejohn",
+    "date": "2025-10-30",
+    "type": "Email / written",
+    "summary": "Sent Natwest AWS summary",
+    "notes": "Wendy Saint Ruth sent 2-pager summary of Accenture\\'s work with Natwest and AWS.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000004000,
+    "owner": "wendy.saintruth",
+    "contact": "Adam Prettejohn",
+    "date": "2025-09-29",
+    "type": "Email / written",
+    "summary": "AWS APAC Executive Dialogue: Invite to participate",
+    "notes": "Invitation for Macquarie execs to contribute to a research paper Accenture and AWS are conducting about how Agentic AI is being used at our clients.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000005000,
+    "owner": "jordan.griffiths",
+    "contact": "Ani Satchcroft",
+    "date": "2026-04-30",
+    "type": "Email / written",
+    "summary": "Email: IOWN follow up photos and connections",
+    "notes": "Email from Jeff Wang to Ani sharing photos and ideas for future discussion.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000006000,
+    "owner": "jordan.griffiths",
+    "contact": "Ani Satchcroft",
+    "date": "2026-04-30",
+    "type": "Social / event",
+    "summary": "IOWN Global Forum",
+    "notes": "Ani joined Jeff Wang on a panel at the IOWN Global Forum in Sydney.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000007000,
+    "owner": "jordan.griffiths",
+    "contact": "Anita Huynh",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000008000,
+    "owner": "wendy.saintruth",
+    "contact": "Ashwin Sinha",
+    "date": "2026-06-24",
+    "type": "Meeting \u2014 in person",
+    "summary": "Faculty AI meeting",
+    "notes": "Meeting with Faculty\\'s Angie Ma, hosted by Wendy Saint Ruth, and attended by four Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000009000,
+    "owner": "wendy.saintruth",
+    "contact": "Ashwin Sinha",
+    "date": "2025-09-29",
+    "type": "Email / written",
+    "summary": "AWS APAC Executive Dialogue: Invite to participate",
+    "notes": "Invitation for Macquarie execs to contribute to Accenture and AWS research on Agentic AI.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000010000,
+    "owner": "wendy.saintruth",
+    "contact": "Ashwin Sinha",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "SXSW Invite",
+    "notes": "Personalised invite to SXSW Sydney sessions and dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000011000,
+    "owner": "jordan.griffiths",
+    "contact": "Charlie Pickard",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000012000,
+    "owner": "jordan.griffiths",
+    "contact": "Christin Brown",
+    "date": "2026-07-16",
+    "type": "Meeting \u2014 in person",
+    "summary": "AGBG meeting",
+    "notes": "Jordan meeting with Christin Brown to discuss the Accenture x Google partnership and how it can benefit Macquarie.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-16T00:00:00.000Z"
+  },
+  {
+    "id": 1700000013000,
+    "owner": "wendy.saintruth",
+    "contact": "Craig Griffin",
+    "date": "2026-01-29",
+    "type": "Social / event",
+    "summary": "Invited to Sales Reinvention Roundtable",
+    "notes": "Craig registered to attend a roundtable on Sales Reinvention run by Accenture and ADAPT.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000014000,
+    "owner": "wendy.saintruth",
+    "contact": "Craig Griffin",
+    "date": "2026-01-29",
+    "type": "Social / event",
+    "summary": "Registered for Salesforce World Tour Sydney Executive Track",
+    "notes": "Three Macquarie execs registered for the all-day Executive Track at Salesforce World Tour 2026 Sydney, which Accenture is Platinum sponsor of.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000015000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2026-06-16",
+    "type": "Email / written",
+    "summary": "Email: Sent Agentic Commerce Payments report",
+    "notes": "Daksh and Wendy sent the Agentic Commerce Rewrites Payment choice to Dan Coleman and David McPartling.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-16T00:00:00.000Z"
+  },
+  {
+    "id": 1700000016000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2026-02-23",
+    "type": "Meeting \u2014 in person",
+    "summary": "Mike Abbott meeting",
+    "notes": "Meeting with Mike Abbott and Wendy Saint Ruth following Banking Trends Breakfast event.",
+    "health": "",
+    "action": "",
+    "ts": "2026-02-23T00:00:00.000Z"
+  },
+  {
+    "id": 1700000017000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2026-05-04",
+    "type": "Email / written",
+    "summary": "Sent Mythos article",
+    "notes": "Wendy and Daksh sent Sydney Morning Herald article on Claude Mythos Preview to Dan, Phil and Jason.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-04T00:00:00.000Z"
+  },
+  {
+    "id": 1700000018000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2026-01-29",
+    "type": "Social / event",
+    "summary": "Invite to Banking Trends breakfast",
+    "notes": "Invited to the Banking Trends Breakfast in Sydney with Mike Abbott.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000019000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2025-10-30",
+    "type": "Email / written",
+    "summary": "Learning, Reinvented email",
+    "notes": "Wendy Saint Ruth shared the Learning, Reinvented report with several Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000020000,
+    "owner": "wendy.saintruth",
+    "contact": "Daniel Coleman",
+    "date": "2026-04-30",
+    "type": "Social / event",
+    "summary": "Event Invite: Anthropic Exec Dinner",
+    "notes": "Invite from Wendy and Daksh to the Anthropic x Accenture exec dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000021000,
+    "owner": "wendy.saintruth",
+    "contact": "Dani Malone",
+    "date": "2026-06-24",
+    "type": "Meeting \u2014 in person",
+    "summary": "Faculty AI meeting",
+    "notes": "Meeting with Faculty\\'s Angie Ma, hosted by Wendy Saint Ruth, and attended by four Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000022000,
+    "owner": "wendy.saintruth",
+    "contact": "David McPartling",
+    "date": "2026-06-16",
+    "type": "Email / written",
+    "summary": "Email: Sent Agentic Commerce Payments report",
+    "notes": "Daksh and Wendy sent the Agentic Commerce Rewrites Payment choice to Dan Coleman and David McPartling.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-16T00:00:00.000Z"
+  },
+  {
+    "id": 1700000023000,
+    "owner": "wendy.saintruth",
+    "contact": "David McPartling",
+    "date": "2025-10-30",
+    "type": "Email / written",
+    "summary": "Bank of England Payments email",
+    "notes": "Slack message from Wendy Saint Ruth to David McPartling and Richard Heeley about the Bank of England case study.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000024000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "Invite to Stanford AI Course",
+    "notes": "Invitation to attend a 2-day AI course at Stanford University in partnership with Accenture.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000025000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2025-09-29",
+    "type": "Email / written",
+    "summary": "AWS APAC Executive Dialogue: Invite to participate",
+    "notes": "Invitation for Macquarie execs to contribute to Accenture and AWS research on Agentic AI.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000026000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2026-05-12",
+    "type": "Email / written",
+    "summary": "Sent CyberCX Hack Report 2026",
+    "notes": "Faizal sent a group of Macquarie cybersecurity and tech execs the CyberCX Hack Report 2026.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": 1700000027000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2026-04-07",
+    "type": "Meeting \u2014 in person",
+    "summary": "Macquarie meeting with Allianz CISOs",
+    "notes": "Call arranged with David Tough and three Allianz security execs, followed by 1:1 meeting at Google Cloud Next.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000028000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "SXSW Invite",
+    "notes": "Personalised invite to SXSW Sydney sessions and dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000029000,
+    "owner": "wendy.saintruth",
+    "contact": "David Tough",
+    "date": "2026-05-14",
+    "type": "Email / written",
+    "summary": "Email: Mythos Preview cyber threat",
+    "notes": "Email from Faizal to David Tough, Richard Heeley and Steve Ebrill with POV about the rapid shift in landscape and threat environment due to Claude Mythos.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-14T00:00:00.000Z"
+  },
+  {
+    "id": 1700000030000,
+    "owner": "jordan.griffiths",
+    "contact": "Ed Burley",
+    "date": "2026-06-18",
+    "type": "Social / event",
+    "summary": "Invite to Melbourne Arts Centre evening",
+    "notes": "Invite to exclusive evening at Melbourne Arts Centre for drinks, canapes and to watch Eddie Izzard in Hamlet.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-18T00:00:00.000Z"
+  },
+  {
+    "id": 1700000031000,
+    "owner": "galia.jenshel",
+    "contact": "Florian Christ",
+    "date": "2026-05-12",
+    "type": "Social / event",
+    "summary": "Invite: NYC Tech Week Event roundtable",
+    "notes": "Invited by Galia Jenshell to roundtable at Accenture office with Tech:NYC, titled Beyond the Hype: The Realities of Scaling AI.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": 1700000032000,
+    "owner": "jordan.griffiths",
+    "contact": "Greg Ward",
+    "date": "2026-07-29",
+    "type": "Email / written",
+    "summary": "Congratulations email",
+    "notes": "Email from Jordan congratulating Greg on his appointment to group CEO.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000033000,
+    "owner": "galia.jenshel",
+    "contact": "James Dyckoff",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000034000,
+    "owner": "jordan.griffiths",
+    "contact": "Jamie Broom",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000035000,
+    "owner": "jordan.griffiths",
+    "contact": "Jamie Broom",
+    "date": "2026-07-07",
+    "type": "Email / written",
+    "summary": "New report: AI in Commodities Trading",
+    "notes": "New report sent by Jordan / Wendy to two execs in Macquarie\\'s Commodities & Global Markets group.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000036000,
+    "owner": "wendy.saintruth",
+    "contact": "Jason O'Connell",
+    "date": "2026-05-04",
+    "type": "Email / written",
+    "summary": "Sent Mythos article",
+    "notes": "Wendy and Daksh sent Sydney Morning Herald article on Claude Mythos Preview to Dan, Phil and Jason.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-04T00:00:00.000Z"
+  },
+  {
+    "id": 1700000037000,
+    "owner": "wendy.saintruth",
+    "contact": "Jason O'Connell",
+    "date": "2026-04-30",
+    "type": "Social / event",
+    "summary": "Event Invite: Anthropic Exec Dinner",
+    "notes": "Invite from Wendy and Daksh to the Anthropic x Accenture exec dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000038000,
+    "owner": "wendy.saintruth",
+    "contact": "Jason O'Connell",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "SXSW Invite",
+    "notes": "Personalised invite to SXSW Sydney sessions and dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000039000,
+    "owner": "jordan.griffiths",
+    "contact": "Jess Walpole",
+    "date": "2026-05-06",
+    "type": "Meeting \u2014 in person",
+    "summary": "Jordan intro meeting",
+    "notes": "Positive meeting. Discussion about TQ/AI training and its benefits for culture. AI visioning working sessions - focus on revenue side and reinvention. Big discussion on data protection, conservative approach on data. Discussion on KYC challenges.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-06T00:00:00.000Z"
+  },
+  {
+    "id": 1700000040000,
+    "owner": "jordan.griffiths",
+    "contact": "Jess Walpole",
+    "date": "2026-06-18",
+    "type": "Social / event",
+    "summary": "Invite to Melbourne Arts Centre evening",
+    "notes": "Invite to exclusive evening at Melbourne Arts Centre for drinks, canapes and to watch Eddie Izzard in Hamlet.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-18T00:00:00.000Z"
+  },
+  {
+    "id": 1700000041000,
+    "owner": "jordan.griffiths",
+    "contact": "Jess Walpole",
+    "date": "2026-05-06",
+    "type": "Social / event",
+    "summary": "Invite: Anthropic Dinner Melbourne",
+    "notes": "Invitation to our dinner with Anthropic in Melbourne.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-06T00:00:00.000Z"
+  },
+  {
+    "id": 1700000042000,
+    "owner": "jason.lee",
+    "contact": "Keith Gray",
+    "date": "2026-02-19",
+    "type": "Social / event",
+    "summary": "Invite to Heart of Gold lunch",
+    "notes": "Invitation to join Jordan, Galia, Wendy, Stewart and Jason at the Heart of Gold charity lunch event at Macquarie\\'s offices. Accenture bought a table of 10.",
+    "health": "",
+    "action": "",
+    "ts": "2026-02-19T00:00:00.000Z"
+  },
+  {
+    "id": 1700000043000,
+    "owner": "jordan.griffiths",
+    "contact": "Luc Hennekens",
+    "date": "2026-05-12",
+    "type": "Email / written",
+    "summary": "Sent CyberCX Hack Report 2026",
+    "notes": "Faizal sent a group of Macquarie cybersecurity and tech execs the CyberCX Hack Report 2026.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": 1700000044000,
+    "owner": "jordan.griffiths",
+    "contact": "Michael Silverton",
+    "date": "2025-10-30",
+    "type": "Social / event",
+    "summary": "Invite to DealBook Summit and CEO dinner",
+    "notes": "Invitation from Jordan Griffiths to attend Dealbook Summit in NYC and CEO dinner the night before as guest of Accenture.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000045000,
+    "owner": "jordan.griffiths",
+    "contact": "Michael Silverton",
+    "date": "2026-05-15",
+    "type": "Social / event",
+    "summary": "Invited to NYC Tech Week AI roundtable",
+    "notes": "Invited by Jordan to our roundtable, Beyond the Hype: The Realities of Scaling AI.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": 1700000046000,
+    "owner": "jordan.griffiths",
+    "contact": "Michael Silverton",
+    "date": "2025-10-30",
+    "type": "Meeting \u2014 in person",
+    "summary": "Interview with David Droga",
+    "notes": "Michael interviewed David Droga as part of the Macquarie board and executive team meeting in October 2025.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000047000,
+    "owner": "jordan.griffiths",
+    "contact": "Michael Silverton",
+    "date": "2026-07-29",
+    "type": "Social / event",
+    "summary": "PGA Golf Invite",
+    "notes": "Invitation from Anthony James to PGA Ultimate Tour Experience in August.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000048000,
+    "owner": "wendy.saintruth",
+    "contact": "Michelle Perera",
+    "date": "2025-10-30",
+    "type": "Email / written",
+    "summary": "Learning, Reinvented email",
+    "notes": "Wendy Saint Ruth shared the Learning, Reinvented report with several Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000049000,
+    "owner": "wendy.saintruth",
+    "contact": "Michelle Perera",
+    "date": "2026-02-19",
+    "type": "Social / event",
+    "summary": "Invite to Heart of Gold lunch",
+    "notes": "Invitation to join Jordan, Galia, Wendy, Stewart and Jason at the Heart of Gold charity lunch event.",
+    "health": "",
+    "action": "",
+    "ts": "2026-02-19T00:00:00.000Z"
+  },
+  {
+    "id": 1700000050000,
+    "owner": "wendy.saintruth",
+    "contact": "Michelle Perera",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "SXSW Invite",
+    "notes": "Personalised invite to SXSW Sydney sessions and dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000051000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2026-05-12",
+    "type": "Social / event",
+    "summary": "Invite: NYC Tech Week Event roundtable",
+    "notes": "Invited by Galia Jenshell to roundtable at Accenture office with Tech:NYC, titled Beyond the Hype: The Realities of Scaling AI.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": 1700000052000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2025-09-24",
+    "type": "Meeting \u2014 in person",
+    "summary": "Shemara Wikramanayake, Macquarie / Julie Sweet, Accenture connect",
+    "notes": "Connection ahead of 9/30 Macquarie Board.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000053000,
+    "owner": "jordan.griffiths",
+    "contact": "Miki Edelman",
+    "date": "2025-10-30",
+    "type": "Social / event",
+    "summary": "Invite to DealBook Summit and CEO dinner",
+    "notes": "Invitation from Jordan Griffiths to attend Dealbook Summit in NYC and CEO dinner the night before as guest of Accenture.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000054000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2026-04-30",
+    "type": "Social / event",
+    "summary": "Connections at ASU+GSV Summit",
+    "notes": "Met with LearnVantage leadership at ASU+GSV future workforce event in San Francisco.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000055000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2026-07-10",
+    "type": "Social / event",
+    "summary": "MacCap NYC AI Event",
+    "notes": "Accenture execs presented at exec breakfast hosted by Miki and Macquarie Capital.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-10T00:00:00.000Z"
+  },
+  {
+    "id": 1700000056000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2025-11-17",
+    "type": "Social / event",
+    "summary": "Invite to AWS reInvent client dinner",
+    "notes": "Invitation from Jefferson Wang to Miki Edelman, inviting her to Accenture\\'s client reception at AWS reInvent.",
+    "health": "",
+    "action": "",
+    "ts": "2025-11-17T00:00:00.000Z"
+  },
+  {
+    "id": 1700000057000,
+    "owner": "galia.jenshel",
+    "contact": "Miki Edelman",
+    "date": "2025-10-30",
+    "type": "Meeting \u2014 in person",
+    "summary": "Julie Sweet fireside chat",
+    "notes": "Julie Sweet sat down with Miki for a fireside chat at Macquarie\\'s board and executive team meeting in NYC in October.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000058000,
+    "owner": "jordan.griffiths",
+    "contact": "Miki Edelman",
+    "date": "2026-07-29",
+    "type": "Social / event",
+    "summary": "PGA Golf Invite",
+    "notes": "Invitation from Anthony James to PGA Ultimate Tour Experience in August.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000059000,
+    "owner": "jordan.griffiths",
+    "contact": "Nicole Sorbara",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "Invite to Stanford AI Course",
+    "notes": "Invitation to attend a 2-day AI course at Stanford University in partnership with Accenture.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000060000,
+    "owner": "dakshai.soni",
+    "contact": "Philip Grasso-Nguyen",
+    "date": "2026-05-04",
+    "type": "Email / written",
+    "summary": "Sent Mythos article",
+    "notes": "Wendy and Daksh sent Sydney Morning Herald article on Claude Mythos Preview to Dan, Phil and Jason.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-04T00:00:00.000Z"
+  },
+  {
+    "id": 1700000061000,
+    "owner": "dakshai.soni",
+    "contact": "Philip Grasso-Nguyen",
+    "date": "2026-04-30",
+    "type": "Social / event",
+    "summary": "Event Invite: Anthropic Exec Dinner",
+    "notes": "Invite from Wendy and Daksh to the Anthropic x Accenture exec dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000062000,
+    "owner": "galia.jenshel",
+    "contact": "Robert Thornhill",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000063000,
+    "owner": "jordan.griffiths",
+    "contact": "Sam Shah",
+    "date": "2026-05-15",
+    "type": "Social / event",
+    "summary": "Invited to NYC Tech Week AI roundtable",
+    "notes": "Invited by Jordan to our roundtable, Beyond the Hype: The Realities of Scaling AI.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": 1700000064000,
+    "owner": "wendy.saintruth",
+    "contact": "Sarah Rees-Williams",
+    "date": "2026-06-24",
+    "type": "Meeting \u2014 in person",
+    "summary": "Faculty AI meeting",
+    "notes": "Meeting with Faculty\\'s Angie Ma, hosted by Wendy Saint Ruth, and attended by four Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000065000,
+    "owner": "wendy.saintruth",
+    "contact": "Sen Nanthakumaran",
+    "date": "2026-01-29",
+    "type": "Social / event",
+    "summary": "Invite to Banking Trends breakfast",
+    "notes": "Invited to the Banking Trends Breakfast in Sydney with Mike Abbott.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000066000,
+    "owner": "wendy.saintruth",
+    "contact": "Sen Nanthakumaran",
+    "date": "2026-07-07",
+    "type": "Email / written",
+    "summary": "New report: AI in Commodities Trading",
+    "notes": "New report sent by Jordan / Wendy to two execs in Macquarie\\'s Commodities & Global Markets group.",
+    "health": "",
+    "action": "",
+    "ts": "2026-07-07T00:00:00.000Z"
+  },
+  {
+    "id": 1700000067000,
+    "owner": "jordan.griffiths",
+    "contact": "Shemara Wikramanayake",
+    "date": "2026-01-29",
+    "type": "Email / written",
+    "summary": "Offered Accenture TQ access",
+    "notes": "Via the Company Secretary, all Macquarie board members were offered complimentary access to Accenture TQ.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000068000,
+    "owner": "jordan.griffiths",
+    "contact": "Shemara Wikramanayake",
+    "date": "2025-10-30",
+    "type": "Meeting \u2014 in person",
+    "summary": "Julie Sweet meeting",
+    "notes": "1:1 meeting at Macquarie\\'s board and executive team meeting in NYC in October 2025.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000069000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Pritchard",
+    "date": "2025-10-30",
+    "type": "Email / written",
+    "summary": "Learning, Reinvented email",
+    "notes": "Wendy Saint Ruth shared the Learning, Reinvented report with several Macquarie execs.",
+    "health": "",
+    "action": "",
+    "ts": "2025-10-30T00:00:00.000Z"
+  },
+  {
+    "id": 1700000070000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Ebrill",
+    "date": "2025-12-02",
+    "type": "Meeting \u2014 in person",
+    "summary": "Mesh Security presentation",
+    "notes": "Faizal Janif met with Steve to discuss Mesh Security strategy, then submitted follow-up thought leadership.",
+    "health": "",
+    "action": "",
+    "ts": "2025-12-02T00:00:00.000Z"
+  },
+  {
+    "id": 1700000071000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Ebrill",
+    "date": "2026-05-12",
+    "type": "Email / written",
+    "summary": "Sent CyberCX Hack Report 2026",
+    "notes": "Faizal sent a group of Macquarie cybersecurity and tech execs the CyberCX Hack Report 2026.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-12T00:00:00.000Z"
+  },
+  {
+    "id": 1700000072000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Ebrill",
+    "date": "2026-01-14",
+    "type": "Email / written",
+    "summary": "Sent WEF Cybersecurity Outlook 2026 report",
+    "notes": "Macquarie account security lead Faizal Janif sent the report to Steve and Santosh Baska.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-14T00:00:00.000Z"
+  },
+  {
+    "id": 1700000073000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Ebrill",
+    "date": "2026-02-15",
+    "type": "Social / event",
+    "summary": "Invited to RSAC 2026",
+    "notes": "Invited by Faizal Janif to Accenture program at RSAC 2026 Conference.",
+    "health": "",
+    "action": "",
+    "ts": "2026-02-15T00:00:00.000Z"
+  },
+  {
+    "id": 1700000074000,
+    "owner": "wendy.saintruth",
+    "contact": "Steve Ebrill",
+    "date": "2026-05-14",
+    "type": "Email / written",
+    "summary": "Email: Mythos Preview cyber threat",
+    "notes": "Email from Faizal to David Tough, Richard Heeley and Steve Ebrill with POV about rapid shift in landscape due to Claude Mythos.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-14T00:00:00.000Z"
+  },
+  {
+    "id": 1700000075000,
+    "owner": "jordan.griffiths",
+    "contact": "Tim Joyce",
+    "date": "2026-06-18",
+    "type": "Social / event",
+    "summary": "Invite to Melbourne Arts Centre evening",
+    "notes": "Invite to exclusive evening at Melbourne Arts Centre for drinks, canapes and to watch Eddie Izzard in Hamlet.",
+    "health": "",
+    "action": "",
+    "ts": "2026-06-18T00:00:00.000Z"
+  },
+  {
+    "id": 1700000076000,
+    "owner": "galia.jenshel",
+    "contact": "Tobias Bachteler",
+    "date": "2026-05-15",
+    "type": "Social / event",
+    "summary": "Invited to NYC Tech Week AI roundtable",
+    "notes": "Invited by Jordan to our roundtable, Beyond the Hype: The Realities of Scaling AI.",
+    "health": "",
+    "action": "",
+    "ts": "2026-05-15T00:00:00.000Z"
+  },
+  {
+    "id": 1700000077000,
+    "owner": "wendy.saintruth",
+    "contact": "Tony Graham",
+    "date": "2026-01-29",
+    "type": "Email / written",
+    "summary": "Sent HBR Satellite Data article",
+    "notes": "Sent HBR article authored by Adam Burden: Turning Satellite Data into Competitive Advantage.",
+    "health": "",
+    "action": "",
+    "ts": "2026-01-29T00:00:00.000Z"
+  },
+  {
+    "id": 1700000078000,
+    "owner": "wendy.saintruth",
+    "contact": "Tony Graham",
+    "date": "2025-09-24",
+    "type": "Social / event",
+    "summary": "SXSW Invite",
+    "notes": "Personalised invite to SXSW Sydney sessions and dinner.",
+    "health": "",
+    "action": "",
+    "ts": "2025-09-24T00:00:00.000Z"
+  },
+  {
+    "id": 1700000079000,
+    "owner": "jordan.griffiths",
+    "contact": "Vineet Mohan",
+    "date": "2026-04-07",
+    "type": "Social / event",
+    "summary": "ReinventionX Event Invite",
+    "notes": "Invitation to the Reinvention X on Apr 20, a full-day, flagship AI client event in London.",
+    "health": "",
+    "action": "",
+    "ts": "2026-04-07T00:00:00.000Z"
+  }
+];
+
+// ── SEED ENGAGEMENTS into Firebase/localStorage on first load ──
+// These are pre-loaded from the MMS extract. They will merge with any
+// manually logged engagements. Runs once per device (tracked via localStorage flag).
+async function seedEngagements(){
+  const flag = localStorage.getItem("mq_seeded_v2");
+  if(flag) return; // already seeded
+  const existing = loadEntries();
+  // Deduplicate by contact+date+summary
+  const key = e => `${e.contact}|${e.date}|${e.summary.slice(0,30)}`;
+  const existingKeys = new Set(existing.map(key));
+  const toAdd = SEED_ENGAGEMENTS.filter(e => !existingKeys.has(key(e)));
+  if(toAdd.length === 0){ localStorage.setItem("mq_seeded_v2","1"); return; }
+  // Merge: seed entries go at the end (older), manual entries stay at front
+  const merged = [...existing, ...toAdd].sort((a,b) => b.id - a.id);
+  await saveEntries(merged);
+  localStorage.setItem("mq_seeded_v2","1");
+  console.log(`[seed] Added ${toAdd.length} engagements from MMS extract`);
+}
 
 const MINI_PROFILES={
   "Jason O'Connell":{bio:"CTO for Macquarie Banking and Financial Services. Key decision-maker for technology delivery across personal banking, business banking and wealth management.",intel:"external"},
@@ -946,6 +2138,11 @@ const MINI_PROFILES={
   "Florian Christ":{bio:"Senior Managing Director for Infrastructure, Energy Transition and Real Assets at MAM. New York-based. 1 engagement logged.",intel:"external"},
   "Lou Tricarico":{bio:"Managing Director for Specialised Asset Finance at MAM. London-based.",intel:"external"},
   "Luc Hennekens":{bio:"Managing Director in MAM Portfolio Performance Group. Singapore-based. 2 engagements logged. Singapore Fintech Festival in November.",intel:"external"},
+  "Craig Griffin":{bio:"BFS executive engaged on sales reinvention and Salesforce transformation topics. Attended Accenture-hosted Sales Reinvention Roundtable and Salesforce World Tour Sydney Executive Track in January 2026.",intel:"external"},
+  "David McPartling":{bio:"BFS executive focused on payments and banking transformation. Engaged on Bank of England case study and Agentic Commerce in payments. Works alongside Daniel Coleman in BFS.",intel:"external"},
+  "Steve Pritchard":{bio:"BFS executive. Received Wendy Saint Ruth's Learning, Reinvented report in October 2025. Part of the broader BFS leadership cohort.",intel:"external"},
+  "Nicole Sorbara":{bio:"COO of Macquarie Group and Head of Corporate Operations Group. Leads technology, data, AI, procurement and group operations globally. One of the most significant coverage gaps on the Tier 1 account — controls the enterprise technology budget and vendor relationships. Invited to Stanford AI Course in September 2025.",intel:"external"},
+  "Shemara Wikramanayake":{bio:"Managing Director and CEO of Macquarie Group, retiring November 2026 when Greg Ward takes over. Had a 1:1 meeting with Julie Sweet at the Macquarie board and executive team meeting in NYC in October 2025. Offered Accenture TQ access via Company Secretary in January 2026.",intel:"external"},
 };
 
 const PIPE_SECTIONS=[
@@ -969,6 +2166,9 @@ const PIPE_SECTIONS=[
 ];
 
 const URGENCY_ORDER={critical:0,high:1,medium:2,low:3};
+
+// Global utility — sanitise strings before use in template literals
+function safeStr(s){ return (s||"").replace(/`/g,"'").replace(/\$/g,"&#36;"); }
 const URGENCY_LABELS={critical:"Act now",high:"Prioritise",medium:"Maintain",low:"On track"};
 const URGENCY_CLASSES={critical:"b-neg",high:"b-mild",medium:"b-neutral",low:"b-none"};
 const URGENCY_ROW={critical:"urg-critical",high:"urg-high",medium:"urg-medium",low:"urg-low"};
@@ -1112,7 +2312,13 @@ function refreshOverview(){
   const entries = loadEntries();
   const divTotals = {MacCap:13, COG:8, BFS:12, MAM:17, CGM:8};
 
-  // KPI counts
+  // KPI counts — recompute from live entries for accuracy
+  const liveEntryMap = {};
+  loadEntries().forEach(e => { liveEntryMap[e.contact] = (liveEntryMap[e.contact]||0) + 1; });
+  TABLE_DATA.forEach(d => {
+    const name = `${d.first} ${d.last}`;
+    d.eng = (d._baseEng||0) + (liveEntryMap[name]||0);
+  });
   const engaged    = TABLE_DATA.filter(d => d.eng > 0).length;
   const engaged3   = TABLE_DATA.filter(d => d.eng >= 3).length;
   const zero       = TABLE_DATA.filter(d => d.eng === 0).length;
@@ -1262,9 +2468,10 @@ function renderTable(filter){
     const hasProfile = !!d.id;
     const hasMini    = !d.id && MINI_PROFILES[`${d.first} ${d.last}`];
     const isExec     = d.id && EXEC_COMMITTEE.has(d.id);
-    const nameCell   = hasProfile ? `<span class="name-link" onclick="showProfile('${d.id}')">${d.first} ${d.last}</span>`
-                     : hasMini    ? `<span class="name-link" onclick="showMiniProfile('${d.first} ${d.last}')">${d.first} ${d.last}</span>`
-                     :              `<span class="name-link" style="cursor:default">${d.first} ${d.last}</span>`;
+    const safeName = (`${d.first} ${d.last}`).replace(/'/g,"&#39;");
+    const nameCell   = hasProfile
+      ? `<span class="name-link" onclick="showProfile('${d.id}')">${d.first} ${d.last}</span>`
+      : `<span class="name-link" data-contact="${safeName}" onclick="showMiniProfile(this.dataset.contact)">${d.first} ${d.last}</span>`;
     const ars = (extras[d.id] || {}).ars || "—";
     return `<tr style="border-left:3px solid ${color}">
       <td>${nameCell}${isExec?`<span style="font-size:9px;font-weight:700;background:var(--purple-plum);color:#fff;padding:1px 5px;margin-left:4px">EC</span>`:""}
@@ -1319,20 +2526,22 @@ function renderPipeline(){
         const base=row.cells[c]||{state:"",text:""};
         const loggedHere=contactLog[c]||[];
         if(pipeFilter!=="ALL"&&base.topic!==pipeFilter&&!loggedHere.length){html+=`<div class="pipe-cell"></div>`;return;}
-        let state=base.state,text=base.text,topic=base.topic,liveChip="";
-        if(loggedHere.length>0){
-          state="upcoming";
-          const latest=loggedHere[loggedHere.length-1];
-          const dateStr=latest.date?new Date(latest.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short"}):"";
-          text=`${latest.summary.slice(0,55)}${latest.summary.length>55?"…":""}`;
-          liveChip=`<span style="font-size:9px;font-weight:600;padding:1px 5px;background:var(--green-bg);color:var(--green-text);display:inline-block;margin-top:3px">Logged ${dateStr} · ${(latest.owner||"").split(".")[0]}</span>`;
-        }
-        const cls=state?`pipe-cell ${state}`:"pipe-cell";
+        // Show static play content only — logged entries appear in the todo list, not here
+        const state=base.state;
+        const text=base.text;
+        const topic=base.topic;
+        const hasLogged=loggedHere.length>0;
+        const cls=hasLogged?`pipe-cell upcoming`:(state?`pipe-cell ${state}`:"pipe-cell");
         html+=`<div class="${cls}">`;
-        if(text||loggedHere.length){
-          html+=`<div style="display:flex;gap:5px;align-items:flex-start"><div class="pipe-dot ${state==="overdue"?"red":state==="upcoming"?"green":""}"></div><div class="pipe-item">${text}</div></div>`;
-          if(topic&&!loggedHere.length)html+=`<span class="topic-chip ${TOPIC_CHIPS[topic]||""}">${TOPICS[topic]||topic}</span>`;
-          if(liveChip)html+=liveChip;
+        if(text){
+          html+=`<div style="display:flex;gap:5px;align-items:flex-start">
+            <div class="pipe-dot ${state==="overdue"?"red":state==="upcoming"?"green":hasLogged?"green":""}"></div>
+            <div class="pipe-item">${text}</div>
+          </div>`;
+          if(topic&&!hasLogged) html+=`<span class="topic-chip ${TOPIC_CHIPS[topic]||""}">${TOPICS[topic]||topic}</span>`;
+          if(hasLogged) html+=`<span style="font-size:9px;font-weight:600;padding:1px 5px;background:var(--green-bg);color:var(--green-text);display:inline-block;margin-top:3px">${loggedHere.length} engagement${loggedHere.length===1?"":"s"} logged</span>`;
+        } else if(hasLogged){
+          html+=`<div style="display:flex;gap:5px;align-items:flex-start"><div class="pipe-dot green"></div><div class="pipe-item" style="color:var(--label-gray)">${loggedHere.length} engagement${loggedHere.length===1?"":"s"} logged</div></div>`;
         }
         html+=`</div>`;
       });
@@ -1356,7 +2565,7 @@ function renderPipeline(){
         if(!loggedHere.length){html+=`<div class="pipe-cell"></div>`;return;}
         const latest=loggedHere[loggedHere.length-1];
         const dateStr=latest.date?new Date(latest.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short"}):"";
-        html+=`<div class="pipe-cell upcoming"><div style="display:flex;gap:5px;align-items:flex-start"><div class="pipe-dot green"></div><div class="pipe-item">${latest.summary.slice(0,55)}${latest.summary.length>55?"…":""}</div></div><span style="font-size:9px;font-weight:600;padding:1px 5px;background:var(--green-bg);color:var(--green-text);display:inline-block;margin-top:3px">Logged ${dateStr}</span></div>`;
+        html+=`<div class="pipe-cell upcoming"><div style="display:flex;gap:5px;align-items:flex-start"><div class="pipe-dot green"></div><div class="pipe-item">${latest.summary.slice(0,50)}${latest.summary.length>50?"…":""}</div></div><span style="font-size:9px;font-weight:600;padding:1px 5px;background:var(--green-bg);color:var(--green-text);display:inline-block;margin-top:3px">${loggedHere.length} engagement${loggedHere.length===1?"":"s"} · last ${dateStr}</span></div>`;
       });
       html+=`</div>`;
       board.innerHTML+=html;
@@ -1395,7 +2604,7 @@ function renderEntries(){
     const dateStr=e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"";
     const tc=TYPE_CLASS[e.type]||"et-meeting";
     const hc={Strong:"b-strong",Good:"b-good","Mild +":"b-mild",Neutral:"b-neutral","At risk":"b-neg"}[e.health]||"b-none";
-    return `<div class="entry-card"><div class="entry-av">${ini}</div><div class="entry-body"><div class="entry-top"><span class="entry-name">${e.contact}</span><span class="entry-type ${tc}">${e.type}</span>${e.health?`<span class="badge ${hc}">${e.health}</span>`:""}</div><div class="entry-meta">${dateStr}${e.owner?" · "+e.owner.split(".")[0]:""}</div><div class="entry-summary">${e.summary}</div>${e.notes?`<div class="entry-notes">${e.notes}</div>`:""}${e.action?`<div style="margin-top:5px;font-size:11px;color:var(--amber-text);background:var(--amber-bg);padding:3px 8px;display:inline-block">Next: ${e.action}</div>`:""}</div><button class="entry-del" onclick="deleteEntry(${e.id})" title="Delete">×</button></div>`;
+    return `<div class="entry-card"><div class="entry-av">${ini}</div><div class="entry-body"><div class="entry-top"><span class="entry-name">${e.contact}</span><span class="entry-type ${tc}">${e.type}</span>${e.health?`<span class="badge ${hc}">${e.health}</span>`:""}</div><div class="entry-meta">${dateStr}${e.owner?" · "+e.owner.split(".")[0]:""}</div><div class="entry-summary">${e.summary}</div>${e.notes?`<div class="entry-notes">${e.notes}</div>`:""}${e.action?`<div style="margin-top:5px;font-size:11px;color:var(--amber-text);background:var(--amber-bg);padding:3px 8px;display:inline-block">Next: ${e.action}</div>`:""}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="entry-del" onclick="openModifyModal(${e.id})" title="Edit" style="color:var(--purple-deep);font-size:14px">✎</button><button class="entry-del" onclick="deleteEntry(${e.id})" title="Delete">×</button></div></div>`;
   }).join("");
 }
 
@@ -1467,10 +2676,95 @@ async function submitLog(){
     console.error("submitLog error:", e);
   }
 }
+function openModifyModal(entryId){
+  const entries = loadEntries();
+  const e = entries.find(x => x.id === entryId);
+  if(!e) return;
+  // Populate modal fields
+  document.getElementById("mod-id").value = entryId;
+  document.getElementById("mod-contact").value = e.contact || "";
+  document.getElementById("mod-date").value = e.date || "";
+  document.getElementById("mod-type").value = e.type || "";
+  document.getElementById("mod-summary").value = e.summary || "";
+  document.getElementById("mod-notes").value = e.notes || "";
+  document.getElementById("mod-health").value = e.health || "";
+  document.getElementById("mod-action").value = e.action || "";
+  // Populate owner dropdown
+  const leads = loadLeads();
+  const ownerSel = document.getElementById("mod-owner");
+  ownerSel.innerHTML = '<option value="">Select lead</option>' + leads.map(l=>`<option value="${l}"${l===e.owner?" selected":""}>${l}</option>`).join("");
+  // Populate contact datalist
+  const dl = document.getElementById("mod-contact-list");
+  const all = [...new Set(TABLE_DATA.map(d=>`${d.first} ${d.last}`))].sort();
+  dl.innerHTML = all.map(n=>`<option value="${n}">`).join("");
+  document.getElementById("modify-modal").classList.add("open");
+}
+
+function closeModifyModal(){
+  document.getElementById("modify-modal").classList.remove("open");
+}
+
+async function saveModifiedEngagement(){
+  const id = parseInt(document.getElementById("mod-id").value);
+  const entries = loadEntries();
+  const idx = entries.findIndex(e => e.id === id);
+  if(idx === -1) return;
+  entries[idx] = {
+    ...entries[idx],
+    owner:   document.getElementById("mod-owner").value,
+    contact: document.getElementById("mod-contact").value.trim(),
+    date:    document.getElementById("mod-date").value,
+    type:    document.getElementById("mod-type").value,
+    summary: document.getElementById("mod-summary").value.trim(),
+    notes:   document.getElementById("mod-notes").value.trim(),
+    health:  document.getElementById("mod-health").value,
+    action:  document.getElementById("mod-action").value.trim(),
+  };
+  await saveEntries(entries);
+  closeModifyModal();
+  refreshAll();
+  // If we're on a profile page, re-render it
+  if(document.getElementById("profile-page").classList.contains("active") && window._currentProfileId){
+    const d = PEOPLE.find(p=>p.id===window._currentProfileId);
+    if(d) showProfile(window._currentProfileId);
+  }
+}
+
+async function deleteModifiedEngagement(){
+  const id = parseInt(document.getElementById("mod-id").value);
+  if(!confirm("Delete this engagement? This cannot be undone.")) return;
+  const entries = loadEntries();
+  await saveEntries(entries.filter(e => e.id !== id));
+  closeModifyModal();
+  refreshAll();
+}
+
+// Close modal on overlay click
+document.getElementById("modify-modal").addEventListener("click", function(e){
+  if(e.target === this) closeModifyModal();
+});
+
 function deleteEntry(id){
   if(!confirm("Delete this engagement? This cannot be undone.")) return;
-  const entries=loadEntries();
+  const entries = loadEntries();
   saveEntries(entries.filter(e=>e.id!==id));
+  refreshAll();
+}
+
+function deleteMiniProfile(name){
+  if(!confirm(`Delete ${name} and all their data? This cannot be undone.`)) return;
+  // Remove from TABLE_DATA
+  const idx=TABLE_DATA.findIndex(d=>`${d.first} ${d.last}`===name);
+  if(idx>-1) TABLE_DATA.splice(idx,1);
+  // Remove from custom contacts
+  const customs=loadCustomContacts().filter(c=>`${c.first} ${c.last}`!==name);
+  saveCustomContacts(customs);
+  // Remove profile extras
+  const slug=name.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z-]/g,"");
+  const extras=loadProfileExtras();
+  delete extras[slug];
+  saveProfileExtras(extras);
+  goBack();
   refreshAll();
 }
 
@@ -1585,52 +2879,97 @@ async function submitNewContact(){
 
 // ── OVERDUE ALERTS ─────────────────────────────────────────
 function getOverdueContacts(){
-  const entries=loadEntries();
-  const today=new Date();today.setHours(0,0,0,0);
-  const THRESHOLD=90;
-  const lastContact={};
-  entries.forEach(e=>{if(!e.date)return;const d=new Date(e.date+"T00:00:00");if(!lastContact[e.contact]||d>lastContact[e.contact])lastContact[e.contact]=d;});
-  const overdue=[];
-  // Include ALL contacts with zero engagements (matches 'Zero engagements this FY' KPI)
-  TABLE_DATA.forEach(d=>{
-    const name=`${d.first} ${d.last}`;
-    const last=lastContact[name];
-    const baseEng=d._baseEng||0;
-    const totalEng=baseEng+entries.filter(e=>e.contact===name).length;
-    let daysSince=null,status="never";
+  const entries = loadEntries();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const THRESHOLD = 90;
+  const lastContact = {};
+  entries.forEach(e => {
+    if(!e.date) return;
+    const d = new Date(e.date+"T00:00:00");
+    if(!lastContact[e.contact] || d > lastContact[e.contact]) lastContact[e.contact] = d;
+  });
+  const result = [];
+  TABLE_DATA.forEach(d => {
+    const name = `${d.first} ${d.last}`;
+    const baseEng = d._baseEng || 0;
+    const loggedEng = entries.filter(e => e.contact === name).length;
+    const totalEng = baseEng + loggedEng;
+    const last = lastContact[name];
+    let daysSince = null, status = "never";
     if(last){
-      daysSince=Math.floor((today-last)/(1000*60*60*24));
-      if(totalEng>0&&daysSince<THRESHOLD)return; // engaged recently — skip
-      if(totalEng>0) status="overdue";
+      daysSince = Math.floor((today - last) / (1000*60*60*24));
+      if(daysSince < THRESHOLD) return;
+      status = "overdue";
     }
-    if(totalEng>0&&status!=="overdue")return; // has engagements and not overdue — skip
-    overdue.push({name,title:d.title,div:d.div,owner:d.owner,urgency:d.urgency,relLabel:d.relLabel,daysSince,status,id:d.id||null});
+    if(totalEng > 0 && status !== "overdue") return;
+    result.push({name, title:d.title, div:d.div, owner:d.owner, urgency:d.urgency, daysSince, status, id:d.id||null});
   });
-  overdue.sort((a,b)=>{
-    if(a.status==="never"&&b.status!=="never")return -1;
-    if(b.status==="never"&&a.status!=="never")return 1;
-    return(b.daysSince||0)-(a.daysSince||0);
+  result.sort((a,b) => {
+    if(a.status==="never" && b.status!=="never") return -1;
+    if(b.status==="never" && a.status!=="never") return 1;
+    return (b.daysSince||0) - (a.daysSince||0);
   });
-  return overdue;
+  return result;
 }
+
 function renderOverdueAlerts(){
-  const overdue=getOverdueContacts();
-  const count=overdue.length;
-  const badge=document.getElementById("nav-badge");
-  if(badge){badge.textContent=count;badge.style.display=count>0?"inline-block":"none";}
-  const todoSection=document.getElementById("todo-section");
-  const todoList=document.getElementById("todo-list");
-  const todoCount=document.getElementById("todo-count");
-  if(todoSection){
-    todoSection.classList.toggle("visible",count>0);
-    if(todoCount)todoCount.textContent=`${count} action${count===1?"":"s"} required`;
-    if(todoList)todoList.innerHTML=overdue.map(c=>{
-      const tagClass=c.status==="never"?"never":"overdue";
-      const nameClick=c.id?`onclick="showProfile('${c.id}')"`:c.name&&MINI_PROFILES[c.name]?`onclick="showMiniProfile('${c.name}')"`:""
-      return `<div class="todo-item ${tagClass}"><div class="todo-name" ${nameClick}>${c.name}</div><div class="todo-detail">${c.title} · ${c.div} · ${(c.owner||"").split(".")[0]}</div><span class="todo-tag ${tagClass}">${c.status==="never"?"Never contacted":c.daysSince+"d overdue"}</span></div>`;
-    }).join("");
+  const overdue = getOverdueContacts();
+
+  // Populate owner filter dropdown
+  const ownerSel = document.getElementById("todo-owner-filter");
+  if(ownerSel){
+    const selectedOwner = ownerSel.value || "ALL";
+    const leads = loadLeads();
+    ownerSel.innerHTML = `<option value="ALL">All owners</option>` +
+      leads.map(l=>`<option value="${l}"${l===selectedOwner?" selected":""}>${l.split(".")[0]}</option>`).join("");
+    ownerSel.value = selectedOwner;
   }
+
+  // Apply owner filter
+  const ownerFilter = ownerSel ? ownerSel.value : "ALL";
+  const filtered = ownerFilter === "ALL" ? overdue : overdue.filter(c => c.owner === ownerFilter);
+
+  const count = filtered.length;
+  const badge = document.getElementById("nav-badge");
+  if(badge){ badge.textContent = overdue.length; badge.style.display = overdue.length > 0 ? "inline-block" : "none"; }
+  const todoSection = document.getElementById("todo-section");
+  const todoList    = document.getElementById("todo-list");
+  const todoCount   = document.getElementById("todo-count");
+  if(!todoSection) return;
+  todoSection.classList.toggle("visible", overdue.length > 0);
+  if(todoCount) todoCount.textContent = `${count} contact${count===1?"":"s"}`;
+
+  const neverContacted = filtered.filter(c => c.status === "never");
+  const overdueList    = filtered.filter(c => c.status === "overdue");
+
+  if(!todoList) return;
+  let html = "";
+
+  if(neverContacted.length){
+    html += `<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-text);padding:8px 0 4px;border-bottom:1px solid var(--amber-bg);margin-bottom:4px">Never contacted &mdash; ${neverContacted.length} contact${neverContacted.length===1?"":"s"}</div>`;
+    neverContacted.forEach(c => {
+      const safeN = (c.name||"").replace(/'/g,"&#39;");
+      const nameClick = c.id ? `onclick="showProfile('${c.id}')"` : `data-contact="${safeN}" onclick="showMiniProfile(this.dataset.contact)"`;
+      html += `<div class="todo-item never"><div class="todo-name" ${nameClick}>${c.name}</div><div class="todo-detail">${c.title} &middot; ${c.div} &middot; ${(c.owner||"").split(".")[0]}</div><span class="todo-tag never">Never contacted</span></div>`;
+    });
+  }
+
+  if(overdueList.length){
+    html += `<div style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--red-text);padding:8px 0 4px;border-bottom:1px solid var(--red-bg);margin-bottom:4px;margin-top:10px">Overdue &mdash; 90+ days since last contact &mdash; ${overdueList.length} contact${overdueList.length===1?"":"s"}</div>`;
+    overdueList.forEach(c => {
+      const safeN = (c.name||"").replace(/'/g,"&#39;");
+      const nameClick = c.id ? `onclick="showProfile('${c.id}')"` : `data-contact="${safeN}" onclick="showMiniProfile(this.dataset.contact)"`;
+      html += `<div class="todo-item overdue"><div class="todo-name" ${nameClick}>${c.name}</div><div class="todo-detail">${c.title} &middot; ${c.div} &middot; ${(c.owner||"").split(".")[0]}</div><span class="todo-tag overdue">${c.daysSince}d ago</span></div>`;
+    });
+  }
+
+  if(!neverContacted.length && !overdueList.length && ownerFilter !== "ALL"){
+    html = `<div style="font-size:12px;color:var(--label-gray);padding:10px 0">No outstanding actions for ${ownerFilter.split(".")[0]}.</div>`;
+  }
+
+  todoList.innerHTML = html;
 }
+
 
 // ── HEATMAP ────────────────────────────────────────────────
 function renderHeatmap(){
@@ -1683,10 +3022,16 @@ function showProfile(id){
       <div><div class="interests-section-label" style="color:var(--amber-text)">Handle with care</div><div>${(d.interests.caution||[]).map(t=>`<span class="interest-chip ic-caution">⚠ ${t}</span>`).join("")}</div></div>
       <div style="grid-column:1/-1"><div class="interests-section-label">Communication style</div><div style="font-size:12px;color:var(--label-gray);line-height:1.6;padding:8px 12px;background:var(--neutral-light)">${d.interests.style||"Not yet documented."}</div></div>
     </div></div>`:"";
-  const liveEntries=(d.logNotes||[]).slice().sort((a,b)=>b.id-a.id); // newest first
+  // Always load fresh from entries - don't rely on logNotes being populated
+  const allEntries = loadEntries();
+  const contactName = `${d.first} ${d.last}`;
+  const liveEntries = allEntries
+    .filter(e => e.contact === contactName)
+    .sort((a,b) => b.id - a.id); // newest first
   const extras_ars=(extras.ars)||null;
-  const meetingLog=liveEntries.length?`<div class="card"><div class="eyebrow" style="margin-bottom:12px">All engagements — newest to oldest</div>${liveEntries.map(e=>{const dateStr=e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"";return`<div class="timeline-item"><div class="tl-dot green"></div><div style="min-width:56px"><div class="tl-date">${dateStr}</div></div><div class="tl-content"><div class="tl-title">${e.type} <span style="font-size:10px;color:var(--label-gray);font-weight:400">·</span> ${(e.owner||"").split(".")[0]}</div><div class="tl-detail">${e.summary}${e.notes?" — "+e.notes:""}${e.action?`<div style="margin-top:3px;font-size:11px;color:var(--amber-text)">→ Next: ${e.action}</div>`:""}</div></div><button onclick="deleteEngagementFromProfile(${e.id},'${d.id}')" style="font-size:16px;border:none;background:none;cursor:pointer;color:var(--divider);padding:0 4px;flex-shrink:0" title="Delete" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--divider)'">×</button></div>`}).join("")}</div>`:`<div class="alert" style="background:var(--neutral-light);border-left:3px solid var(--divider);color:var(--label-gray)">No engagements logged yet for this contact.</div>`;
+  const meetingLog=liveEntries.length?`<div class="card"><div class="eyebrow" style="margin-bottom:12px">All engagements — newest to oldest</div>${liveEntries.map(e=>{const dateStr=e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"";return`<div class="timeline-item"><div class="tl-dot green"></div><div style="min-width:56px"><div class="tl-date">${dateStr}</div></div><div class="tl-content"><div class="tl-title">${e.type} <span style="font-size:10px;color:var(--label-gray);font-weight:400">·</span> ${(e.owner||"").split(".")[0]}</div><div class="tl-detail">${e.summary}${e.notes?" — "+e.notes:""}${e.action?`<div style="margin-top:3px;font-size:11px;color:var(--amber-text)">→ Next: ${e.action}</div>`:""}</div></div><button onclick="deleteEngagementFromProfile(${e.id},'${d.id}')" style="font-size:16px;border:none;background:none;cursor:pointer;color:var(--divider);padding:0 4px;flex-shrink:0" title="Delete" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--divider)'">×</button><button onclick="openModifyModal(${e.id})" style="font-size:13px;border:none;background:none;cursor:pointer;color:var(--purple-deep);padding:0 3px;flex-shrink:0" title="Edit">✎</button></div>`}).join("")}</div>`:`<div class="alert" style="background:var(--neutral-light);border-left:3px solid var(--divider);color:var(--label-gray)">No engagements logged yet for this contact.</div>`;
 
+  // Sanitise function to prevent template literal crashes
   document.getElementById("profile-content").innerHTML=`
     <div class="profile-header">
       <div class="av av-lg">${initials(d.first,d.last)}</div>
@@ -1773,48 +3118,122 @@ function showProfile(id){
 }
 
 function showMiniProfile(name,data){
+  try {
   const d=data||TABLE_DATA.find(p=>`${p.first} ${p.last}`===name);
-  if(!d)return;
-  const mini=MINI_PROFILES[name]||{};
-  const intelBadge=mini.intel==="internal"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);padding:2px 8px">Internal notes</span>`:mini.intel==="external"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--lavender);color:var(--purple-deep);padding:2px 8px">External research</span>`:`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--neutral-light);color:var(--label-gray);padding:2px 8px">No profile yet</span>`;
-  const liveEntries=d.logNotes||[];
+  if(!d){ console.error("[showMiniProfile] contact not found:", name); return; }
   const slug=`${d.first.toLowerCase()}-${d.last.toLowerCase()}`.replace(/[^a-z-]/g,"");
+  const mini=MINI_PROFILES[name]||{};
+  const miniExtras=loadProfileExtras()[slug]||{};
+  const hasBio=mini.bio||miniExtras.freeNotes;
+  const intelBadge=miniExtras.aiIntel?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--purple-primary);color:#fff;padding:2px 8px">AI enriched</span>`:mini.intel==="internal"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);padding:2px 8px">Internal notes</span>`:mini.intel==="external"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--lavender);color:var(--purple-deep);padding:2px 8px">External research</span>`:`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--neutral-light);color:var(--label-gray);padding:2px 8px">No profile yet — click Enrich</span>`;
+  const liveEntries=(d.logNotes||[]).slice().sort((a,b)=>b.id-a.id);
+
+  // Build interests panel from extras if available
+  const hasInterests=(miniExtras.interests&&miniExtras.interests.length)||(miniExtras.personal&&miniExtras.personal.length)||(miniExtras.hooks&&miniExtras.hooks.length);
+  const interestsPanel=hasInterests?`<div class="interests-panel">
+    <div class="eyebrow" style="margin-bottom:4px">Profile intel</div>
+    <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:12px">Interests and relationship guidance</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div><div class="interests-section-label">Professional priorities</div><div>${(miniExtras.interests||[]).map(t=>`<span class="interest-chip ic-pro">${t}</span>`).join("")||`<span style="font-size:11px;color:var(--label-gray)">Not yet added — use Update contact intel</span>`}</div></div>
+      <div><div class="interests-section-label">Personal interests</div><div>${(miniExtras.personal||[]).map(t=>`<span class="interest-chip ic-personal">${t}</span>`).join("")||`<span style="font-size:11px;color:var(--label-gray)">Not yet added</span>`}</div></div>
+      ${miniExtras.caution&&miniExtras.caution.length?`<div><div class="interests-section-label" style="color:var(--amber-text)">Handle with care</div><div>${miniExtras.caution.map(t=>`<span class="interest-chip ic-caution">⚠ ${t}</span>`).join("")}</div></div>`:""}
+      ${miniExtras.style?`<div style="grid-column:1/-1"><div class="interests-section-label">Communication style</div><div style="font-size:12px;color:var(--label-gray);line-height:1.6;padding:8px 12px;background:var(--neutral-light)">${miniExtras.style}</div></div>`:""}
+    </div>
+  </div>`:"";
   document.getElementById("profile-content").innerHTML=`
     <div class="profile-header">
       <div class="av av-lg">${initials(d.first,d.last)}</div>
       <div class="profile-meta">
         <h1>${d.first} ${d.last}</h1>
         <div class="ptitle">${d.title}</div>
-        <div class="chips"><span class="badge b-neutral">${d.div}</span><span class="badge b-neutral">${d.location||""}</span>${relBadge(d.relLabel)}<span class="badge ${URGENCY_CLASSES[d.urgency||"low"]}">${URGENCY_LABELS[d.urgency||"low"]}</span>${intelBadge}</div>
+        <div class="chips">
+          <span class="badge b-neutral">${d.div}</span>
+          <span class="badge b-neutral">${d.location||""}</span>
+          ${engBadge(d.eng)}
+          <span class="badge ${URGENCY_CLASSES[d.urgency||"low"]}">${URGENCY_LABELS[d.urgency||"low"]}</span>
+          ${miniExtras.linkedInUrl?`<a href="${miniExtras.linkedInUrl}" target="_blank" style="font-size:10px;font-weight:600;padding:2px 8px;background:#e7f0fa;color:#0a66c2;text-decoration:none">LinkedIn ↗</a>`:""}
+          ${intelBadge}
+        </div>
       </div>
       <div class="stat-row">
         <div class="stat-box"><div class="sv">${d.eng}</div><div class="sl">Engagements</div></div>
-        <div class="stat-box"><div class="sv" style="color:var(--purple-plum)">${(loadProfileExtras()[slug]||{}).ars||"—"}</div><div class="sl">ARS score</div></div>
-        <div class="stat-box"><div class="sv">${(d.owner||"").split(".")[0]}</div><div class="sl">Owner</div></div>
+        <div class="stat-box"><div class="sv" style="color:var(--purple-plum)">${miniExtras.ars||"—"}</div><div class="sl">ARS score</div></div>
+        <div class="stat-box"><div class="sv">${(d.owner||"").split(".")[0]||"—"}</div><div class="sl">Owner</div></div>
       </div>
     </div>
+
     <div class="profile-action-bar">
-      <button class="btn-enrich" onclick="enrichProfile('${slug}','${name.replace(/'/g,"")}','${(d.title||"").replace(/'/g,"")}','${d.div}')">✦ Enrich with AI</button>
+      <button class="btn-enrich" onclick="enrichProfile('${slug}','${name.replace(/'/g,"")}','${(d.title||"").replace(/'/g,"")}','${d.div}')">&#10022; Enrich with AI</button>
+      <button class="btn-edit" onclick="toggleEditPanel('${slug}')">&#x270E; Update contact intel</button>
+      <button onclick="deleteMiniProfile('${name.replace(/'/g,"")}')" style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--red);background:transparent;color:var(--red-text);cursor:pointer;margin-left:auto">&times; Delete contact</button>
       <div class="enrich-status" id="enrich-status-${slug}"><div class="enrich-spinner" id="enrich-spinner-${slug}"></div><span id="enrich-msg-${slug}"></span></div>
     </div>
+
+    <div class="edit-panel" id="edit-panel-${slug}">
+      <div class="eyebrow" style="color:var(--blue-text);margin-bottom:14px">Update contact intel</div>
+      <div class="edit-grid">
+        <div class="edit-section-label">Professional interests</div>
+        <div class="edit-wide"><div class="lf-label">Business interests (comma separated)</div><input type="text" class="lf-input" id="ep-interests-${slug}" value="${(miniExtras.interests||[]).join(", ")}" placeholder="e.g. AI governance, cost transformation"></div>
+        <div class="edit-section-label">Personal context</div>
+        <div class="edit-wide"><div class="lf-label">Personal details (comma separated)</div><input type="text" class="lf-input" id="ep-personal-${slug}" value="${(miniExtras.personal||[]).join(", ")}" placeholder="e.g. Golf enthusiast, UNSW alumni"></div>
+        <div class="edit-wide"><div class="lf-label">Communication style</div><input type="text" class="lf-input" id="ep-style-${slug}" value="${miniExtras.style||""}" placeholder="e.g. Prefers direct comms, data-led"></div>
+        <div class="edit-section-label">Handle with care</div>
+        <div class="edit-wide"><div class="lf-label">Topics to avoid (comma separated)</div><input type="text" class="lf-input" id="ep-caution-${slug}" value="${(miniExtras.caution||[]).join(", ")}" placeholder="e.g. Offshore delivery, sensitive to cost commentary"></div>
+        <div class="edit-section-label">Contact details and scores</div>
+        <div><div class="lf-label">LinkedIn URL</div><input type="text" class="lf-input" id="ep-linkedin-${slug}" value="${miniExtras.linkedInUrl||""}" placeholder="https://linkedin.com/in/..."></div>
+        <div><div class="lf-label">Email</div><input type="text" class="lf-input" id="ep-email-${slug}" value="${miniExtras.email||""}" placeholder="name@macquarie.com"></div>
+        <div><div class="lf-label">ARS score (1–10)</div><input type="text" class="lf-input" id="ep-ars-${slug}" value="${miniExtras.ars||""}" placeholder="e.g. 6.5"></div>
+        <div class="edit-section-label">Additional notes</div>
+        <div class="edit-wide"><div class="lf-label">Background, context, relationship history</div><textarea class="lf-input" id="ep-notes-${slug}" rows="3">${miniExtras.freeNotes||""}</textarea></div>
+      </div>
+      <div class="log-actions">
+        <button class="btn-primary" onclick="saveProfileExtrasForm('${slug}','${name.replace(/'/g,"")}')">Save intel</button>
+        <button class="btn-secondary" onclick="toggleEditPanel('${slug}')">Cancel</button>
+        <span class="log-success" id="edit-success-${slug}" style="display:none">Saved</span>
+      </div>
+    </div>
+
+    ${interestsPanel}
+    ${miniExtras.aiIntel?`<div class="ai-intel-card"><div class="ai-intel-header"><div class="ai-intel-badge">AI enriched</div><span style="font-size:11px;color:var(--label-gray)">Updated ${miniExtras.aiIntelDate||""}</span></div><div class="ai-intel-body">${miniExtras.aiIntel}</div></div>`:""}
+
     <div style="display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px">
       <div style="display:flex;flex-direction:column;gap:14px">
-        ${mini.bio?`<div class="card" style="border-top:2px solid var(--purple-primary)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><div class="eyebrow" style="margin-bottom:0">Profile</div>${intelBadge}</div><div style="font-size:13px;line-height:1.6;color:var(--dark-gray)">${mini.bio}</div></div>`:`<div class="alert alert-risk">No profile information available yet. Click Enrich with AI to search for public information.</div>`}
-        <div class="card"><div class="eyebrow" style="margin-bottom:10px">Division remit</div><div style="font-size:13px;line-height:1.6">${d.remit||d.title}</div></div>
-        ${liveEntries.length?`<div class="card"><div class="eyebrow" style="margin-bottom:12px">Meeting and intel log</div>${liveEntries.map(e=>`<div class="timeline-item"><div class="tl-dot green"></div><div style="min-width:46px"><div class="tl-date">${e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):""}</div></div><div class="tl-content"><div class="tl-title">${e.type} — ${(e.owner||"").split(".")[0]} <span style="font-size:9px;background:var(--green-bg);color:var(--green-text);padding:1px 5px;font-weight:600">new</span></div><div class="tl-detail">${e.summary}${e.notes?" | "+e.notes:""}${e.action?" | Next: "+e.action:""}</div></div></div>`).join("")}</div>`:`<div style="font-size:12px;color:var(--label-gray);padding:10px 0">No meetings logged. Use Log an engagement to add one.</div>`}
+        <div class="card" style="border-top:2px solid var(--purple-primary)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <div class="eyebrow" style="margin-bottom:0">Profile</div>
+            ${intelBadge}
+          </div>
+          <div style="font-size:13px;line-height:1.6;color:var(--dark-gray)">${mini.bio||miniExtras.freeNotes||`<span style="color:var(--label-gray)">No bio yet. Click <strong>Enrich with AI</strong> to search for public information, or add notes via <strong>Update contact intel</strong>.</span>`}</div>
+        </div>
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:10px">Division remit</div>
+          <div style="font-size:13px;line-height:1.6">${d.remit||d.title}</div>
+        </div>
+        ${miniExtras.style?`<div class="card"><div class="eyebrow" style="margin-bottom:8px">Communication style</div><div style="font-size:13px;color:var(--label-gray);line-height:1.5">${miniExtras.style}</div></div>`:""}
+        <div class="card">
+          <div class="eyebrow" style="margin-bottom:12px">All engagements — newest to oldest</div>
+          ${liveEntries.length?liveEntries.map(e=>{
+            const dateStr=e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"";
+            return `<div class="timeline-item"><div class="tl-dot green"></div><div style="min-width:56px"><div class="tl-date">${dateStr}</div></div><div class="tl-content"><div class="tl-title">${safeStr(e.type)} · ${(e.owner||"").split(".")[0]}</div><div class="tl-detail">${safeStr(e.summary)}${e.notes?" — "+safeStr(e.notes):""}${e.action?`<div style="margin-top:3px;font-size:11px;color:var(--amber-text)">→ Next: ${e.action}</div>`:""}</div></div><button onclick="deleteEngagementFromProfile(${e.id},'${slug}')" style="font-size:16px;border:none;background:none;cursor:pointer;color:var(--divider);padding:0 4px;flex-shrink:0" title="Delete" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--divider)'">×</button><button onclick="openModifyModal(${e.id})" style="font-size:13px;border:none;background:none;cursor:pointer;color:var(--purple-deep);padding:0 3px;flex-shrink:0" title="Edit">✎</button></div>`;
+          }).join(""):`<div style="font-size:12px;color:var(--label-gray);padding:8px 0">No engagements logged yet.</div>`}
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
         <div class="card">
           <div class="eyebrow" style="margin-bottom:8px">Relationship owner</div>
           <div style="font-size:13px;font-weight:600">${d.owner||"Unassigned"}</div>
           <div style="font-size:11px;color:var(--label-gray);margin-top:2px">${d.div} · ${d.location||""}</div>
+          ${miniExtras.email?`<div style="font-size:11px;color:var(--blue-text);margin-top:4px">${miniExtras.email}</div>`:""}
+          <hr style="border:none;border-top:1px solid var(--divider);margin:12px 0">
+          <div class="eyebrow" style="margin-bottom:5px">ARS score</div>
+          <div style="font-size:22px;font-weight:600;color:var(--purple-plum)">${miniExtras.ars||"—"}</div>
           <hr style="border:none;border-top:1px solid var(--divider);margin:12px 0">
           <div class="eyebrow" style="margin-bottom:5px">Upcoming</div>
           <div style="font-size:12px;color:var(--dark-gray)">${d.upcoming||"None logged"}</div>
         </div>
-        <div class="card" style="border-top:2px solid var(--amber)">
-          <div class="eyebrow" style="margin-bottom:8px;color:var(--amber-text)">Profile depth</div>
-          <div style="font-size:12px;color:var(--dark-gray);line-height:1.6">${mini.intel==="internal"?"Internal meeting notes are available. Use Enrich with AI to supplement with external research.":mini.intel==="external"?"Profile built from external research only. Log an engagement to add internal context.":"No profile data available. Click Enrich with AI to search for public information."}</div>
+        <div class="card" style="border-top:2px solid var(--purple-primary)">
+          <div class="eyebrow" style="margin-bottom:8px">Profile depth</div>
+          <div style="font-size:12px;color:var(--dark-gray);line-height:1.6">${miniExtras.aiIntel?"AI enriched — profile includes externally researched intel.":mini.intel==="internal"?"Internal notes available. Use Enrich with AI to add external research.":mini.intel==="external"?"Built from external research. Log an engagement to add internal context.":"No intel yet. Click Enrich with AI or add notes manually."}</div>
         </div>
       </div>
     </div>`;
@@ -1823,11 +3242,15 @@ function showMiniProfile(name,data){
   document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
   window._profileSource=_activePage||"p4";
   window.scrollTo(0,0);
+  } catch(err) {
+    console.error("[showMiniProfile] crash for:", name, err);
+    alert("Could not load profile for " + name + ". Error: " + err.message);
+  }
 }
 
 function toggleEditPanel(id){const panel=document.getElementById(`edit-panel-${id}`);if(panel)panel.classList.toggle("open");}
 
-async function saveProfileExtrasForm(id){
+async function saveProfileExtrasForm(id, miniName){
   const all=loadProfileExtras();
   const existing=all[id]||{};
   const get=field=>{const el=document.getElementById(`ep-${field}-${id}`);return el?el.value.trim():"";};
@@ -1839,7 +3262,14 @@ async function saveProfileExtrasForm(id){
   if(s){s.style.display="inline-block";setTimeout(()=>s.style.display="none",2000);}
   const panel=document.getElementById(`edit-panel-${id}`);
   if(panel)panel.classList.remove("open");
-  showProfile(id);
+  // Re-render the profile to show updated data
+  if(miniName){
+    const d=TABLE_DATA.find(p=>`${p.first} ${p.last}`===miniName);
+    if(d) showMiniProfile(miniName, d);
+  } else {
+    const d=PEOPLE.find(p=>p.id===id);
+    if(d) showProfile(id);
+  }
 }
 
 async function enrichProfile(id,name,title,div){
@@ -1875,8 +3305,23 @@ async function enrichProfile(id,name,title,div){
     await saveProfileExtras(all);
     await saveProfileExtrasToSP(id,all[id]);
     spinner.style.display="none";
-    msg.textContent="✓ Profile enriched";
-    setTimeout(()=>{msg.textContent="";showProfile(id);},800);
+    msg.textContent="✓ Profile enriched — refreshing…";
+    // Auto-refresh the profile to show new intel
+    setTimeout(()=>{
+      msg.textContent="";
+      // Try full profile first, then mini
+      const fullProfile=PEOPLE.find(p=>p.id===id);
+      if(fullProfile){
+        showProfile(id);
+      } else {
+        // Find by slug in TABLE_DATA
+        const td=TABLE_DATA.find(p=>{
+          const s=`${p.first.toLowerCase()}-${p.last.toLowerCase()}`.replace(/[^a-z-]/g,"");
+          return s===id;
+        });
+        if(td) showMiniProfile(`${td.first} ${td.last}`, td);
+      }
+    }, 600);
   }catch(e){spinner.style.display="none";msg.textContent="Search failed — try again or add intel manually";}
 }
 
@@ -1932,8 +3377,7 @@ function renderDirectory(filter){
     const el=document.createElement("div");
     el.className="dir-card";
     if(p.id){el.onclick=()=>{_profileSource="p4";showProfile(p.id)};}
-    else if(MINI_PROFILES[`${p.first} ${p.last}`]){el.onclick=()=>{_profileSource="p4";showMiniProfile(`${p.first} ${p.last}`,p)};}
-    else el.style.cursor="default";
+    else{el.onclick=()=>{_profileSource="p4";showMiniProfile(`${p.first} ${p.last}`,p)};}
     const bg=HC[p.relLabel]||"#aaa";
     const proTags=(p.interests&&p.interests.pro||[]).slice(0,2).map(t=>`<span style="font-size:9px;padding:2px 5px;background:var(--lavender);color:var(--purple-plum);font-weight:600;letter-spacing:.03em;text-transform:uppercase">${t}</span>`).join("");
     const dots=Array.from({length:5},(_,i)=>`<div class="dir-eng-dot${i<p.eng?" on":""}"></div>`).join("");
@@ -1976,7 +3420,8 @@ function showPage(id,tab){
 }
 
 // ── REFRESH ALL ────────────────────────────────────────────
-function refreshAll(){
+async function refreshAll(){
+  await seedEngagements(); // load MMS extract entries once
   reconcile();
   renderEntries();
   renderTable(_curTableFilter||"ALL");
@@ -1987,6 +3432,12 @@ function refreshAll(){
   renderDirectory("ALL");
   populateLeadDropdowns();
   renderLeadsManager();
+  renderEtypesManager();
+  renderDivsManager();
+  renderLocsManager();
+  populateEtypeDropdowns();
+  populateDivDropdowns();
+  populateLocDropdowns();
   // Render ARS in settings
   const arsEl=document.getElementById("ars-current");
   if(arsEl) arsEl.innerHTML=ARS_DATA.map(q=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--divider);font-size:12px"><span>${q.quarter}</span><span style="font-weight:600;color:var(--purple-plum)">${q.score!==null?q.score.toFixed(1):"TBC"}</span></div>`).join("");
