@@ -673,6 +673,34 @@ tbody tr:hover td{background:var(--lavender-2)}
       <div style="font-size:11px;color:var(--label-gray);margin-top:8px">Added locations appear in the add contact form</div>
     </div>
 
+    <div class="card" style="border-top:2px solid var(--green);grid-column:1/-1">
+      <div class="eyebrow" style="margin-bottom:4px;color:var(--green-text)">Data backup</div>
+      <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:12px">Automatic + manual backup of all Firebase data</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Manual backup</div>
+          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Downloads a complete JSON snapshot of all entries, contacts, extras, leads and settings. Save to your desktop or SharePoint.</div>
+          <button class="btn-primary" onclick="downloadBackup()" style="background:var(--green)">⬇ Download backup now</button>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Restore from backup</div>
+          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Upload a previously downloaded backup file to restore all data. This will merge with current Firebase data — no deletions.</div>
+          <label style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:8px 18px;border:none;background:var(--purple-plum);color:#fff;cursor:pointer">
+            ⬆ Restore from file
+            <input type="file" id="restore-file-input" accept=".json" style="display:none" onchange="restoreFromBackup(this)">
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--divider)">
+        <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Automatic backups</div>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="font-size:11px;color:var(--label-gray)">Last backup: <span id="last-backup-time" style="font-weight:600;color:var(--dark-gray)">—</span></div>
+          <div style="font-size:11px;color:var(--label-gray)">Schedule: <span style="font-weight:600;color:var(--dark-gray)">On open + every Friday at 5pm</span></div>
+          <div id="backup-status" style="font-size:11px;color:var(--green-text)"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -926,6 +954,137 @@ function populateLocDropdowns(){
   const locs = loadLocs();
   const opts = `<option value="">Select</option>` + locs.map(l=>`<option value="${l}">${l}</option>`).join("");
   ["nc-location"].forEach(id=>{ const el=document.getElementById(id); if(el){ const v=el.value; el.innerHTML=opts; el.value=v; } });
+}
+
+
+// ── BACKUP & RESTORE ──────────────────────────────────────
+
+function buildBackupPayload(){
+  return {
+    version:    "mq-crm-v1",
+    exportedAt: new Date().toISOString(),
+    entries:    loadEntries(),
+    contacts:   loadCustomContacts(),
+    extras:     loadProfileExtras(),
+    leads:      loadLeads(),
+    etypes:     loadEtypes(),
+    divs:       loadDivs(),
+    locs:       loadLocs(),
+  };
+}
+
+function downloadBackup(){
+  const payload  = buildBackupPayload();
+  const json     = JSON.stringify(payload, null, 2);
+  const blob     = new Blob([json], {type:"application/json"});
+  const url      = URL.createObjectURL(blob);
+  const date     = new Date().toISOString().split("T")[0];
+  const a        = document.createElement("a");
+  a.href         = url;
+  a.download     = "macquarie-crm-backup-"+date+".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem("mq_last_backup", new Date().toISOString());
+  updateBackupStatus("Backup downloaded");
+}
+
+function updateBackupStatus(msg){
+  const el = document.getElementById("last-backup-time");
+  const st = document.getElementById("backup-status");
+  const ts = localStorage.getItem("mq_last_backup");
+  if(el && ts){
+    const d = new Date(ts);
+    el.textContent = d.toLocaleString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  }
+  if(st && msg){ st.textContent = msg; setTimeout(function(){ if(st) st.textContent=""; }, 4000); }
+}
+
+async function autoBackup(reason){
+  const payload = buildBackupPayload();
+  if(!payload.entries.length && !payload.contacts.length) return;
+  const json  = JSON.stringify(payload, null, 2);
+  const blob  = new Blob([json], {type:"application/json"});
+  const url   = URL.createObjectURL(blob);
+  const date  = new Date().toISOString().split("T")[0];
+  const time  = new Date().toTimeString().slice(0,5).replace(":","h");
+  const a     = document.createElement("a");
+  a.href      = url;
+  a.download  = "macquarie-crm-auto-"+reason+"-"+date+"-"+time+".json";
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem("mq_last_backup", new Date().toISOString());
+  updateBackupStatus("Auto backup saved ("+reason+")");
+  console.log("[backup] Auto backup completed: "+reason);
+}
+
+function scheduleBackups(){
+  // On-open backup after Firebase syncs
+  setTimeout(function(){
+    if(loadEntries().length > 0) autoBackup("open");
+  }, 10000);
+
+  // Friday 5pm — check every 30 minutes
+  setInterval(function(){
+    const now    = new Date();
+    const isFri  = now.getDay() === 5;
+    const isPM5  = now.getHours() === 17 && now.getMinutes() < 30;
+    if(!isFri || !isPM5) return;
+    const today  = now.toISOString().split("T")[0];
+    const last   = localStorage.getItem("mq_last_friday_backup");
+    if(last === today) return;
+    localStorage.setItem("mq_last_friday_backup", today);
+    autoBackup("friday-5pm");
+  }, 30 * 60 * 1000);
+
+  updateBackupStatus("");
+}
+
+async function restoreFromBackup(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!data.version || data.version.indexOf("mq-crm") === -1){
+        alert("Invalid backup file.");
+        return;
+      }
+      const exportDate = data.exportedAt ? new Date(data.exportedAt).toLocaleString() : "unknown date";
+      if(!confirm("Restore backup from "+exportDate+"?\n\nThis will MERGE with current data — existing entries are kept, missing ones are added back. Nothing is deleted.")) return;
+
+      let changed = false;
+
+      if(data.entries && data.entries.length){
+        const current = loadEntries();
+        const curIds  = new Set(current.map(function(e){return e.id;}));
+        const toAdd   = data.entries.filter(function(e){return !curIds.has(e.id);});
+        if(toAdd.length){ await saveEntries([...current,...toAdd].sort(function(a,b){return b.id-a.id;})); changed=true; console.log("[restore] "+toAdd.length+" entries restored"); }
+      }
+      if(data.contacts && data.contacts.length){
+        const current  = loadCustomContacts();
+        const curNames = new Set(current.map(function(c){return c.first+" "+c.last;}));
+        const toAdd    = data.contacts.filter(function(c){return !curNames.has(c.first+" "+c.last);});
+        if(toAdd.length){ await saveCustomContacts([...current,...toAdd]); changed=true; }
+      }
+      if(data.extras){
+        const current = loadProfileExtras();
+        const merged  = Object.assign({}, data.extras, current);
+        await saveProfileExtras(merged);
+        await spPersist();
+        changed = true;
+      }
+      if(data.leads)  { await saveLeads(data.leads);   changed=true; }
+      if(data.etypes) { await saveEtypes(data.etypes); changed=true; }
+      if(data.divs)   { await saveDivs(data.divs);     changed=true; }
+      if(data.locs)   { await saveLocs(data.locs);     changed=true; }
+
+      if(changed){ await spPersist(); refreshAll(); alert("Restore complete — missing data has been added back."); }
+      else { alert("Nothing to restore — all backup data is already present."); }
+    } catch(err){ alert("Failed to read backup file: "+err.message); }
+    input.value="";
+  };
+  reader.readAsText(file);
 }
 
 async function clearAllData(){
@@ -2080,33 +2239,43 @@ const SEED_ENGAGEMENTS = [
 // These are pre-loaded from the MMS extract. They will merge with any
 // manually logged engagements. Runs once per device (tracked via localStorage flag).
 async function seedEngagements(){
-  // Use a Firebase-side flag so seed only runs once across ALL users
-  // Check localStorage first as a quick gate
-  const localFlag = localStorage.getItem("mq_seeded_v3");
+  // SAFE SEED — reads Firebase first, only adds missing entries, never overwrites
+  const localFlag = localStorage.getItem("mq_seeded_v4");
   if(localFlag) return;
 
-  const existing = loadEntries();
-  const key = e => `${e.contact}|${e.date}|${e.summary.slice(0,30)}`;
-  const existingKeys = new Set(existing.map(key));
-  const toAdd = SEED_ENGAGEMENTS.filter(e => !existingKeys.has(key(e)));
-
-  if(toAdd.length === 0){
-    localStorage.setItem("mq_seeded_v3","1");
-    return;
+  // Must wait for Firebase to be connected before seeding
+  // so we read the real current state rather than empty localStorage
+  if(!_fbInited || !_dbRef){
+    console.log("[seed] Firebase not ready, skipping — will retry next load");
+    return; // Don't set flag — retries on next load when Firebase is ready
   }
 
-  // Merge seed entries with any existing entries
-  const merged = [...existing, ...toAdd].sort((a,b) => b.id - a.id);
+  try {
+    // Read directly from Firebase to get the true current state
+    const snap = await _dbRef.child("entries").once("value");
+    const raw = snap.val();
+    const firebaseEntries = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
 
-  // Write directly to localStorage first so UI updates immediately
-  localStorage.setItem("mq_log", JSON.stringify(merged));
-  _entries = merged;
+    const key = e => `${e.contact}|${e.date}|${(e.summary||"").slice(0,30)}`;
+    const fbKeys = new Set(firebaseEntries.map(key));
+    const toAdd = SEED_ENGAGEMENTS.filter(e => !fbKeys.has(key(e)));
 
-  // Then push to Firebase so all other users get the seeded data too
-  await spPersist();
+    if(toAdd.length === 0){
+      localStorage.setItem("mq_seeded_v4","1");
+      return;
+    }
 
-  localStorage.setItem("mq_seeded_v3","1");
-  console.log(`[seed] Added ${toAdd.length} engagements from MMS extract to Firebase`);
+    // Merge: existing Firebase data is authoritative, seed only fills gaps
+    const merged = [...firebaseEntries, ...toAdd].sort((a,b) => b.id - a.id);
+    localStorage.setItem("mq_log", JSON.stringify(merged));
+    _entries = merged;
+    await spPersist();
+    localStorage.setItem("mq_seeded_v4","1");
+    console.log(`[seed] Added ${toAdd.length} MMS entries (${firebaseEntries.length} existing preserved)`);
+  } catch(e) {
+    console.warn("[seed] Error during seed, skipping:", e.message);
+    // Don't set flag — safe to retry next load
+  }
 }
 
 const MINI_PROFILES={
@@ -3545,7 +3714,8 @@ function showPage(id,tab){
 
 // ── REFRESH ALL ────────────────────────────────────────────
 async function refreshAll(){
-  await seedEngagements(); // load MMS extract entries once
+  await seedEngagements();
+  if(!window._backupsScheduled){ window._backupsScheduled=true; scheduleBackups(); } // load MMS extract entries once
   reconcile();
   renderEntries();
   renderTable(_curTableFilter||"ALL");
