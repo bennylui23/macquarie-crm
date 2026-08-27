@@ -450,19 +450,20 @@ tbody tr:hover td{background:var(--lavender-2)}
   <h1 style="margin-bottom:14px">Relationship status and next steps</h1>
 
   <div class="todo-section" id="todo-section">
-    <div class="todo-header">
+    <div class="todo-header" style="cursor:pointer" onclick="toggleTodoCollapse()">
       <div>
-        <div class="todo-title">Minimum to-do list</div>
+        <div class="todo-title">Minimum to-do list <span id="todo-collapse-icon" style="font-size:12px;color:var(--red-text)">▶</span></div>
         <div class="todo-subtitle">Yet to engage this FY, or not contacted in 90+ days</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap" onclick="event.stopPropagation()">
+        <div id="todo-metrics" style="display:flex;gap:10px;flex-wrap:wrap"></div>
         <select id="todo-owner-filter" class="lf-input" style="font-size:11px;padding:3px 8px;width:auto;height:26px;border-color:var(--divider)" onchange="renderOverdueAlerts()">
           <option value="ALL">All owners</option>
         </select>
         <span style="font-size:11px;color:var(--label-gray)" id="todo-count"></span>
       </div>
     </div>
-    <div class="todo-list" id="todo-list"></div>
+    <div class="todo-list" id="todo-list" style="display:none"></div>
   </div>
 
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
@@ -478,6 +479,7 @@ tbody tr:hover td{background:var(--lavender-2)}
         <input type="text" id="lf-contact" class="lf-input" placeholder="Type a name…" list="lf-contact-list" autocomplete="off">
         <datalist id="lf-contact-list"></datalist>
       </div>
+      <div><div class="lf-label">Date entry logged</div><input type="date" id="lf-entry-date" class="lf-input"></div>
       <div><div class="lf-label">Date of engagement</div><input type="date" id="lf-date" class="lf-input"></div>
       <div><div class="lf-label">Engagement type</div><select id="lf-type" class="lf-input"><option value="">Select type</option><option>Meeting — in person</option><option>Meeting — virtual</option><option>Call</option><option>Working session</option><option>Social / event</option><option>Email / written</option><option>Demo</option></select></div>
       <div class="log-form-wide"><div class="lf-label">What was discussed</div><input type="text" id="lf-summary" class="lf-input" placeholder="e.g. Covered AI visioning scope, agreed to ICLM demo in 2 weeks"></div>
@@ -697,7 +699,10 @@ tbody tr:hover td{background:var(--lavender-2)}
         <input type="text" id="mod-contact" class="lf-input" list="mod-contact-list">
         <datalist id="mod-contact-list"></datalist>
       </div>
-      <div><div class="lf-label">Date</div>
+      <div><div class="lf-label">Date entry logged</div>
+        <input type="date" id="mod-entry-date" class="lf-input">
+      </div>
+      <div><div class="lf-label">Date of engagement</div>
         <input type="date" id="mod-date" class="lf-input">
       </div>
       <div><div class="lf-label">Engagement type</div>
@@ -956,6 +961,10 @@ function fbInit(){
       if(data.entries&&JSON.stringify(data.entries)!==JSON.stringify(_entries)){_entries=data.entries;localStorage.setItem("mq_log",JSON.stringify(_entries));changed=true;}
       if(data.contacts&&JSON.stringify(data.contacts)!==JSON.stringify(_contacts)){_contacts=data.contacts;localStorage.setItem("mq_contacts",JSON.stringify(_contacts));changed=true;}
       if(data.extras&&JSON.stringify(data.extras)!==JSON.stringify(_extras)){_extras=data.extras;localStorage.setItem("mq_profile_extras",JSON.stringify(_extras));changed=true;}
+      if(data.leads  &&Array.isArray(data.leads))  {localStorage.setItem("mq_leads", JSON.stringify(data.leads));  changed=true;}
+      if(data.etypes &&Array.isArray(data.etypes)) {localStorage.setItem("mq_etypes",JSON.stringify(data.etypes)); changed=true;}
+      if(data.divs   &&Array.isArray(data.divs))   {localStorage.setItem("mq_divs",  JSON.stringify(data.divs));   changed=true;}
+      if(data.locs   &&Array.isArray(data.locs))   {localStorage.setItem("mq_locs",  JSON.stringify(data.locs));   changed=true;}
       if(changed){spSetStatus("green","Live · updated "+new Date().toLocaleTimeString());refreshAll();}
     });
     spSetStatus("green","Connected · live sync active");
@@ -978,7 +987,16 @@ async function spPersist(){
   _writeTimer=setTimeout(async()=>{
     spShowSaving();
     try{
-      await _dbRef.set({entries:loadEntries(),contacts:loadCustomContacts(),extras:loadProfileExtras(),leads:loadLeads(),lastUpdated:new Date().toISOString()});
+      await _dbRef.set({
+        entries:  loadEntries(),
+        contacts: loadCustomContacts(),
+        extras:   loadProfileExtras(),
+        leads:    loadLeads(),
+        etypes:   loadEtypes(),
+        divs:     loadDivs(),
+        locs:     loadLocs(),
+        lastUpdated: new Date().toISOString()
+      });
       spSetStatus("green","Saved · "+new Date().toLocaleTimeString());
     }catch(e){spSetStatus("red","Save failed — stored locally. "+e.message);}
   },600);
@@ -2635,7 +2653,11 @@ function switchView(v){
 
 // ── ENTRIES FEED ───────────────────────────────────────────
 function renderEntries(){
-  const entries=loadEntries();
+  const entries=loadEntries().slice().sort((a,b)=>{
+    // Sort by entry date (when logged) descending, then by engagement date
+    const ta=a.entryDate||a.ts||""; const tb=b.entryDate||b.ts||"";
+    return tb.localeCompare(ta)||String(b.id).localeCompare(String(a.id));
+  });
   const feed=document.getElementById("entry-feed");
   const count=document.getElementById("entries-count");
   const section=document.getElementById("entries-section");
@@ -2669,7 +2691,7 @@ function toggleForm(which){
   form.style.display=open?"block":"none";
   document.getElementById(btnId).classList.toggle("open",open);
   document.getElementById(iconId).textContent=open?"×":"+";
-  if(open&&isLog){document.getElementById("lf-date").value=new Date().toISOString().split("T")[0];document.getElementById("log-success").style.display="none";populateContactDropdown();}
+  if(open&&isLog){document.getElementById("lf-date").value=new Date().toISOString().split("T")[0];document.getElementById("lf-entry-date").value=new Date().toISOString().split("T")[0];document.getElementById("log-success").style.display="none";populateContactDropdown();}
   if(open&&!isLog)document.getElementById("contact-success").style.display="none";
 }
 function populateContactDropdown(){
@@ -2689,6 +2711,7 @@ async function submitLog(){
   const owner=document.getElementById("lf-owner").value;
   const contact=document.getElementById("lf-contact").value.trim();
   const date=document.getElementById("lf-date").value;
+  const entryDate=document.getElementById("lf-entry-date").value||new Date().toISOString().split("T")[0];
   const type=document.getElementById("lf-type").value;
   const summary=document.getElementById("lf-summary").value.trim();
   const notes=document.getElementById("lf-notes").value.trim();
@@ -2707,9 +2730,10 @@ async function submitLog(){
     const el=document.getElementById(id); if(el) el.style.borderColor="";
   });
   const entries=loadEntries();
-  entries.unshift({id:Date.now(),owner,contact,date,type,summary,notes,health,action,ts:new Date().toISOString()});
+  const entryId=Date.now();
+  entries.unshift({id:entryId,owner,contact,date,type,summary,notes,health,action,entryDate,ts:new Date().toISOString()});
   await saveEntries(entries);
-  ["lf-owner","lf-type","lf-health"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
+  ["lf-owner","lf-type","lf-health"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("lf-entry-date").value=new Date().toISOString().split("T")[0];
   ["lf-summary","lf-notes","lf-action","lf-contact"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
   document.getElementById("lf-date").value=new Date().toISOString().split("T")[0];
   const success=document.getElementById("log-success");
@@ -2728,6 +2752,7 @@ function openModifyModal(entryId){
   document.getElementById("mod-id").value = entryId;
   document.getElementById("mod-contact").value = e.contact || "";
   document.getElementById("mod-date").value = e.date || "";
+  document.getElementById("mod-entry-date").value = e.entryDate || (e.ts ? e.ts.split("T")[0] : "") || "";
   document.getElementById("mod-type").value = e.type || "";
   document.getElementById("mod-summary").value = e.summary || "";
   document.getElementById("mod-notes").value = e.notes || "";
@@ -2755,14 +2780,15 @@ async function saveModifiedEngagement(){
   if(idx === -1) return;
   entries[idx] = {
     ...entries[idx],
-    owner:   document.getElementById("mod-owner").value,
-    contact: document.getElementById("mod-contact").value.trim(),
-    date:    document.getElementById("mod-date").value,
-    type:    document.getElementById("mod-type").value,
-    summary: document.getElementById("mod-summary").value.trim(),
-    notes:   document.getElementById("mod-notes").value.trim(),
-    health:  document.getElementById("mod-health").value,
-    action:  document.getElementById("mod-action").value.trim(),
+    owner:      document.getElementById("mod-owner").value,
+    contact:    document.getElementById("mod-contact").value.trim(),
+    date:       document.getElementById("mod-date").value,
+    entryDate:  document.getElementById("mod-entry-date").value || entries[idx].entryDate,
+    type:       document.getElementById("mod-type").value,
+    summary:    document.getElementById("mod-summary").value.trim(),
+    notes:      document.getElementById("mod-notes").value.trim(),
+    health:     document.getElementById("mod-health").value,
+    action:     document.getElementById("mod-action").value.trim(),
   };
   await saveEntries(entries);
   closeModifyModal();
@@ -2932,6 +2958,15 @@ async function submitNewContact(){
 }
 
 // ── OVERDUE ALERTS ─────────────────────────────────────────
+function toggleTodoCollapse(){
+  const list=document.getElementById("todo-list");
+  const icon=document.getElementById("todo-collapse-icon");
+  if(!list||!icon)return;
+  const collapsed=list.style.display==="none";
+  list.style.display=collapsed?"block":"none";
+  icon.textContent=collapsed?"▼":"▶";
+}
+
 function getOverdueContacts(){
   const entries = loadEntries();
   const today = new Date(); today.setHours(0,0,0,0);
@@ -2992,6 +3027,17 @@ function renderOverdueAlerts(){
   if(!todoSection) return;
   todoSection.classList.toggle("visible", overdue.length > 0);
   if(todoCount) todoCount.textContent = `${count} contact${count===1?"":"s"}`;
+
+  // Metrics in the header bar
+  const metricsEl = document.getElementById("todo-metrics");
+  if(metricsEl){
+    const neverAll  = overdue.filter(c => c.status === "never").length;
+    const overdueAll = overdue.filter(c => c.status === "overdue").length;
+    metricsEl.innerHTML = [
+      neverAll  ? `<span style="font-size:10px;font-weight:600;padding:2px 8px;background:var(--amber-bg);color:var(--amber-text);letter-spacing:.04em;white-space:nowrap">${neverAll} yet to engage</span>` : "",
+      overdueAll ? `<span style="font-size:10px;font-weight:600;padding:2px 8px;background:var(--red-bg);color:var(--red-text);letter-spacing:.04em;white-space:nowrap">${overdueAll} overdue 90d+</span>` : "",
+    ].filter(Boolean).join("");
+  }
 
   const neverContacted = filtered.filter(c => c.status === "never");
   const overdueList    = filtered.filter(c => c.status === "overdue");
