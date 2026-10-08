@@ -486,6 +486,15 @@ tbody tr:hover td{background:var(--lavender-2)}
       <span><span style="display:inline-block;width:10px;height:10px;background:rgba(161,0,255,.25);border-radius:2px;border:1px dashed #a100ff;margin-right:4px"></span>Upcoming event opps</span>
     </div>
     <div id="quarterly-engagement-table" style="overflow-x:auto"></div>
+    <div id="qe-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+      <div style="background:var(--card-bg);border:1px solid var(--divider);max-width:520px;width:94%;max-height:80vh;overflow-y:auto;padding:24px;box-shadow:0 8px 40px rgba(0,0,0,.2);position:relative">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div><div class="eyebrow" id="qe-popup-period" style="margin-bottom:3px"></div><div id="qe-popup-name" style="font-size:15px;font-weight:700;color:var(--dark-gray)"></div></div>
+          <button onclick="document.getElementById('qe-popup').style.display='none'" style="font-size:20px;border:none;background:none;cursor:pointer;color:var(--label-gray);line-height:1">×</button>
+        </div>
+        <div id="qe-popup-body"></div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -2683,17 +2692,14 @@ function getEngInPeriod(contactName, period){
 
 function refreshOverview(){
   const entries = loadEntries();
-  // KPI counts — recompute from live entries for accuracy
-  const liveEntryMap = {};
-  loadEntries().forEach(e => { liveEntryMap[e.contact] = (liveEntryMap[e.contact]||0) + 1; });
-  TABLE_DATA.forEach(d => {
-    const name = `${d.first} ${d.last}`;
-    d.eng = (d._baseEng||0) + (liveEntryMap[name]||0);
-  });
+  // KPI counts — use reconciled eng values (set by reconcile() before this runs)
+  // Count unique contacts with entries for accuracy
+  const entryCountMap = {};
+  entries.forEach(e => { if(e.contact) entryCountMap[e.contact] = (entryCountMap[e.contact]||0) + 1; });
   const total    = TABLE_DATA.length;
-  const engaged    = TABLE_DATA.filter(d => d.eng > 0).length;
-  const engaged3   = TABLE_DATA.filter(d => d.eng >= 3).length;
-  const zero       = TABLE_DATA.filter(d => d.eng === 0).length;
+  const engaged    = TABLE_DATA.filter(d => (entryCountMap[d.first+" "+d.last]||0) > 0).length;
+  const engaged3   = TABLE_DATA.filter(d => (entryCountMap[d.first+" "+d.last]||0) >= 3).length;
+  const zero       = TABLE_DATA.filter(d => (entryCountMap[d.first+" "+d.last]||0) === 0).length;
   const divCount   = new Set(TABLE_DATA.map(d=>d.div).filter(Boolean)).size;
 
   const kpiTotal    = document.getElementById("kpi-total");
@@ -4253,6 +4259,76 @@ function showEvtDetail(name, dateStr) {
   det.scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
+
+function showQEPopup(contactName, period, entries, profileId, evts) {
+  const popup = document.getElementById("qe-popup");
+  const nameEl = document.getElementById("qe-popup-name");
+  const periodEl = document.getElementById("qe-popup-period");
+  const body = document.getElementById("qe-popup-body");
+  if(!popup||!body) return;
+
+  nameEl.textContent = contactName;
+  periodEl.textContent = period;
+
+  let html = "";
+
+  if(evts && evts.length > 0) {
+    // Upcoming events popup — link to Events tab
+    html += '<div style="font-size:12px;color:var(--label-gray);margin-bottom:12px">Click an event to open in the Events tab.</div>';
+    html += evts.map(ev => {
+      const evData = EVENTS_DATA.find(e=>e.name===ev.name);
+      const dateStr = ev.date ? new Date(ev.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}) : "";
+      const themeColor = evData ? (THEME_COLORS[evData.theme]||"#666") : "#666";
+      return `<div onclick="goToEvent('${ev.name.replace(/'/g,"\\'")}','${ev.date}')" style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--divider);margin-bottom:8px;cursor:pointer;border-radius:6px;border-left:3px solid ${themeColor}" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:700;color:var(--dark-gray);margin-bottom:2px">${ev.name}</div>
+          <div style="font-size:11px;color:var(--label-gray)">${dateStr}${evData?" · "+evData.loc:""}${evData?" · "+evData.theme:""}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;color:#a100ff;flex-shrink:0">Open →</span>
+      </div>`;
+    }).join("");
+  } else if(entries && entries.length > 0) {
+    // Logged engagements popup — link to profile
+    if(profileId) {
+      html += `<div style="margin-bottom:12px"><button onclick="document.getElementById('qe-popup').style.display='none';showProfile('${profileId}');_profileSource='p1'" style="font-size:11px;font-weight:700;padding:5px 12px;background:var(--purple-plum);color:#fff;border:none;border-radius:5px;cursor:pointer">Open full profile →</button></div>`;
+    }
+    html += entries.map(e => {
+      const dateStr = e.date ? new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}) : "";
+      const ownerFirst = (e.owner||"").split(".")[0]||"";
+      return `<div style="padding:10px;border:1px solid var(--divider);margin-bottom:8px;border-radius:6px;border-left:3px solid #5b2d8e">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:700;color:var(--dark-gray)">${e.type||"Engagement"}</span>
+          <span style="font-size:11px;color:var(--label-gray)">${dateStr}${ownerFirst?" · "+ownerFirst:""}</span>
+        </div>
+        <div style="font-size:12px;color:var(--dark-gray);margin-bottom:${e.notes||e.action?"4px":"0"}">${e.summary||""}</div>
+        ${e.notes?`<div style="font-size:11px;color:var(--label-gray);margin-bottom:2px">${e.notes}</div>`:""}
+        ${e.action?`<div style="font-size:11px;color:var(--amber-text);margin-top:4px">→ ${e.action}</div>`:""}
+      </div>`;
+    }).join("");
+  } else {
+    html = '<div style="font-size:13px;color:var(--label-gray);padding:16px 0;text-align:center">No entries found.</div>';
+  }
+
+  body.innerHTML = html;
+  popup.style.display = "flex";
+}
+
+function goToEvent(evtName, evtDate) {
+  document.getElementById("qe-popup").style.display = "none";
+  // Switch to Events tab
+  document.querySelectorAll(".nav-tab").forEach((t,i)=>t.classList.toggle("active",i===3));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("p6").classList.add("active");
+  _activePage = "p6";
+  // Set month to event month and render
+  const d = new Date(evtDate+"T00:00:00");
+  _evtYear  = d.getFullYear();
+  _evtMonth = d.getMonth();
+  renderEvents();
+  // Open the event detail after render
+  setTimeout(()=>showEvtDetail(evtName, evtDate), 150);
+}
+
 function renderQuarterlyEngagement() {
   const el = document.getElementById("quarterly-engagement-table");
   if(!el) return;
@@ -4408,8 +4484,21 @@ function renderQuarterlyEngagement() {
 
       if(n>0){
         const b = document.createElement("div");
-        b.style.cssText = "width:20px;height:"+bh+"px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0";
-        b.title = n+" logged";
+        b.style.cssText = "width:20px;height:"+bh+"px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0;cursor:pointer;transition:opacity .15s";
+        b.title = "Click to see "+n+" logged engagement"+(n>1?"s":"")+" for "+r.name+(is90?"":" in "+Qs[qi].label);
+        b.onmouseenter = ()=>b.style.opacity=".7";
+        b.onmouseleave = ()=>b.style.opacity="1";
+        b.onclick = ()=>{
+          // Filter entries for this contact in this quarter
+          const qEntries = is90
+            ? entries.filter(e=>e.contact===r.name && e.date && new Date(e.date)>=ninetyAgo)
+            : entries.filter(e=>{
+                if(e.contact!==r.name||!e.date) return false;
+                const d=new Date(e.date);
+                return d>=new Date(Qs[qi].start)&&d<=new Date(Qs[qi].end);
+              });
+          showQEPopup(r.name, is90?"Last 90 days":Qs[qi].label, qEntries, r.p.id||null, null);
+        };
         barWrap.appendChild(b);
       } else {
         const b = document.createElement("div");
@@ -4418,8 +4507,11 @@ function renderQuarterlyEngagement() {
       }
       if(evtsQ.length>0){
         const b = document.createElement("div");
-        b.style.cssText = "width:14px;height:"+evtH+"px;background:rgba(161,0,255,.25);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0";
-        b.title = evtsQ.length+" upcoming: "+evtsQ.map(e=>e.name).join(", ");
+        b.style.cssText = "width:14px;height:"+evtH+"px;background:rgba(161,0,255,.25);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0;cursor:pointer;transition:opacity .15s";
+        b.title = "Click to see "+evtsQ.length+" upcoming event"+(evtsQ.length>1?"s":"")+" — "+evtsQ.map(e=>e.name).join(", ");
+        b.onmouseenter = ()=>b.style.opacity=".7";
+        b.onmouseleave = ()=>b.style.opacity="1";
+        b.onclick = ()=>{ showQEPopup(r.name, (is90?"Upcoming":Qs[qi].label)+" events", [], null, evtsQ); };
         barWrap.appendChild(b);
       }
       td.appendChild(barWrap);
