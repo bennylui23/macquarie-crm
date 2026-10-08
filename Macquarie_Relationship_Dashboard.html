@@ -4141,9 +4141,11 @@ async function saveEvtLogEntry() {
       entries[idx] = {...entries[idx], owner, date, entryDate:edate, type, summary, notes, action, ts:new Date().toISOString()};
     }
   } else {
-    // New entry
+    // New entry — embed event name as prefix in notes for reliable matching
+    const evLabel = document.getElementById("elm-event-label").textContent||"";
+    const taggedNotes = evLabel ? `[${evLabel}] ${notes}`.trim() : notes;
     const newId = Date.now();
-    entries.unshift({id:newId, owner, contact:contactName, date, entryDate:edate, type, summary, notes, action, ts:new Date().toISOString()});
+    entries.unshift({id:newId, owner, contact:contactName, date, entryDate:edate, type, summary, notes:taggedNotes, action, ts:new Date().toISOString()});
   }
   await saveEntries(entries);
 
@@ -4196,10 +4198,16 @@ function showEvtDetail(name, dateStr) {
         const ownerFirst = (p.owner||"").split(".")[0]||"—";
         const contactName = `${p.first} ${p.last}`;
         // Check engagement log for any entry referencing this event (by event name keyword)
-        const evKeyword = ev.name.split(/[\s\-—]/)[0].toLowerCase();
+        // Strict match: entry must explicitly reference this event by name
+        // (first 20 chars of event name in summary or notes), OR was logged
+        // via the event modal which prefixes summary with the event name.
+        const evNameLow = ev.name.toLowerCase();
+        const evPrefix  = evNameLow.slice(0, 20);
         const inviteEntries = allEntries.filter(e => {
-          const s = ((e.summary||"")+" "+(e.notes||"")).toLowerCase();
-          return e.contact===contactName && (s.includes(ev.name.toLowerCase().slice(0,15)) || s.includes("invite") || s.includes("event") || s.includes("conference") || s.includes(evKeyword));
+          if(e.contact !== contactName) return false;
+          const s = ((e.summary||"") + " " + (e.notes||"") + " " + (e.action||"")).toLowerCase();
+          // Must contain enough of the event name to be a specific match (not generic words)
+          return s.includes(evPrefix) || s.includes(evNameLow.slice(0, 30));
         });
         const invited = inviteEntries.length > 0;
         const latestEntry = invited ? inviteEntries[0] : null;
@@ -4264,7 +4272,13 @@ function renderQuarterlyEngagement() {
     {label:"Q4",title:"Apr–Jun 27",start:"2027-04-01",end:"2027-06-30"},
   ];
 
+  // If Firebase hasn't hydrated yet, show loading and retry after delay
   const entries = loadEntries();
+  if(!_fbInited && entries.length === 0) {
+    el.innerHTML = `<div style="padding:24px;text-align:center;color:var(--label-gray);font-size:12px">Connecting to database…</div>`;
+    setTimeout(renderQuarterlyEngagement, 1500);
+    return;
+  }
 
   // Filter contacts
   let contacts = TABLE_DATA.filter(p => {
