@@ -4257,142 +4257,193 @@ function renderQuarterlyEngagement() {
   const el = document.getElementById("quarterly-engagement-table");
   if(!el) return;
 
-  const ownerF = (document.getElementById("qt-filter-owner")?.value||"ALL").toLowerCase();
-  const divF   = document.getElementById("qt-filter-div")?.value||"ALL";
-  const period = document.getElementById("qt-filter-period")?.value||"FY";
-  const sortOrd= document.getElementById("qt-sort-order")?.value||"desc";
+  const ownerF  = (document.getElementById("qt-filter-owner")?.value||"ALL").toLowerCase();
+  const divF    = document.getElementById("qt-filter-div")?.value||"ALL";
+  const period  = document.getElementById("qt-filter-period")?.value||"FY";
+  const sortOrd = document.getElementById("qt-sort-order")?.value||"desc";
 
   const today = new Date();
-  const ninetyDaysAgo = new Date(today); ninetyDaysAgo.setDate(today.getDate()-90);
+  const ninetyAgo = new Date(today); ninetyAgo.setDate(today.getDate()-90);
 
-  const quarters = [
+  const Qs = [
     {label:"Q1",title:"Jul–Sep 26",start:"2026-07-01",end:"2026-09-30"},
     {label:"Q2",title:"Oct–Dec 26",start:"2026-10-01",end:"2026-12-31"},
     {label:"Q3",title:"Jan–Mar 27",start:"2027-01-01",end:"2027-03-31"},
     {label:"Q4",title:"Apr–Jun 27",start:"2027-04-01",end:"2027-06-30"},
   ];
 
-  // If Firebase hasn't hydrated yet, show loading and retry after delay
   const entries = loadEntries();
+
+  // If Firebase not yet connected and no local entries, show loading state
   if(!_fbInited && entries.length === 0) {
-    el.innerHTML = `<div style="padding:24px;text-align:center;color:var(--label-gray);font-size:12px">Connecting to database…</div>`;
+    el.innerHTML = '<div style="padding:24px;text-align:center;color:var(--label-gray);font-size:12px">Connecting to database…</div>';
     setTimeout(renderQuarterlyEngagement, 1500);
     return;
   }
 
   // Filter contacts
-  let contacts = TABLE_DATA.filter(p => {
-    if(divF!=="ALL" && p.div!==divF) return false;
-    if(ownerF!=="ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF)) return false;
+  const contacts = TABLE_DATA.filter(p => {
+    if(divF !== "ALL" && p.div !== divF) return false;
+    if(ownerF !== "ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF)) return false;
     return true;
   });
 
-  // Count logged engagements per contact per quarter (or 90d)
   const REL_C = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
 
   const rows = contacts.map(p => {
-    const name = `${p.first} ${p.last}`;
+    const name = p.first + " " + p.last;
     let qEngs;
-    if(period==="90") {
-      // Single bucket: last 90 days
-      const cnt = entries.filter(e => {
-        if(e.contact!==name||!e.date) return false;
-        return new Date(e.date) >= ninetyDaysAgo;
-      }).length;
-      qEngs = [cnt, null, null, null]; // only Q1 slot used for 90d mode
+    if(period === "90") {
+      const cnt = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=ninetyAgo).length;
+      qEngs = [cnt, 0, 0, 0];
     } else {
-      qEngs = quarters.map(q => entries.filter(e => {
-        if(e.contact!==name||!e.date) return false;
+      qEngs = Qs.map(q => entries.filter(e => {
+        if(e.contact!==name || !e.date) return false;
         const d = new Date(e.date);
         return d >= new Date(q.start) && d <= new Date(q.end);
       }).length);
     }
-    const total = qEngs.reduce((a,b)=>a+(b||0),0);
+    const total = qEngs.reduce((a,b) => a+b, 0);
 
-    // Upcoming events matched to this contact (future only)
     const upcomingEvts = EVENTS_DATA.filter(ev => {
       if(new Date(ev.date) <= today) return false;
-      return getStakeholderMatches(ev).some(m => `${m.first} ${m.last}`===name);
-    }).map(ev => ({name:ev.name, date:ev.date, q: (() => {
+      return getStakeholderMatches(ev).some(m => m.first+" "+m.last === name);
+    }).map(ev => {
       const d = new Date(ev.date);
-      for(let i=0;i<quarters.length;i++){
-        if(d>=new Date(quarters[i].start)&&d<=new Date(quarters[i].end)) return i;
+      let q = -1;
+      for(let i=0;i<Qs.length;i++){
+        if(d>=new Date(Qs[i].start) && d<=new Date(Qs[i].end)){q=i;break;}
       }
-      return -1;
-    })()})).filter(e=>e.q>=0);
+      return {name:ev.name, date:ev.date, q};
+    }).filter(e => e.q >= 0);
 
     return {p, name, qEngs, total, upcomingEvts};
   });
 
-  // Sort
   rows.sort((a,b) => sortOrd==="asc" ? a.total-b.total : b.total-a.total);
 
-  const maxLogged = Math.max(1, ...rows.map(r => Math.max(...r.qEngs.map(n=>n||0))));
+  if(contacts.length === 0) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--label-gray);font-size:13px">No contacts match the selected filters.</div>';
+    return;
+  }
 
-  // Render
-  const is90 = period==="90";
-  const colHeaders = is90
-    ? `<th style="padding:6px 10px;color:var(--label-gray);font-weight:700;text-align:center;min-width:80px">Last 90 days</th>`
-    : quarters.map(q=>`<th style="padding:6px 10px;color:var(--label-gray);font-weight:700;text-align:center;min-width:80px" title="${q.title}">${q.label}</th>`).join("");
+  const maxLogged = Math.max(1, ...rows.map(r => Math.max(...r.qEngs)));
+  const is90 = period === "90";
 
-  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
-    <thead>
-      <tr style="border-bottom:2px solid var(--divider)">
-        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700;min-width:140px">Stakeholder</th>
-        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700">Owner</th>
-        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700">Rel. score</th>
-        ${colHeaders}
-        <th style="padding:6px 8px;color:var(--label-gray);font-weight:700;text-align:center">Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rows.map((r,i) => {
-        const ownerFirst=(r.p.owner||"").split(".")[0]||"—";
-        const relCol=REL_C[r.p.relLabel]||"#aaa";
+  // Build table using DOM (avoids all template-literal escaping issues)
+  const table = document.createElement("table");
+  table.style.cssText = "width:100%;border-collapse:collapse;font-size:12px";
 
-        const qCells = is90
-          ? (() => {
-              const n = r.qEngs[0]||0;
-              const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
-              const bar = `<div style="display:flex;align-items:flex-end;justify-content:center;height:44px;gap:2px">
-                ${n>0?`<div style="width:22px;height:${bh}px;background:#5b2d8e;border-radius:3px 3px 0 0"></div>`:`<div style="width:22px;height:2px;background:var(--divider);margin-top:42px"></div>`}
-              </div>
-              <div style="text-align:center;font-size:11px;font-weight:600;color:${n>0?"#5b2d8e":"var(--label-gray)"}">${n>0?n:"—"}</div>`;
-              return `<td style="padding:6px 8px;vertical-align:bottom">${bar}</td>`;
-            })()
-          : quarters.map((q,qi) => {
-              const n = r.qEngs[qi]||0;
-              // upcoming events in this quarter for this contact
-              const evtsThisQ = r.upcomingEvts.filter(e=>e.q===qi);
-              const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
-              const evtBarH = evtsThisQ.length>0 ? Math.max(6, Math.round((evtsThisQ.length/3)*20)) : 0;
-              const loggedBar = n>0?`<div style="width:20px;height:${bh}px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0" title="${n} logged"></div>`:`<div style="width:20px;height:2px;background:var(--divider);margin-top:40px;flex-shrink:0"></div>`;
-              const evtBar = evtsThisQ.length>0?`<div style="width:14px;height:${evtBarH}px;background:rgba(161,0,255,.28);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0" title="${evtsThisQ.length} upcoming event${evtsThisQ.length>1?"s":""}: ${evtsThisQ.map(e=>e.name).join(", ")}"></div>`:"";
-              const cellLabel = [n>0?`<span style="color:#5b2d8e;font-weight:700">${n}</span>`:"", evtsThisQ.length>0?`<span style="color:#a100ff;font-size:10px">+${evtsThisQ.length}</span>`:""].filter(Boolean).join(" ");
-              return `<td style="padding:6px 8px;vertical-align:bottom;text-align:center">
-                <div style="display:flex;align-items:flex-end;justify-content:center;height:44px;gap:3px">${loggedBar}${evtBar}</div>
-                <div style="font-size:10px;margin-top:2px;min-height:14px">${cellLabel||`<span style="color:var(--label-gray)">—</span>`}</div>
-              </td>`;
-            }).join("");
+  // Header
+  const thead = table.createTHead();
+  const hrow = thead.insertRow();
+  hrow.style.borderBottom = "2px solid var(--divider)";
+  const hcols = ["Stakeholder","Owner","Rel. score"].concat(
+    is90 ? ["Last 90 days"] : Qs.map(q=>q.label)
+  ).concat(["Total"]);
+  const htitles = ["","",""].concat(
+    is90 ? [""] : Qs.map(q=>q.title)
+  ).concat([""]);
+  hcols.forEach((txt,i) => {
+    const th = document.createElement("th");
+    th.textContent = txt;
+    th.title = htitles[i]||"";
+    th.style.cssText = "padding:6px 8px;color:var(--label-gray);font-weight:700;text-align:" + (i<3?"left":"center") + ";min-width:" + (i<3?"100px":"70px");
+    hrow.appendChild(th);
+  });
 
-        // navigation: profile link if has id, else directory; rel page for rel score
-        const profClick = r.p.id
-          ? `style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--divider)" onclick="showProfile('${r.p.id}');_profileSource='p1'"`
-          : `style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--divider)" onclick="showMiniProfile('${r.name}',${JSON.stringify({first:r.p.first,last:r.p.last,title:r.p.title,div:r.p.div,relLabel:r.p.relLabel,eng:r.p.eng,owner:r.p.owner,location:r.p.location})});"`;
-        const relClick = `style="cursor:pointer;text-decoration:underline;text-decoration-color:rgba(0,0,0,.1)" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===2)});document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p3').classList.add('active');_activePage='p3';"`;
-        const evtClick = `style="cursor:pointer;text-decoration:underline;text-decoration-color:rgba(0,0,0,.1)" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===3)});document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p6').classList.add('active');_activePage='p6';renderEvents();"`;
-        return `<tr style="border-bottom:1px solid var(--divider);${i%2===0?"background:var(--bg)":""}">
-          <td style="padding:7px 8px;font-weight:600;color:var(--dark-gray)" ${profClick}>${r.name}</td>
-          <td style="padding:7px 8px;font-size:11px;color:var(--label-gray)">${ownerFirst}</td>
-          <td style="padding:7px 8px;font-size:11px;font-weight:700;color:${relCol}" ${relClick}>${r.p.relLabel||"0 Neutral"}</td>
-          ${qCells}
-          <td style="padding:7px 8px;text-align:center;font-weight:700;color:${r.total>0?"var(--dark-gray)":"var(--label-gray)"}">${r.total||"—"}</td>
-        </tr>`;
-      }).join("")}
-    </tbody>
-  </table>
-  ${rows.length===0?`<div style="text-align:center;padding:24px;color:var(--label-gray);font-size:13px">No contacts match the selected filters.</div>`:""}`;
+  // Body
+  const tbody = table.createTBody();
+  rows.forEach((r, ri) => {
+    const tr = tbody.insertRow();
+    tr.style.cssText = "border-bottom:1px solid var(--divider);" + (ri%2===0?"background:var(--bg)":"");
+
+    // Name cell
+    const tdName = tr.insertCell();
+    tdName.style.cssText = "padding:7px 8px;font-weight:600;color:var(--dark-gray);cursor:pointer";
+    tdName.textContent = r.name;
+    tdName.title = "Open profile";
+    tdName.style.textDecoration = "underline";
+    tdName.style.textDecorationColor = "var(--divider)";
+    if(r.p.id) {
+      tdName.onclick = () => { showProfile(r.p.id); _profileSource="p1"; };
+    } else {
+      tdName.onclick = () => {
+        const p = TABLE_DATA.find(x => x.first===r.p.first && x.last===r.p.last);
+        if(p) showMiniProfile(p.first+" "+p.last, p);
+      };
+    }
+
+    // Owner cell
+    const tdOwner = tr.insertCell();
+    tdOwner.style.cssText = "padding:7px 8px;font-size:11px;color:var(--label-gray)";
+    tdOwner.textContent = (r.p.owner||"").split(".")[0]||"—";
+
+    // Rel score cell
+    const tdRel = tr.insertCell();
+    tdRel.style.cssText = "padding:7px 8px;font-size:11px;font-weight:700;cursor:pointer";
+    tdRel.style.color = REL_C[r.p.relLabel]||"#aaa";
+    tdRel.textContent = r.p.relLabel||"0 Neutral";
+    tdRel.title = "Go to Relationships";
+    tdRel.onclick = () => {
+      document.querySelectorAll(".nav-tab").forEach((t,i)=>t.classList.toggle("active",i===2));
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      document.getElementById("p3").classList.add("active");
+      _activePage="p3";
+    };
+
+    // Quarter / 90d cells
+    const colCount = is90 ? 1 : 4;
+    for(let qi=0; qi<colCount; qi++){
+      const td = tr.insertCell();
+      td.style.cssText = "padding:6px 8px;vertical-align:bottom;text-align:center";
+
+      const n = r.qEngs[qi]||0;
+      const evtsQ = is90 ? [] : r.upcomingEvts.filter(e=>e.q===qi);
+      const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
+      const evtH = evtsQ.length>0 ? Math.max(6, Math.round((evtsQ.length/3)*20)) : 0;
+
+      const barWrap = document.createElement("div");
+      barWrap.style.cssText = "display:flex;align-items:flex-end;justify-content:center;height:44px;gap:3px";
+
+      if(n>0){
+        const b = document.createElement("div");
+        b.style.cssText = "width:20px;height:"+bh+"px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0";
+        b.title = n+" logged";
+        barWrap.appendChild(b);
+      } else {
+        const b = document.createElement("div");
+        b.style.cssText = "width:20px;height:2px;background:var(--divider);margin-top:40px;flex-shrink:0";
+        barWrap.appendChild(b);
+      }
+      if(evtsQ.length>0){
+        const b = document.createElement("div");
+        b.style.cssText = "width:14px;height:"+evtH+"px;background:rgba(161,0,255,.25);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0";
+        b.title = evtsQ.length+" upcoming: "+evtsQ.map(e=>e.name).join(", ");
+        barWrap.appendChild(b);
+      }
+      td.appendChild(barWrap);
+
+      const lbl = document.createElement("div");
+      lbl.style.cssText = "font-size:10px;margin-top:2px;min-height:14px;text-align:center";
+      let lblHtml = "";
+      if(n>0) lblHtml += '<span style="color:#5b2d8e;font-weight:700">'+n+'</span>';
+      if(evtsQ.length>0) lblHtml += (lblHtml?" ":"")+'<span style="color:#a100ff;font-size:10px">+'+evtsQ.length+'</span>';
+      if(!lblHtml) lblHtml = '<span style="color:var(--label-gray)">—</span>';
+      lbl.innerHTML = lblHtml;
+      td.appendChild(lbl);
+    }
+
+    // Total cell
+    const tdTotal = tr.insertCell();
+    tdTotal.style.cssText = "padding:7px 8px;text-align:center;font-weight:700;color:" + (r.total>0?"var(--dark-gray)":"var(--label-gray)");
+    tdTotal.textContent = r.total||"—";
+  });
+
+  el.innerHTML = "";
+  el.appendChild(table);
 }
+
 
 function showPage(id,tab){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
