@@ -867,16 +867,16 @@ tbody tr:hover td{background:var(--lavender-2)}
       </div>
       <button onclick="closeEvtLogModal()" style="font-size:22px;border:none;background:none;cursor:pointer;color:var(--label-gray);line-height:1;padding:0 4px">×</button>
     </div>
-    <div class="log-form-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
       <input type="hidden" id="elm-entry-id">
       <input type="hidden" id="elm-contact-name">
       <div><div class="lf-label">Accenture lead</div><select id="elm-owner" class="lf-input"><option value="">Select lead</option><option>jordan.griffiths</option><option>wendy.saintruth</option><option>anthony.g.james</option><option>jason.lee</option><option>dakshai.soni</option><option>galia.jenshel</option></select></div>
       <div><div class="lf-label">Date of engagement</div><input type="date" id="elm-date" class="lf-input"></div>
       <div><div class="lf-label">Engagement type</div><select id="elm-type" class="lf-input"><option value="">Select type</option><option>Meeting — in person</option><option>Meeting — virtual</option><option>Call</option><option>Working session</option><option>Social / event</option><option>Email / written</option><option>Demo</option></select></div>
       <div><div class="lf-label">Entry date</div><input type="date" id="elm-entry-date" class="lf-input"></div>
-      <div class="log-form-wide"><div class="lf-label">What was discussed</div><input type="text" id="elm-summary" class="lf-input" placeholder="e.g. Discussed event agenda, confirmed attendance"></div>
-      <div class="log-form-wide"><div class="lf-label">Additional notes</div><textarea id="elm-notes" class="lf-input" placeholder="e.g. Follow up with logistics team"></textarea></div>
-      <div><div class="lf-label">Next action</div><input type="text" id="elm-action" class="lf-input" placeholder="e.g. Send calendar invite by Friday"></div>
+      <div style="grid-column:1/-1"><div class="lf-label">What was discussed</div><input type="text" id="elm-summary" class="lf-input" placeholder="e.g. Discussed event agenda, confirmed attendance"></div>
+      <div style="grid-column:1/-1"><div class="lf-label">Additional notes</div><textarea id="elm-notes" class="lf-input" placeholder="e.g. Follow up with logistics team"></textarea></div>
+      <div style="grid-column:1/-1"><div class="lf-label">Next action</div><input type="text" id="elm-action" class="lf-input" placeholder="e.g. Send calendar invite by Friday"></div>
     </div>
     <div class="log-actions" style="margin-top:16px">
       <button class="btn-primary" onclick="saveEvtLogEntry()">Save invite log</button>
