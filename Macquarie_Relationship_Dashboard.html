@@ -372,10 +372,11 @@ tbody tr:hover td{background:var(--lavender-2)}
 </div>
 
 <nav>
-  <div class="nav-logo">Macquarie <span>Tier 1 Programme</span></div>
+  <div class="nav-logo">Macquarie</div>
   <div class="nav-tab active" onclick="showPage('p1',this)">Overview</div>
   <div class="nav-tab" onclick="showPage('p4',this)">Directory</div>
   <div class="nav-tab" onclick="showPage('p3',this)">Relationships<span class="nav-badge" id="nav-badge"></span></div>
+  <div class="nav-tab" onclick="showPage('p6',this)">🗓 Events</div>
   <div class="nav-tab" onclick="showPage('p5',this)">⚙ Settings</div>
 </nav>
 
@@ -412,6 +413,7 @@ tbody tr:hover td{background:var(--lavender-2)}
     </div>
   </div>
 
+
   <!-- ARS by Quarter -->
   <div class="card" style="margin-bottom:20px">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
@@ -431,15 +433,59 @@ tbody tr:hover td{background:var(--lavender-2)}
   <!-- Relationship Map -->
   <div class="card" style="margin-bottom:20px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div><div class="eyebrow">Relationship map</div><div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">Engagement strength by contact</div></div>
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
-        <div class="cleg"><div style="width:12px;height:12px;background:#1a8c66"></div>Strong (5+)</div>
-        <div class="cleg"><div style="width:12px;height:12px;background:#1a5fa5"></div>Moderate (3–4)</div>
-        <div class="cleg"><div style="width:12px;height:12px;background:#9e6010"></div>Low (1–2)</div>
-        <div class="cleg"><div style="width:12px;height:12px;background:#aaaaaa"></div>Zero</div>
+      <div><div class="eyebrow">Relationship map</div><div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">Relationship score by contact · click to open profile</div></div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <div class="cleg"><div style="width:12px;height:12px;background:#2d0057"></div>+ 3 Strong</div>
+        <div class="cleg"><div style="width:12px;height:12px;background:#5b2d8e"></div>+ 2 Good</div>
+        <div class="cleg"><div style="width:12px;height:12px;background:#8e5dbf"></div>+ 1 Mild</div>
+        <div class="cleg"><div style="width:12px;height:12px;background:#aaaaaa"></div>0 Neutral</div>
+        <div class="cleg"><div style="width:12px;height:12px;background:#c0392b"></div>- 1 At risk</div>
       </div>
     </div>
     <div style="overflow-x:auto"><div id="heatmap"></div></div>
+  </div>
+
+  <!-- FY27 Quarterly Engagement + Forecast -->
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div class="eyebrow">Stakeholder engagement tracker</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">FY27 engagements &amp; upcoming event opportunities</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span style="font-size:11px;color:var(--label-gray)">Filters:</span>
+        <select id="qt-filter-owner" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+          <option value="ALL">All owners</option>
+          <option value="jordan">Jordan</option>
+          <option value="wendy">Wendy</option>
+          <option value="anthony">Anthony</option>
+          <option value="jason">Jason</option>
+          <option value="dakshai">Dakshai</option>
+          <option value="galia">Galia</option>
+        </select>
+        <select id="qt-filter-div" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+          <option value="ALL">All divisions</option>
+          <option value="MacCap">MacCap</option>
+          <option value="MAM">MAM</option>
+          <option value="BFS">BFS</option>
+          <option value="CGM">CGM</option>
+          <option value="COG">COG</option>
+        </select>
+        <select id="qt-filter-period" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+          <option value="FY">Full FY27</option>
+          <option value="90">Last 90 days</option>
+        </select>
+        <select id="qt-sort-order" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+          <option value="desc">Most → least</option>
+          <option value="asc">Least → most</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center;font-size:11px;color:var(--label-gray);margin-bottom:12px">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#5b2d8e;border-radius:2px;margin-right:4px"></span>Logged engagements</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(161,0,255,.25);border-radius:2px;border:1px dashed #a100ff;margin-right:4px"></span>Upcoming event opps</span>
+    </div>
+    <div id="quarterly-engagement-table" style="overflow-x:auto"></div>
   </div>
 
 </div>
@@ -505,7 +551,7 @@ tbody tr:hover td{background:var(--lavender-2)}
       <div><div class="lf-label">Division <span style="color:var(--red)">*</span></div><select id="nc-div" class="lf-input"><option value="">Select division</option><option>MacCap</option><option>MAM</option><option>BFS</option><option>CGM</option><option>COG</option><option>Group</option></select></div>
       <div><div class="lf-label">Location</div><select id="nc-location" class="lf-input"><option value="">Select</option><option>Sydney</option><option>Melbourne</option><option>London</option><option>New York</option><option>Hong Kong</option><option>Singapore</option><option>Other</option></select></div>
       <div><div class="lf-label">Relationship owner</div><select id="nc-owner" class="lf-input"><option value="">Select lead</option><option>jordan.griffiths</option><option>wendy.saintruth</option><option>anthony.g.james</option><option>jason.lee</option><option>dakshai.soni</option><option>faizal.janif</option></select></div>
-      <div><div class="lf-label">Initial relationship health</div><select id="nc-health" class="lf-input"><option value="Unknown">Unknown</option><option>Neutral</option><option>Mild +</option><option>Good</option><option>Strong</option><option>At risk</option></select></div>
+      <div><div class="lf-label">Initial relationship health</div><select id="nc-health" class="lf-input"><option value="0 Neutral">0 Neutral</option><option value="+ 1 Mild">+ 1 Mild</option><option value="+ 2 Good">+ 2 Good</option><option value="+ 3 Strong">+ 3 Strong</option><option value="- 1 At risk">- 1 At risk</option><option value="Not engaged">Not engaged</option></select></div>
       <div><div class="lf-label">Action urgency</div><select id="nc-urgency" class="lf-input"><option value="medium">Maintain</option><option value="high">Prioritise</option><option value="critical">Act now</option><option value="low">On track</option></select></div>
       <div class="log-form-wide"><div class="lf-label">Division remit</div><input type="text" id="nc-remit" class="lf-input" placeholder="e.g. Leads data architecture across CGM"></div>
       <div class="log-form-wide"><div class="lf-label">Why this contact matters to Accenture</div><textarea id="nc-strategic" class="lf-input" placeholder="e.g. Key decision-maker for CGM data platform. RFP expected Q4."></textarea></div>
@@ -770,6 +816,69 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 </div>
 
+<!-- PAGE 6: EVENTS -->
+<div id="p6" class="page">
+  <div class="eyebrow" style="margin-bottom:6px">FY27 Marketing Calendar &amp; Events Register</div>
+  <h1 style="margin-bottom:6px">Events &amp; engagement calendar</h1>
+  <p style="font-size:13px;color:var(--label-gray);margin-bottom:16px;max-width:700px">FY27 events mapped to your stakeholders. Click any event to see suggested contacts.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
+    <select id="evt-filter-loc" onchange="renderEvents()" style="font-size:12px;padding:6px 10px;border:1px solid var(--divider);border-radius:6px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+      <option value="ALL">All locations</option>
+      <option value="ANZ">ANZ</option>
+      <option value="US">US / Americas</option>
+      <option value="SEA">South East Asia</option>
+      <option value="EMEA">EMEA</option>
+    </select>
+    <select id="evt-filter-theme" onchange="renderEvents()" style="font-size:12px;padding:6px 10px;border:1px solid var(--divider);border-radius:6px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+      <option value="ALL">All themes</option>
+      <option value="AI & Data">AI &amp; Data</option>
+      <option value="Cybersecurity">Cybersecurity</option>
+      <option value="Payments">Payments</option>
+      <option value="Leadership">Leadership</option>
+      <option value="Customer & Growth">Customer &amp; Growth</option>
+      <option value="Digital Core">Digital Core</option>
+      <option value="Cloud">Cloud</option>
+      <option value="Risk & Compliance">Risk &amp; Compliance</option>
+    </select>
+    <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+      <button onclick="shiftEvtMonth(-1)" style="font-size:18px;border:1px solid var(--divider);background:var(--card-bg);color:var(--dark-gray);width:32px;height:32px;border-radius:6px;cursor:pointer;line-height:1">‹</button>
+      <span id="evt-month-label" style="font-size:13px;font-weight:700;color:var(--dark-gray);min-width:120px;text-align:center"></span>
+      <button onclick="shiftEvtMonth(1)" style="font-size:18px;border:1px solid var(--divider);background:var(--card-bg);color:var(--dark-gray);width:32px;height:32px;border-radius:6px;cursor:pointer;line-height:1">›</button>
+    </div>
+    <span id="evt-count" style="font-size:12px;color:var(--label-gray)"></span>
+  </div>
+  <div id="evt-calendar" style="margin-bottom:20px"></div>
+  <div id="evt-detail" style="display:none;background:var(--card-bg);border:1px solid var(--purple-primary);border-radius:10px;padding:20px;margin-top:4px"></div>
+</div>
+<!-- EVENT LOG MODAL -->
+<div id="evt-log-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:var(--card-bg);border:1px solid var(--divider);max-width:560px;width:94%;max-height:90vh;overflow-y:auto;padding:28px 28px 20px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div class="eyebrow" id="elm-event-label" style="margin-bottom:4px"></div>
+        <div style="font-size:16px;font-weight:700;color:var(--dark-gray)" id="elm-contact-label"></div>
+      </div>
+      <button onclick="closeEvtLogModal()" style="font-size:22px;border:none;background:none;cursor:pointer;color:var(--label-gray);line-height:1;padding:0 4px">×</button>
+    </div>
+    <div class="log-form-grid">
+      <input type="hidden" id="elm-entry-id">
+      <input type="hidden" id="elm-contact-name">
+      <div><div class="lf-label">Accenture lead</div><select id="elm-owner" class="lf-input"><option value="">Select lead</option><option>jordan.griffiths</option><option>wendy.saintruth</option><option>anthony.g.james</option><option>jason.lee</option><option>dakshai.soni</option><option>galia.jenshel</option></select></div>
+      <div><div class="lf-label">Date of engagement</div><input type="date" id="elm-date" class="lf-input"></div>
+      <div><div class="lf-label">Engagement type</div><select id="elm-type" class="lf-input"><option value="">Select type</option><option>Meeting — in person</option><option>Meeting — virtual</option><option>Call</option><option>Working session</option><option>Social / event</option><option>Email / written</option><option>Demo</option></select></div>
+      <div><div class="lf-label">Entry date</div><input type="date" id="elm-entry-date" class="lf-input"></div>
+      <div class="log-form-wide"><div class="lf-label">What was discussed</div><input type="text" id="elm-summary" class="lf-input" placeholder="e.g. Discussed event agenda, confirmed attendance"></div>
+      <div class="log-form-wide"><div class="lf-label">Additional notes</div><textarea id="elm-notes" class="lf-input" placeholder="e.g. Follow up with logistics team"></textarea></div>
+      <div><div class="lf-label">Next action</div><input type="text" id="elm-action" class="lf-input" placeholder="e.g. Send calendar invite by Friday"></div>
+    </div>
+    <div class="log-actions" style="margin-top:16px">
+      <button class="btn-primary" onclick="saveEvtLogEntry()">Save engagement</button>
+      <button class="btn-secondary" onclick="closeEvtLogModal()">Cancel</button>
+      <span id="elm-success" class="log-success" style="display:none">Saved ✓</span>
+    </div>
+  </div>
+</div>
+
 <!-- SYNC STATUS BAR -->
 <div class="sp-bar">
   <div class="sp-dot amber pulse" id="sp-dot"></div>
@@ -885,7 +994,7 @@ function populateEtypeDropdowns(){
 }
 
 // ── DIVISIONS ──────────────────────────────────────────────
-const DEFAULT_DIVS = ["MacCap","MAM","BFS","CGM","COG","Group"];
+const DEFAULT_DIVS = ["MacCap","MAM","BFS","CGM","COG","Group","Quantum Switch"];
 function loadDivs(){ try{ return JSON.parse(localStorage.getItem("mq_divs")||"null")||[...DEFAULT_DIVS]; }catch(e){ return [...DEFAULT_DIVS]; } }
 async function saveDivs(arr){ localStorage.setItem("mq_divs",JSON.stringify(arr)); await spPersist(); }
 
@@ -1018,11 +1127,6 @@ async function autoBackup(reason){
 }
 
 function scheduleBackups(){
-  // On-open backup after Firebase syncs
-  setTimeout(function(){
-    if(loadEntries().length > 0) autoBackup("open");
-  }, 10000);
-
   // Friday 5pm — check every 30 minutes
   setInterval(function(){
     const now    = new Date();
@@ -1106,13 +1210,89 @@ function tryFbInit(){
   fbInit();
 }
 
-function fbInit(){
+async function fbInit(){
   if(_fbInited) return;
   try{
-    const app=firebase.initializeApp(FIREBASE_CONFIG);
-    _db=firebase.database(app);
-    _dbRef=_db.ref("macquarie_crm");
-    _fbInited=true;
+    // ── Silent Firebase Auth via REST (no Auth SDK required) ───────────
+    // Calls the Firebase Auth REST API to exchange email+password for an
+    // idToken, then injects that token into the Realtime Database SDK's
+    // persistent connection before any data is read or written.
+    // Firebase rules: ".read": "auth != null" — satisfied by this token.
+    // The credential only exists inside this HTML file. Anyone without
+    // the file (i.e. without SharePoint access) cannot reach the database.
+    const FB_AUTH_EMAIL    = "benny.lui@accenture.com";
+    const FB_AUTH_PASSWORD = "Macquarie-ACN2026";
+    const FB_API_KEY       = FIREBASE_CONFIG.apiKey;
+
+    spSetStatus("amber","Authenticating…");
+    let idToken = null;
+    try {
+      const authRes = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`,
+        {
+          method:  "POST",
+          headers: {"Content-Type":"application/json"},
+          body:    JSON.stringify({
+            email:             FB_AUTH_EMAIL,
+            password:          FB_AUTH_PASSWORD,
+            returnSecureToken: true
+          })
+        }
+      );
+      const authData = await authRes.json();
+      if(authData.idToken){
+        idToken = authData.idToken;
+      } else {
+        const msg = (authData.error && authData.error.message) || "Unknown error";
+        spSetStatus("red","Firebase auth failed: "+msg);
+        return;
+      }
+    } catch(authErr){
+      spSetStatus("red","Auth network error: "+authErr.message);
+      return;
+    }
+
+    // ── Initialise Firebase app ────────────────────────────────────────
+    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    _db    = firebase.database(app);
+    _dbRef = _db.ref("macquarie_crm");
+
+    // ── Inject the idToken into the database SDK ───────────────────────
+    // The Realtime Database SDK's persistent connection exposes
+    // refreshAuthToken() which is the same method the Auth SDK uses
+    // internally. Calling it before any listener is attached ensures
+    // every read/write carries a valid auth token.
+    function injectToken(token){
+      try {
+        const repo = _db._delegate && _db._delegate._repo;
+        const conn = repo && repo.persistentConnection_;
+        if(conn && typeof conn.refreshAuthToken === "function"){
+          conn.refreshAuthToken(token);
+          return true;
+        }
+      } catch(e){}
+      return false;
+    }
+
+    // The persistent connection may not exist yet on first init —
+    // poll briefly until it is available, then inject.
+    let injected = false;
+    for(let i = 0; i < 20; i++){
+      if(injectToken(idToken)){ injected = true; break; }
+      await new Promise(r => setTimeout(r, 150));
+    }
+    if(!injected){
+      // Fallback: attach token refresh listener on connection object
+      // by overriding the internal auth provider getToken method.
+      try {
+        const repo = _db._delegate && _db._delegate._repo;
+        if(repo && repo.authTokenProvider_){
+          repo.authTokenProvider_.getToken = async () => ({accessToken: idToken});
+        }
+      } catch(e){}
+    }
+
+    _fbInited = true;
     _dbRef.on("value",(snap)=>{
       const data=snap.val();
       if(!data)return;
@@ -1202,74 +1382,78 @@ async function saveProfileExtrasToSP(id,obj){await spPersist();}
 const EXEC_COMMITTEE=new Set(["greg-ward","frank-kwok","ben-way","michael-silverton","simon-wright","miki-edelman"]);
 
 const PEOPLE=[
-  {id:"frank-kwok",first:"Frank",last:"Kwok",title:"CFO and Head of Financial Management, People and Engagement",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Neutral",eng:1,upcoming:"Regular exec cadence (proposed)",urgency:"high",remit:"Leads Finance, Treasury, Tax, People and Engagement globally. New to exec committee Jan 2026. Gateway to Finance transformation, HR agenda, and cross-group operating model.",strategic:"Central to Accenture corporate functions push. Frank controls the budget lens for transformation and is a direct path to the CEO.",bio:"Frank has spent 28 years at Macquarie. University of Sydney alumnus. Known for disciplined capital management and deep understanding of the Asia-Pacific region. Became CFO January 2026 succeeding Alex Harvey.",career:[{year:"2026–",role:"CFO and Head of FPE · Macquarie Group"},{year:"2024–26",role:"Deputy CFO and Group Treasurer · Macquarie Group"},{year:"Prior",role:"Head of Real Assets Asia-Pacific · MAM"},{year:"1997",role:"Joined Macquarie Group"}],interests:{pro:["Capital management","Decarbonisation and digital infrastructure","Asia-Pacific growth strategy","Enterprise finance transformation","AI-enabled reporting"],personal:["Asia-Pacific markets","Community engagement through Macquarie Group Foundation"],hooks:["MAIF3 and Asia infrastructure — Frank led this personally","Transition from Harvey — he is proving himself in the first year","AI in finance — open to practical use cases over theory"],caution:["Avoid comparisons to Alex Harvey","Do not position Accenture as a project vendor — strategic partner framing only"],style:"Data-led and measured. Prefers concise framing with financial proof points. Not yet a deep relationship — build trust before pushing agenda."},notes:[{date:"Jun 26",type:"meeting",title:"Introductory relationship meeting",detail:"Positive tone. Covered Accenture global structure, D&AI, Finance transformation opportunities. Sarah Rees-Williams also in attendance."},{date:"Jun 26",type:"action",title:"Follow-up: AI use cases for FPE and Risk",detail:"Share Telstra data platform and finance AI examples. Include Annabelle (RMG) in future sessions."}],plays:["Group CFO relationship COG","AI enterprise positioning"],tq:"Not yet assessed"},
-  {id:"jess-walpole",first:"Jess",last:"Walpole",title:"Global COO and Head of Central Operations, MacCap",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"Building",eng:3,upcoming:"ICLM demo (2 weeks)",urgency:"critical",remit:"Runs all central operations for MacCap globally and APAC COO. Controls KYC, ops transformation, and embedded in AI visioning.",strategic:"High-momentum contact. Confirmed in AI visioning sessions. KYC is an active pain point. CGM partnership in place but Accenture has opportunity to displace via ICLM demo.",bio:"Jess is Global COO of Macquarie Capital and Head of Central Operations. She has extensive operations and transformation experience across financial services.",career:[{year:"Current",role:"Global COO and Head of Central Operations · Macquarie Capital"},{year:"Prior",role:"COO · Macquarie Capital APAC"},{year:"Prior",role:"Senior operations leadership · Macquarie Group"}],interests:{pro:["AI-enabled operations and revenue transformation","KYC and compliance automation","Data governance and protection","Enterprise-grade AI tooling"],personal:["Practical technology implementation","Team culture and capability building"],hooks:["She is cautious of back-office AI framing — lead with revenue and client impact","KYC is a live pain point with CGM partnership","AI visioning sessions — she is a confirmed participant"],caution:["Do not frame AI work as back-office automation","Data protection is a live legal concern — Kristen Ruhl posture is restrictive"],style:"Results-oriented and direct. Wants practical outcomes. Responds well to demos. Revenue framing over efficiency framing."},notes:[{date:"May 26",type:"meeting",title:"Coffee catch-up first in-person",detail:"Enthusiastic about TQ/AI training. Cautious about back-office framing, wants revenue focus."},{date:"May 26",type:"insight",title:"Data protection concern raised",detail:"Legal team (Kristen Ruhl) has a do not write anything down posture. Change management required."},{date:"Jun 26",type:"action",title:"KYC ICLM demo requested",detail:"Jess raised KYC struggles with CGM. Demo to be arranged in 2 to 3 weeks."}],plays:["AI enterprise positioning MacCap","KYC ICLM MacCap vs CGM"],tq:"Interested, revenue-focused"},
-  {id:"ben-way",first:"Ben",last:"Way",title:"Head of Macquarie Asset Management",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"At risk",eng:0,upcoming:"None — urgent",urgency:"critical",remit:"Head of MAM globally. Leads a $940B+ AUM platform. Exec committee member since April 2021.",strategic:"CRITICAL RISK. Ben Way holds a strongly negative view and zero engagement logged. Root cause unknown. Risks contaminating the broader MAM account.",bio:"Ben joined Macquarie in 2006. Bain and Company background. Former Chairman and CEO of Taiwan Broadband Communications. Won the World Universities Debating Championship in 1994. Lived across Beijing, Hong Kong, Taipei, Seoul, Bangkok and New York. Co-Founder of Good Financial. Board of Mother's Choice. Aspen Global Leadership Network fellow.",career:[{year:"2021–",role:"Head of Macquarie Asset Management"},{year:"Prior",role:"CEO of Asia · Macquarie Group"},{year:"Prior",role:"Chairman and CEO · Taiwan Broadband Communications"},{year:"Prior",role:"Management consultant · Bain and Company"},{year:"2006",role:"Joined Macquarie Group"}],interests:{pro:["Infrastructure and real assets investment","Capital allocation and sustainable investment","Asia-Pacific growth markets","ESG and decarbonisation"],personal:["Debating — world champion level","Philanthropy — Mother's Choice board","Co-Founder of Good Financial","Aspen Leadership Network fellow"],hooks:["Aspen Leadership Network — values-driven leadership","Mother's Choice and Good Financial — genuine social purpose","World debating background — intellectual rigour","300 million people rely on MAM-managed infrastructure daily"],caution:["Strongly negative — do not engage without diagnosis and recovery plan","Use Keith Gray or James Dyckoff as intermediary","Avoid anything transactional or supplier-like"],style:"Intellectually rigorous, values-driven, globally minded. Responds to ideas and purpose over commercial pitch."},notes:[{date:"",type:"risk",title:"No engagement recorded",detail:"No meetings, calls or touchpoints logged in FY26."},{date:"",type:"risk",title:"Root cause unknown",detail:"Unclear whether sentiment stems from prior delivery issue or competitor relationship."}],plays:["MAM relationship recovery"],tq:"Unknown"},
-  {id:"michael-silverton",first:"Michael",last:"Silverton",title:"Group Head of Macquarie Capital",div:"MacCap",location:"New York",owner:"jordan.griffiths",relLabel:"Neutral",eng:1,upcoming:"Golf Open (Aug)",urgency:"high",remit:"Head of MacCap globally. Leads advisory, capital raising, principal investing and equities. Exec committee member.",strategic:"One touchpoint plus Golf Open scheduled. Miki Edelman is the more active MacCap relationship. Silverton is the ultimate prize but must be earned through Miki and Jess.",bio:"Michael Silverton is the Global Head of Macquarie Capital. Based in New York, he oversees MacCap global advisory, capital markets, and principal finance activities.",career:[{year:"Current",role:"Group Head · Macquarie Capital"},{year:"Prior",role:"Senior leadership roles across MacCap globally"}],interests:{pro:["Investment banking and advisory","Infrastructure and technology investing","AI and technology transformation for MacCap"],personal:["Golf — Golf Open Aug is a confirmed social touchpoint"],hooks:["Golf Open in August — priority social engagement","AI strategy for MacCap — he is the ultimate decision-maker"],caution:["Access must be earned through Miki Edelman","One touchpoint only — do not over-pitch early"],style:"Senior executive — expects peer-level engagement. Strategic conversation only."},notes:[{date:"May 26",type:"meeting",title:"First touchpoint logged",detail:"Brief engagement. Golf Open in August is next major touchpoint."}],plays:["AI enterprise positioning MacCap"],tq:"Not yet assessed"},
-  {id:"simon-wright",first:"Simon",last:"Wright",title:"Head of Commodities and Global Markets",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"Good",eng:0,upcoming:"None logged",urgency:"high",remit:"Leads CGM globally across capital, financing, risk management and physical execution. Exec committee member since April 2024.",strategic:"Good relationship score but zero engagements this FY. CGM has the lowest division coverage at 28%. Simon is the entry point to a critically underserved division.",bio:"Simon Wright is Head of Commodities and Global Markets at Macquarie Group, joining the executive committee in April 2024.",career:[{year:"2024–",role:"Head of CGM · Executive Committee"},{year:"Prior",role:"Senior leadership roles · Macquarie CGM"}],interests:{pro:["Commodity markets and financing","Energy transition and renewables","Risk management","Technology and data in trading"],personal:["London-based financial markets community"],hooks:["CGM is weakest division — Simon is the starting point","Energy transition is a key CGM theme"],caution:["Zero engagement this FY despite good relationship score — urgency is high"],style:"Markets professional — data-driven, commercially direct."},notes:[],plays:[],tq:"Not yet assessed"},
-  {id:"miki-edelman",first:"Miki",last:"Edelman",title:"Head of the Americas, MacCap",div:"MacCap",location:"New York",owner:"anthony.g.james",relLabel:"Good",eng:4,upcoming:"Golf Open (Aug)",urgency:"medium",remit:"Leads MacCap operations across the Americas. His approval is required before AI strategy material can be shared with D3E.",strategic:"Most active MacCap exec relationship. 4 touchpoints this FY. Golf Open locked in. AI strategy share pending his sign-off.",bio:"Miki Edelman is a Senior Managing Director and Head of the Americas at Macquarie Capital. Known as a dynamic, client-centric leader. Passionate advocate for diversity and inclusion. Active on LinkedIn on AI, markets and leadership topics. New York Knicks season ticket holder.",career:[{year:"Current",role:"Head of the Americas · Macquarie Capital"},{year:"2020",role:"Senior Managing Director · Macquarie Capital Americas"},{year:"2018–20",role:"Head of Strategic Client Solutions, Cash Equities"},{year:"2015–18",role:"Global Head of Sales, Cash Equities"},{year:"2010–15",role:"Head of Equities Japan and Taiwan"}],interests:{pro:["Financial markets technology and AI","Data-driven analytics","Structured products","Diversity, equity and inclusion"],personal:["New York Knicks season ticket holder","Active on LinkedIn on AI and markets","Advance Global Australians community","D&I advocacy — Unity network founder"],hooks:["New York Knicks — deep personal interest","AI and markets commentary — she is publicly engaged","Golf Open in August — confirmed social engagement"],caution:["AI strategy material for D3E requires her explicit sign-off","Generic Accenture pitches will not land"],style:"Energetic, future-focused and commercially driven. Values D&I — signal Accenture commitment."},notes:[{date:"Mar-Jun 26",type:"meeting",title:"4 touchpoints across Q3",detail:"Multiple engagements. Relationship well-established with anthony.g.james as primary owner."},{date:"Aug 26",type:"upcoming",title:"Golf Open",detail:"Social engagement. Opportunity to advance AI strategy conversation."}],plays:["AI enterprise positioning MacCap"],tq:"Not yet assessed"},
-  {id:"dani-malone",first:"Dani",last:"Malone",title:"Data and AI Leadership, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"Good",eng:1,upcoming:"AI visioning sessions",urgency:"medium",remit:"Leads Data and AI initiatives at COG level. Central to Macquarie enterprise AI strategy and the D3E governance agenda.",strategic:"Key node in the AI influence map. Dani is the internal champion for enterprise AI and will shape which partners get access to the enterprise AI visioning work.",bio:"Dani Malone is a senior Data and AI leader within Macquarie COG, working across divisional boundaries to drive Macquarie enterprise AI and data strategy.",career:[{year:"Current",role:"Data and AI Leadership · Corporate Operations Group, Macquarie"},{year:"Prior",role:"Senior data and analytics roles · Macquarie Group"}],interests:{pro:["Enterprise AI strategy","Data governance and management","AI use cases with measurable business outcomes","Cross-divisional data coordination"],personal:["Internal champion culture","Practical AI implementation over experimentation"],hooks:["She is the internal AI champion — Accenture access flows through her","Practical outcomes over theory — wants to see AI deliver measurable results"],caution:["Keep engagement consistent — only 1 touchpoint this FY"],style:"Collaborative and pragmatic. Motivated by real-world AI outcomes. Engage as a thinking partner."},notes:[{date:"Jun 26",type:"meeting",title:"Engagement logged",detail:"1 touchpoint this FY. Relationship positive."}],plays:["D3E data governance COG","AI enterprise positioning"],tq:"Not yet assessed"},
-  {id:"david-tough",first:"David",last:"Tough",title:"Group CTO, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"Neutral",eng:4,upcoming:"None logged",urgency:"high",remit:"Group CTO with oversight of technology strategy across Macquarie Group.",strategic:"4 engagements but relationship remains neutral. Active but not converting into strategic value. Needs a more intentional agenda.",bio:"David Tough is Macquarie Group CTO, responsible for group-wide technology strategy and major technology investment decisions.",career:[{year:"Current",role:"Group CTO · Corporate Operations Group, Macquarie"},{year:"Prior",role:"Senior technology leadership · Macquarie Group"}],interests:{pro:["Enterprise technology strategy","Cloud and architecture modernisation","Technology consistency across divisions","Cybersecurity","AI and data infrastructure"],personal:["Sydney technology community"],hooks:["4 meetings without movement — needs a strategic pivot","Technology architecture PoV — bring a forward-looking perspective"],caution:["Status-meeting trap — do not let the next meeting be another update session"],style:"Technology-first, systematic thinker. Prefers structured arguments and specific technical recommendations."},notes:[{date:"Apr-Jun 26",type:"meeting",title:"4 touchpoints across Q3",detail:"Regular engagement but no relationship movement. Covered technology consistency, D3E, and AI agenda."}],plays:["D3E data governance COG"],tq:"Not yet assessed"},
-  {id:"greg-ward",first:"Greg",last:"Ward",title:"Incoming Group CEO — effective November 2026",div:"BFS",location:"Sydney",owner:"jordan.griffiths",relLabel:"Mild +",eng:1,upcoming:"CEO transition Nov 2026",urgency:"critical",remit:"Appointed as next Managing Director and CEO, effective 7 November 2026. Currently Deputy MD and Head of BFS. The single most important relationship on this account.",strategic:"CRITICAL UPDATE: Greg Ward named as Group CEO from November 2026. With only 1 touchpoint and a mild positive relationship this is an urgent gap. Accenture must significantly deepen this relationship before his transition.",bio:"Greg Ward joined Macquarie in 1996 at ASX listing. Served as Global CFO for 14 years. Named next MD and CEO on 23 July 2026, effective 7 November 2026. Council Member at Macquarie University. Chairman of the Australian Brandenburg Orchestra.",career:[{year:"Nov 2026",role:"Managing Director and CEO (incoming) · Macquarie Group"},{year:"2013–",role:"Head of Banking and Financial Services · Macquarie Group"},{year:"2011–13",role:"Deputy Managing Director and CEO of Macquarie Bank"},{year:"1997–2011",role:"Global Chief Financial Officer · Macquarie Group"},{year:"1996",role:"Joined Macquarie Group at ASX listing"}],interests:{pro:["Digital and challenger banking","BFS growth strategy","Capital discipline and financial management","Wealth management transformation","Enterprise AI in financial services"],personal:["Music — Chairman of Australian Brandenburg Orchestra","Macquarie University — Council Member","Long-tenure Macquarie loyalist"],hooks:["CEO appointment is the news — congratulate and build before transition","BFS digital challenger bank story — he built this from 2013","Capital discipline background — expects financial rigour"],caution:["Do not treat as BFS Head only — he is effectively CEO-elect now","Only 1 touchpoint — critically underdeveloped","Avoid operational or project-delivery-level conversations"],style:"Measured, financially rigorous, long-term institutional thinker. Deep Macquarie loyalist — position Accenture as a long-term strategic partner."},notes:[{date:"Mar 26",type:"meeting",title:"1 touchpoint logged",detail:"Brief engagement. Pre-dates CEO announcement."},{date:"Jul 26",type:"insight",title:"Named as next Macquarie Group CEO",detail:"Announced 23 July 2026. Takes over from Shemara Wikramanayake on 7 November 2026."}],plays:["Group CEO relationship — urgent","BFS transformation"],tq:"Not yet assessed"},
+  {id:"frank-kwok",first:"Frank",last:"Kwok",title:"CFO and Head of Financial Management, People and Engagement",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"Regular exec cadence (proposed)",urgency:"high",remit:"Leads Finance, Treasury, Tax, People and Engagement globally. New to exec committee Jan 2026. Gateway to Finance transformation, HR agenda, and cross-group operating model.",strategic:"Central to Accenture corporate functions push. Frank controls the budget lens for transformation and is a direct path to the CEO.",bio:"Frank has spent 28 years at Macquarie. University of Sydney alumnus. Known for disciplined capital management and deep understanding of the Asia-Pacific region. Became CFO January 2026 succeeding Alex Harvey.",career:[{year:"2026–",role:"CFO and Head of FPE · Macquarie Group"},{year:"2024–26",role:"Deputy CFO and Group Treasurer · Macquarie Group"},{year:"Prior",role:"Head of Real Assets Asia-Pacific · MAM"},{year:"1997",role:"Joined Macquarie Group"}],interests:{pro:["Capital management","Decarbonisation and digital infrastructure","Asia-Pacific growth strategy","Enterprise finance transformation","AI-enabled reporting"],personal:["Asia-Pacific markets","Community engagement through Macquarie Group Foundation"],hooks:["MAIF3 and Asia infrastructure — Frank led this personally","Transition from Harvey — he is proving himself in the first year","AI in finance — open to practical use cases over theory"],caution:["Avoid comparisons to Alex Harvey","Do not position Accenture as a project vendor — strategic partner framing only"],style:"Data-led and measured. Prefers concise framing with financial proof points. Not yet a deep relationship — build trust before pushing agenda."},notes:[{date:"Jun 26",type:"meeting",title:"Introductory relationship meeting",detail:"Positive tone. Covered Accenture global structure, D&AI, Finance transformation opportunities. Sarah Rees-Williams also in attendance."},{date:"Jun 26",type:"action",title:"Follow-up: AI use cases for FPE and Risk",detail:"Share Telstra data platform and finance AI examples. Include Annabelle (RMG) in future sessions."}],plays:["Group CFO relationship COG","AI enterprise positioning"],tq:"Not yet assessed"},
+  {id:"jess-walpole",first:"Jess",last:"Walpole",title:"Global COO and Head of Central Operations, MacCap",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 1 Mild",eng:3,upcoming:"ICLM demo (2 weeks)",urgency:"critical",remit:"Runs all central operations for MacCap globally and APAC COO. Controls KYC, ops transformation, and embedded in AI visioning.",strategic:"High-momentum contact. Confirmed in AI visioning sessions. KYC is an active pain point. CGM partnership in place but Accenture has opportunity to displace via ICLM demo.",bio:"Jess is Global COO of Macquarie Capital and Head of Central Operations. She has extensive operations and transformation experience across financial services.",career:[{year:"Current",role:"Global COO and Head of Central Operations · Macquarie Capital"},{year:"Prior",role:"COO · Macquarie Capital APAC"},{year:"Prior",role:"Senior operations leadership · Macquarie Group"}],interests:{pro:["AI-enabled operations and revenue transformation","KYC and compliance automation","Data governance and protection","Enterprise-grade AI tooling"],personal:["Practical technology implementation","Team culture and capability building"],hooks:["She is cautious of back-office AI framing — lead with revenue and client impact","KYC is a live pain point with CGM partnership","AI visioning sessions — she is a confirmed participant"],caution:["Do not frame AI work as back-office automation","Data protection is a live legal concern — Kristen Ruhl posture is restrictive"],style:"Results-oriented and direct. Wants practical outcomes. Responds well to demos. Revenue framing over efficiency framing."},notes:[{date:"May 26",type:"meeting",title:"Coffee catch-up first in-person",detail:"Enthusiastic about TQ/AI training. Cautious about back-office framing, wants revenue focus."},{date:"May 26",type:"insight",title:"Data protection concern raised",detail:"Legal team (Kristen Ruhl) has a do not write anything down posture. Change management required."},{date:"Jun 26",type:"action",title:"KYC ICLM demo requested",detail:"Jess raised KYC struggles with CGM. Demo to be arranged in 2 to 3 weeks."}],plays:["AI enterprise positioning MacCap","KYC ICLM MacCap vs CGM"],tq:"Interested, revenue-focused"},
+  {id:"ben-way",first:"Ben",last:"Way",title:"Head of Macquarie Asset Management",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"- 1 At risk",eng:0,upcoming:"None — urgent",urgency:"critical",remit:"Head of MAM globally. Leads a $940B+ AUM platform. Exec committee member since April 2021.",strategic:"CRITICAL RISK. Ben Way holds a strongly negative view and zero engagement logged. Root cause unknown. Risks contaminating the broader MAM account.",bio:"Ben joined Macquarie in 2006. Bain and Company background. Former Chairman and CEO of Taiwan Broadband Communications. Won the World Universities Debating Championship in 1994. Lived across Beijing, Hong Kong, Taipei, Seoul, Bangkok and New York. Co-Founder of Good Financial. Board of Mother's Choice. Aspen Global Leadership Network fellow.",career:[{year:"2021–",role:"Head of Macquarie Asset Management"},{year:"Prior",role:"CEO of Asia · Macquarie Group"},{year:"Prior",role:"Chairman and CEO · Taiwan Broadband Communications"},{year:"Prior",role:"Management consultant · Bain and Company"},{year:"2006",role:"Joined Macquarie Group"}],interests:{pro:["Infrastructure and real assets investment","Capital allocation and sustainable investment","Asia-Pacific growth markets","ESG and decarbonisation"],personal:["Debating — world champion level","Philanthropy — Mother's Choice board","Co-Founder of Good Financial","Aspen Leadership Network fellow"],hooks:["Aspen Leadership Network — values-driven leadership","Mother's Choice and Good Financial — genuine social purpose","World debating background — intellectual rigour","300 million people rely on MAM-managed infrastructure daily"],caution:["Strongly negative — do not engage without diagnosis and recovery plan","Use Keith Gray or James Dyckoff as intermediary","Avoid anything transactional or supplier-like"],style:"Intellectually rigorous, values-driven, globally minded. Responds to ideas and purpose over commercial pitch."},notes:[{date:"",type:"risk",title:"No engagement recorded",detail:"No meetings, calls or touchpoints logged in FY26."},{date:"",type:"risk",title:"Root cause unknown",detail:"Unclear whether sentiment stems from prior delivery issue or competitor relationship."}],plays:["MAM relationship recovery"],tq:"Unknown"},
+  {id:"michael-silverton",first:"Michael",last:"Silverton",title:"Group Head of Macquarie Capital",div:"MacCap",location:"New York",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"Golf Open (Aug)",urgency:"high",remit:"Head of MacCap globally. Leads advisory, capital raising, principal investing and equities. Exec committee member.",strategic:"One touchpoint plus Golf Open scheduled. Miki Edelman is the more active MacCap relationship. Silverton is the ultimate prize but must be earned through Miki and Jess.",bio:"Michael Silverton is the Global Head of Macquarie Capital. Based in New York, he oversees MacCap global advisory, capital markets, and principal finance activities.",career:[{year:"Current",role:"Group Head · Macquarie Capital"},{year:"Prior",role:"Senior leadership roles across MacCap globally"}],interests:{pro:["Investment banking and advisory","Infrastructure and technology investing","AI and technology transformation for MacCap"],personal:["Golf — Golf Open Aug is a confirmed social touchpoint"],hooks:["Golf Open in August — priority social engagement","AI strategy for MacCap — he is the ultimate decision-maker"],caution:["Access must be earned through Miki Edelman","One touchpoint only — do not over-pitch early"],style:"Senior executive — expects peer-level engagement. Strategic conversation only."},notes:[{date:"May 26",type:"meeting",title:"First touchpoint logged",detail:"Brief engagement. Golf Open in August is next major touchpoint."}],plays:["AI enterprise positioning MacCap"],tq:"Not yet assessed"},
+  {id:"simon-wright",first:"Simon",last:"Wright",title:"Head of Commodities and Global Markets",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"+ 2 Good",eng:0,upcoming:"None logged",urgency:"high",remit:"Leads CGM globally across capital, financing, risk management and physical execution. Exec committee member since April 2024.",strategic:"Good relationship score but zero engagements this FY. CGM has the lowest division coverage at 28%. Simon is the entry point to a critically underserved division.",bio:"Simon Wright is Head of Commodities and Global Markets at Macquarie Group, joining the executive committee in April 2024.",career:[{year:"2024–",role:"Head of CGM · Executive Committee"},{year:"Prior",role:"Senior leadership roles · Macquarie CGM"}],interests:{pro:["Commodity markets and financing","Energy transition and renewables","Risk management","Technology and data in trading"],personal:["London-based financial markets community"],hooks:["CGM is weakest division — Simon is the starting point","Energy transition is a key CGM theme"],caution:["Zero engagement this FY despite good relationship score — urgency is high"],style:"Markets professional — data-driven, commercially direct."},notes:[],plays:[],tq:"Not yet assessed"},
+  {id:"miki-edelman",first:"Miki",last:"Edelman",title:"Head of the Americas, MacCap",div:"MacCap",location:"New York",owner:"anthony.g.james",relLabel:"+ 2 Good",eng:4,upcoming:"Golf Open (Aug)",urgency:"medium",remit:"Leads MacCap operations across the Americas. His approval is required before AI strategy material can be shared with D3E.",strategic:"Most active MacCap exec relationship. 4 touchpoints this FY. Golf Open locked in. AI strategy share pending his sign-off.",bio:"Miki Edelman is a Senior Managing Director and Head of the Americas at Macquarie Capital. Known as a dynamic, client-centric leader. Passionate advocate for diversity and inclusion. Active on LinkedIn on AI, markets and leadership topics. New York Knicks season ticket holder.",career:[{year:"Current",role:"Head of the Americas · Macquarie Capital"},{year:"2020",role:"Senior Managing Director · Macquarie Capital Americas"},{year:"2018–20",role:"Head of Strategic Client Solutions, Cash Equities"},{year:"2015–18",role:"Global Head of Sales, Cash Equities"},{year:"2010–15",role:"Head of Equities Japan and Taiwan"}],interests:{pro:["Financial markets technology and AI","Data-driven analytics","Structured products","Diversity, equity and inclusion"],personal:["New York Knicks season ticket holder","Active on LinkedIn on AI and markets","Advance Global Australians community","D&I advocacy — Unity network founder"],hooks:["New York Knicks — deep personal interest","AI and markets commentary — she is publicly engaged","Golf Open in August — confirmed social engagement"],caution:["AI strategy material for D3E requires her explicit sign-off","Generic Accenture pitches will not land"],style:"Energetic, future-focused and commercially driven. Values D&I — signal Accenture commitment."},notes:[{date:"Mar-Jun 26",type:"meeting",title:"4 touchpoints across Q3",detail:"Multiple engagements. Relationship well-established with anthony.g.james as primary owner."},{date:"Aug 26",type:"upcoming",title:"Golf Open",detail:"Social engagement. Opportunity to advance AI strategy conversation."}],plays:["AI enterprise positioning MacCap"],tq:"Not yet assessed"},
+  {id:"dani-malone",first:"Dani",last:"Malone",title:"Data and AI Leadership, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 2 Good",eng:1,upcoming:"AI visioning sessions",urgency:"medium",remit:"Leads Data and AI initiatives at COG level. Central to Macquarie enterprise AI strategy and the D3E governance agenda.",strategic:"Key node in the AI influence map. Dani is the internal champion for enterprise AI and will shape which partners get access to the enterprise AI visioning work.",bio:"Dani Malone is a senior Data and AI leader within Macquarie COG, working across divisional boundaries to drive Macquarie enterprise AI and data strategy.",career:[{year:"Current",role:"Data and AI Leadership · Corporate Operations Group, Macquarie"},{year:"Prior",role:"Senior data and analytics roles · Macquarie Group"}],interests:{pro:["Enterprise AI strategy","Data governance and management","AI use cases with measurable business outcomes","Cross-divisional data coordination"],personal:["Internal champion culture","Practical AI implementation over experimentation"],hooks:["She is the internal AI champion — Accenture access flows through her","Practical outcomes over theory — wants to see AI deliver measurable results"],caution:["Keep engagement consistent — only 1 touchpoint this FY"],style:"Collaborative and pragmatic. Motivated by real-world AI outcomes. Engage as a thinking partner."},notes:[{date:"Jun 26",type:"meeting",title:"Engagement logged",detail:"1 touchpoint this FY. Relationship positive."}],plays:["D3E data governance COG","AI enterprise positioning"],tq:"Not yet assessed"},
+  {id:"david-tough",first:"David",last:"Tough",title:"Group CTO, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:4,upcoming:"None logged",urgency:"high",remit:"Group CTO with oversight of technology strategy across Macquarie Group.",strategic:"4 engagements but relationship remains neutral. Active but not converting into strategic value. Needs a more intentional agenda.",bio:"David Tough is Macquarie Group CTO, responsible for group-wide technology strategy and major technology investment decisions.",career:[{year:"Current",role:"Group CTO · Corporate Operations Group, Macquarie"},{year:"Prior",role:"Senior technology leadership · Macquarie Group"}],interests:{pro:["Enterprise technology strategy","Cloud and architecture modernisation","Technology consistency across divisions","Cybersecurity","AI and data infrastructure"],personal:["Sydney technology community"],hooks:["4 meetings without movement — needs a strategic pivot","Technology architecture PoV — bring a forward-looking perspective"],caution:["Status-meeting trap — do not let the next meeting be another update session"],style:"Technology-first, systematic thinker. Prefers structured arguments and specific technical recommendations."},notes:[{date:"Apr-Jun 26",type:"meeting",title:"4 touchpoints across Q3",detail:"Regular engagement but no relationship movement. Covered technology consistency, D3E, and AI agenda."}],plays:["D3E data governance COG"],tq:"Not yet assessed"},
+  {id:"drew-hall",first:"Drew",last:"Hall",title:"Head of Retail Banking, Macquarie Bank",div:"BFS",location:"Sydney",owner:"jordan.griffiths",relLabel:"Not engaged",eng:0,upcoming:"Introduce via Greg Ward / Ben Perham channel",urgency:"high",remit:"Head of Macquarie's retail bank as of August 2026 leadership refresh. Reports to Ben Perham (incoming BFS head). Oversees personal deposits, home loans, credit cards and everyday accounts. Central to the digital-first consumer banking growth agenda.",strategic:"New appointment — August 2026 BFS refresh. Internal promotion and Macquarie veteran. Low public profile, no direct social channel. Entry point should be through Ben Perham or Greg Ward. Retail banking is a key growth franchise — mortgages and deposits growing faster than major banks.",bio:"Drew Hall appointed Head of Retail Banking in Macquarie's August 2026 BFS leadership refresh under incoming BFS head Ben Perham. Internal promotion from within the banking division. Low public profile — no LinkedIn or verified public biography. Announced alongside Kirk Kileff (business banking) as part of the same leadership transition ahead of Greg Ward becoming Group CEO in November 2026.",career:[{year:"Aug 2026",role:"Head of Retail Banking · Macquarie Bank"},{year:"Prior",role:"Senior roles within Banking and Financial Services · Macquarie"},{year:"Prior",role:"Internal BFS career — full history not publicly documented"}],interests:{pro:["Retail banking — personal deposits, home loans, credit cards","Digital-first distribution and platform experience","Market share growth against major banks in mortgages and deposits","Product economics — pricing, margin and funding mix","Consumer customer experience"],personal:["Internal operator — deliberately low public profile","Details not in public record"],hooks:["Lead with retail product substance — deposits, mortgages and cards are his remit","Frame against the growth agenda — share gains versus the big four","Acknowledge the transition — sits under a new BFS head and a new Group CEO"],caution:["No direct social route — go through Macquarie channels","Confirm background with Macquarie directly — limited public record","Low public profile; treat inferred detail as unverified"],style:"Internal operator. Profile suggests a results-focused, low-profile executive. Approach through established Macquarie channels. Confirm preferences directly."},notes:[{date:"Aug 26",type:"insight",title:"Appointed Head of Retail Banking",detail:"Named in BFS leadership refresh (AFR 10 Aug 2026). Reports to Ben Perham. Announced alongside Kirk Kileff. First direct Macquarie contact — not yet engaged."}],plays:["BFS retail banking relationship","Digital banking transformation BFS"],tq:"Not yet assessed"},
+  {id:"kirk-kileff",first:"Kirk",last:"Kileff",title:"Head of Business Banking, Macquarie Bank",div:"BFS",location:"Sydney",owner:"jordan.griffiths",relLabel:"Not engaged",eng:0,upcoming:"Introduce via Ben Perham or LinkedIn",urgency:"high",remit:"Head of Business Banking at Macquarie Bank from August 2026. Previously Deputy Head of Business Banking and Head of Business Lending. 20+ year Macquarie veteran. Reports to Ben Perham. Leads SME lending, deposits, transaction banking and broker distribution.",strategic:"Macquarie veteran and internal promotion — credit and lending specialist who built the SME franchise. INSEAD affiliation. Reachable via LinkedIn (~3K followers). BFS business banking is a high-growth area. Strong entry point into SME and commercial banking agenda.",bio:"Kirk Kileff named Head of Business Banking in Macquarie's August 2026 BFS leadership refresh. Previously Deputy Head of Business Banking and Head of Business Lending within BFS. Joined Macquarie in 2004 — over two decades with the firm. INSEAD executive study. Based in Sydney. Announced alongside Drew Hall (retail banking) in the same reshuffle under incoming BFS head Ben Perham and incoming Group CEO Greg Ward.",career:[{year:"Aug 2026",role:"Head of Business Banking · Macquarie Bank"},{year:"Prior",role:"Deputy Head of Business Banking · Macquarie Group"},{year:"Prior",role:"Head of Business Lending · Banking and Financial Services"},{year:"2004",role:"Joined Macquarie Group"}],interests:{pro:["Business banking — SME lending, deposits and transaction banking","Business lending growth against major banks in commercial segment","Sector specialisation — professional services, health and property","Digital and broker-led distribution for business customers","Credit and risk-aware commercial banking"],personal:["INSEAD alumni network","Sydney-based — limited public profile"],hooks:["Lead with business lending — credit and SME finance are his home turf","Talk distribution — brokers and intermediaries drive the business bank","Frame against growth agenda — share gains versus the big four","Reachable via LinkedIn — active profile with ~3K followers"],caution:["Low public profile — no interviews or bylined commentary on record","Acknowledge the transition — sits under a new BFS head and a new Group CEO"],style:"Internal operator with two decades of Macquarie experience. Credit and lending-led background shapes a risk-aware commercial posture. Reachable but not publicly vocal."},notes:[{date:"Aug 26",type:"insight",title:"Appointed Head of Business Banking",detail:"Named in BFS leadership refresh (AFR 10 Aug 2026). Reports to Ben Perham. Promoted from Deputy Head of Business Banking. 20+ year Macquarie veteran. First contact — not yet engaged."}],plays:["BFS business banking relationship","SME banking transformation"],tq:"Not yet assessed"},
+  {id:"dean-firth",first:"Dean",last:"Firth",title:"Chairman, Business Bank, Macquarie",div:"BFS",location:"Sydney",owner:"jordan.griffiths",relLabel:"Not engaged",eng:0,upcoming:"Introduce via SME / real estate sector angle",urgency:"medium",remit:"Moves to Chairman of the Business Bank in the August 2026 BFS refresh. Previously Head of Business Banking. Hands division to Kirk Kileff. 27+ years across banking and financial services. Advocacy-led on SME agenda. Visible speaker and commentator — unusually so for Macquarie.",strategic:"Most public-facing BFS banking executive. Active conference speaker and commentator on SME and real estate. Comfortable on stage and in media — good target for thought leadership co-creation. SME advocacy is his stated driver. Open to partnerships and innovation. Transition to Chairman role means longer-term strategic relationship possible.",bio:"Dean Firth moves to Chairman of the Business Bank following Macquarie's August 2026 BFS leadership refresh (AFR 10 Aug 2026). Previously Head of Business Banking at Macquarie Bank for a sustained period. 27+ years across banking and financial services. Built the SME franchise including real estate and strata — Macquarie's founding banking clients. No formal qualifications listed publicly — industry-trained. Based in Sydney.",career:[{year:"Aug 2026",role:"Chairman, Business Bank · Macquarie"},{year:"Prior",role:"Head of Business Banking · Macquarie Bank"},{year:"Prior",role:"Senior leadership · Banking and Financial Services, Macquarie"},{year:"Career",role:"27+ years across banking and financial services"}],interests:{pro:["SME lending, deposits and transaction banking","Working capital, payment systems and cash flow tools","Real estate and strata sector — Macquarie founding franchise","Partnerships and open innovation with third-party platforms","Advocacy for small business as economic and social cohort"],personal:["Small business advocacy — most consistent public theme","Conference speaker — STAFFLINK, Macquarie sector events","Video and media commentary on real estate outlook"],hooks:["Lead with the SME agenda — small business is his stated driver","Talk working capital and payments, not just lending","Bring the real estate and strata angle","Explore partnerships — favours open innovation over building in-house","Acknowledges the transition — steps up to Chairman as Kileff takes the division"],caution:["Transition to Chairman role — not the day-to-day operator any more","Confirm new role scope directly with Macquarie"],style:"Client-first and advocacy-led. Relationship builder with long-tenured sector networks. Open to innovation and partnerships. Visible and comfortable in public forums — unusually so at Macquarie."},notes:[{date:"Aug 26",type:"insight",title:"Moves to Chairman, Business Bank",detail:"Reported by AFR (10 Aug 2026). Hands division to Kirk Kileff. 27+ year banking career. Unusually public-facing for a Macquarie executive. First contact — not yet engaged."}],plays:["BFS senior advisory relationship","SME and real estate thought leadership"],tq:"Not yet assessed"},
+  {id:"tim-bawtree",first:"Tim",last:"Bawtree",title:"Founder & Executive Group Chairman",div:"Quantum Switch",location:"Cheltenham, UK",owner:"jordan.griffiths",relLabel:"Not engaged",eng:0,upcoming:"Explore via data centre / sovereign infrastructure angle",urgency:"low",remit:"Founder and Executive Group Chairman of Quantum Switch, a sustainable hyperscale data centre developer focused on emerging markets. Co-founder of Quantum Switch Tamasuk (Saudi JV). 25+ years in digital infrastructure. Active conference speaker and DCD columnist. Not a Macquarie contact — external strategic relationship.",strategic:"External relationship — Quantum Switch is not a Macquarie entity. Potential relevance via data centre and AI infrastructure conversation, sovereign-aligned capacity build (EMEA, Middle East), and renewables agenda. Engagement angle is thought leadership and sector POV, not account management.",bio:"Tim Bawtree founded Quantum Switch in 2018 (CEO to 2024, then Executive Group Chairman). Co-founded London Switch in 1998, later part of Global Switch. 25+ years in IT and digital infrastructure. Executive Director of Quantum Switch Tamasuk, the Saudi JV — six 50MW facilities, 300MW by 2026, valued above $3bn, first site at King Salman Energy Park (SPARK) near Dammam. DCD opinion columnist and standing conference speaker. Based in Cheltenham, UK. LinkedIn: ~2K followers.",career:[{year:"2024–",role:"Founder & Executive Group Chairman · Quantum Switch"},{year:"2018–24",role:"Founder & CEO · Quantum Switch"},{year:"2011–21",role:"VP of Hyperscale · DigiPlex (cool-climate data centres, UK and Nordics)"},{year:"2011–",role:"CEO · Redkite Group Services (data centre consultancy)"},{year:"2003–04",role:"Director · Sentrum"},{year:"2001–03",role:"COO · Wavecrest"},{year:"1999–2001",role:"Director · Chelsfield PLC"},{year:"1998–2000",role:"Sales Director & Co-Founder · Global Switch / London Switch"}],interests:{pro:["Sustainable hyperscale development in emerging markets","Sovereign-aligned in-country capacity across EMEA and Middle East","AI and renewables — scalable, low-cooling designs","Economic impact — skilled jobs and local digital growth","Stakeholders — governments, hyperscalers, investors, lenders, JV partners"],personal:["Sustainability and renewable-powered design","Skills and jobs — local workforce development in host markets","Digital inclusion — connectivity for underserved regions","DCD columnist — authored The shift South and East and Take your data to the power","Conference speaker — ADIPEC, DCD Connect London, Datacloud Middle East"],hooks:["Lead with the market shift — growth comes from outside Western markets","Talk power and cooling — his recurring constraints","Bring the sovereign angle — central to Quantum Switch positioning","Show deliverability — evidence of execution lands best","Connect to jobs and local economic growth"],caution:["Not a Macquarie contact — external relationship, handle accordingly","No formal education listed — industry-trained operator","Based in UK — time zone and travel considerations"],style:"Forward-looking and operator-practical. Hands-on founder pairing client-facing delivery with strategic leadership. Mission-driven, framing data centres around jobs, skills and national digital growth. Seen by sector press as a pioneer."},notes:[{date:"Aug 26",type:"insight",title:"Profile added from executive briefing deck",detail:"Quantum Switch Founder. External contact — not part of the Macquarie account. Added for reference given potential data centre and AI infrastructure overlap. Not yet engaged."}],plays:["External — data centre and sovereign infrastructure","AI infrastructure thought leadership"],tq:"Not yet assessed"},
+  {id:"greg-ward",first:"Greg",last:"Ward",title:"Managing Director & CEO (incoming, effective 7 Nov 2026)",div:"BFS",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 1 Mild",eng:1,upcoming:"CEO transition 7 Nov 2026",urgency:"critical",remit:"Incoming MD & CEO effective 7 November 2026. Currently Deputy MD and Head of BFS. 30-year Macquarie veteran, former Global CFO for 14 years. The single most important relationship on this account.",strategic:"CRITICAL UPDATE: Greg Ward formally takes the CEO role 7 November 2026. With only 1 touchpoint this is an urgent gap. His CFO and technology background means he expects financial rigour and concrete technology capability — not strategy theatre. Accenture must deepen this relationship before transition.",bio:"Greg Ward joined Macquarie in 1996 at ASX listing. Served as Global CFO for 14 years then Deputy MD since 2011. Named next MD and CEO 23 July 2026, effective 7 November 2026. Economics degree from Macquarie University. Chairman of the Australian Brandenburg Orchestra, Director of Macquarie Group Foundation, former UNICEF Australia board director and Macquarie University Council Member. Age 58, Sydney-based. Worked alongside Wikramanayake for 30 years — appointment signals full continuity.",career:[{year:"7 Nov 2026",role:"Managing Director and CEO (incoming) · Macquarie Group"},{year:"2013–",role:"Head of Banking and Financial Services · Macquarie Group"},{year:"2011–13",role:"Deputy Managing Director and CEO of Macquarie Bank Limited"},{year:"1997–2011",role:"Global Chief Financial Officer · Macquarie Group"},{year:"1996",role:"Joined Macquarie Group at ASX listing"}],interests:{pro:["Retail and business banking scale — mortgages, deposits, digital platforms","Conservative balance sheet management and capital discipline","Technology-led banking — the Board cited him explicitly as a technology leader","Continuity of infrastructure and asset management strategy","Enterprise AI in financial services — practical, measurable outcomes"],personal:["Music — Chairman, Australian Brandenburg Orchestra","Macquarie University — Council Member","Macquarie Group Foundation — Director","UNICEF Australia — former board director","30-year single-institution career"],hooks:["Lead with continuity — he is extending the existing strategy, not resetting it","Talk retail banking scale — BFS mortgages and digital platform are his home turf","Bring the risk and capital lens — CFO background shapes every conversation","Be concrete on technology — the Board framed him as a technology leader","Respect the transition — formally takes the role 7 November 2026"],caution:["Do not treat as BFS Head only — he is effectively CEO-elect now","Only 1 touchpoint — critically underdeveloped for the most important contact","Avoid operational or project-delivery-level conversations","FY26 profit A$4.847bn, up 30% — he will expect Accenture to know the numbers"],style:"Continuity-minded and measured. Finance-trained, technology-literate. Seen by investors as a safe pair of hands. No public LinkedIn — visibility only via ASX releases and results calls. Engage at board and strategy level only."},notes:[{date:"Mar 26",type:"meeting",title:"1 touchpoint logged",detail:"Brief engagement. Pre-dates CEO announcement."},{date:"Jul 26",type:"insight",title:"Named as next Macquarie Group CEO",detail:"Announced 23 July 2026. Takes over from Shemara Wikramanayake on 7 November 2026. Internal appointment — no external search, signals full strategic continuity."},{date:"Aug 26",type:"insight",title:"BFS leadership refresh announced",detail:"Led the BFS leadership refresh under incoming BFS head Ben Perham. Kirk Kileff to business banking, Drew Hall to retail banking, Dean Firth to Chairman business bank."}],plays:["Group CEO relationship — urgent","BFS transformation","Retail banking digital scale"],tq:"Not yet assessed"},
 ];
 
 const TABLE_DATA=[...PEOPLE,
-  {id:null,first:"Jason",last:"O'Connell",title:"CTO, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:3,upcoming:"",urgency:"medium",remit:"Chief Technology Officer for BFS. Key for digital and AI delivery programs."},
-  {id:null,first:"Ashwin",last:"Sinha",title:"Chief Data and Digital Officer, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Mild +",eng:1,upcoming:"",urgency:"medium",remit:"Leads data, digital and AI strategy for BFS."},
-  {id:null,first:"Tony",last:"Graham",title:"Head of Product and Technology, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Strong",eng:0,upcoming:"",urgency:"high",remit:"Head of Product and Technology at BFS. Strong relationship but zero engagement this FY."},
-  {id:null,first:"Michelle",last:"Perera",title:"Head of Delivery, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Strong",eng:0,upcoming:"",urgency:"high",remit:"Leads delivery across BFS technology programs. Strong relationship, zero engagement this FY."},
-  {id:null,first:"Daniel",last:"Coleman",title:"VP Engineering — Payments, Wealth and Core Platforms",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:4,upcoming:"",urgency:"low",remit:"Engineering leadership for Payments, Wealth and Core Platforms."},
-  {id:null,first:"Pedram",last:"Sanayei",title:"VP Head of Cloud Platforms, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Cloud platform strategy and architecture for BFS."},
-  {id:null,first:"Philip",last:"Grasso-Nguyen",title:"VP Head of Reliability, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:2,upcoming:"",urgency:"low",remit:"Reliability engineering across BFS technology platforms."},
-  {id:null,first:"Steve",last:"Ebrill",title:"CISO, BFS",div:"BFS",location:"Sydney",owner:"faizal.janif",relLabel:"Mild +",eng:3,upcoming:"",urgency:"medium",remit:"Chief Information Security Officer. Cyber strategy and architecture."},
-  {id:null,first:"Ciaran",last:"Chan",title:"VP Engineering — Data and Analytics, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Engineering leadership for data and analytics platforms at BFS."},
-  {id:null,first:"Sharmaine",last:"Salis",title:"Director of Product — Customer Core, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Mild +",eng:0,upcoming:"",urgency:"medium",remit:"Product director for Customer Core platforms at BFS."},
-  {id:null,first:"Ronan",last:"Ryan",title:"VP Engineering — Digital, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Leads digital engineering for BFS consumer-facing platforms."},
-  {id:null,first:"Charlie",last:"Pickard",title:"Senior Managing Director, Structuring and Execution",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:2,upcoming:"",urgency:"medium",remit:"Senior Managing Director in CGM Structuring. Key entry point into CGM London."},
-  {id:null,first:"Gaurav",last:"Singh",title:"Head of Transformation, CGM",div:"CGM",location:"Singapore",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"SFF (Nov)",urgency:"high",remit:"Leads CGM transformation agenda globally. Singapore Fintech Festival in November."},
-  {id:null,first:"Sen",last:"Nanthakumaran",title:"Head of Post-Trade Technology, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"Good",eng:1,upcoming:"",urgency:"low",remit:"Post-trade technology leadership for CGM."},
-  {id:null,first:"Adam",last:"Prettejohn",title:"Chief Information Officer, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"Neutral",eng:0,upcoming:"",urgency:"high",remit:"CIO for Commodities and Global Markets. Zero engagement this FY."},
-  {id:null,first:"Andrew",last:"Gee",title:"Executive Director, Division Head TMT — CAF Group",div:"CGM",location:"Sydney",owner:"jordan.griffiths",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Leads the TMT sector within CGM Corporate and Asset Finance."},
-  {id:null,first:"Jamie",last:"Broom",title:"Head of Operations, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:2,upcoming:"",urgency:"medium",remit:"Heads operations for CGM."},
-  {id:null,first:"Mike",last:"Winn",title:"Head of Client Fulfilment, CGM",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"Leads client fulfilment operations for CGM."},
-  {id:null,first:"Sarah",last:"Rees-Williams",title:"COO, Corporate Operations Group",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Group COO. Attended Frank Kwok introductory meeting."},
-  {id:null,first:"Matthew",last:"Ellis",title:"Chief Digital Officer, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"Mild +",eng:0,upcoming:"",urgency:"high",remit:"CDO for Macquarie Group. No engagement this FY despite positive relationship score."},
-  {id:null,first:"Scott",last:"Harmer",title:"Regional COO Asia, COG",div:"COG",location:"Hong Kong",owner:"wendy.saintruth",relLabel:"Mild +",eng:0,upcoming:"",urgency:"medium",remit:"Regional COO for Asia. Hong Kong-based."},
-  {id:null,first:"Thomas",last:"Poulton",title:"Global Head of Procurement, COG",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"Controls third-party vendor relationships and enterprise spend."},
-  {id:null,first:"Chai",last:"Pinnamaneni",title:"Cyber Infrastructure Lead, COG",div:"COG",location:"Sydney",owner:"faizal.janif",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads cyber infrastructure for Macquarie Group COG."},
-  {id:null,first:"Adam",last:"Hain",title:"Global Head of Infrastructure Advisory, MacCap",div:"MacCap",location:"London",owner:"jordan.griffiths",relLabel:"Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads MacCap global infrastructure advisory practice."},
-  {id:null,first:"Dan",last:"Philips",title:"Executive Director, MacCap Venture Capital",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"Strong",eng:1,upcoming:"",urgency:"low",remit:"Executive Director of MacCap Venture Capital. Strong personal relationship."},
-  {id:null,first:"Tim",last:"Joyce",title:"Head of MacCap APAC",div:"MacCap",location:"Melbourne",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"high",remit:"Leads MacCap operations across APAC."},
-  {id:null,first:"Sam",last:"Shah",title:"Co-Head of MacCap Americas and Global Head of Software and Services",div:"MacCap",location:"Chicago",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Co-leads MacCap Americas and heads the global Software and Services investment vertical."},
-  {id:null,first:"Sam",last:"Jacobson",title:"Vice President, MacCap Venture Capital",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"low",remit:"Vice President in MacCap Venture Capital."},
-  {id:null,first:"Tobias",last:"Bachteler",title:"Chief Commercial Officer and Head of Strategy — Americas and EMEA",div:"MacCap",location:"New York",owner:"galia.jenshel",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads commercial strategy for MacCap across Americas and EMEA."},
-  {id:null,first:"John",last:"Pickhaver",title:"Head of Infrastructure and Energy Capital, Americas",div:"MacCap",location:"New York",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"Heads infrastructure and energy capital investing for MacCap Americas."},
-  {id:null,first:"Gary",last:"Munitz",title:"Global Co-Head MCVC",div:"MacCap",location:"Tel Aviv",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"Global Co-Head of Macquarie Capital Venture Capital."},
-  {id:null,first:"Ed",last:"Burley",title:"Executive Director, Head of Digital Infrastructure",div:"MacCap",location:"Melbourne",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads Digital Infrastructure investing for MacCap."},
-  {id:null,first:"Chris",last:"Morgan",title:"Deal Lead, Commercial Property Group",div:"MacCap",location:"Sydney",owner:"galia.jenshel",relLabel:"Neutral",eng:0,upcoming:"",urgency:"low",remit:"Deal lead for commercial property within MacCap."},
-  {id:null,first:"Keith",last:"Gray",title:"COO APAC, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"Strong",eng:1,upcoming:"",urgency:"medium",remit:"COO for MAM APAC. Strong relationship — key intermediary for MAM account recovery."},
-  {id:null,first:"James",last:"Dyckoff",title:"COO, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Mild +",eng:1,upcoming:"",urgency:"high",remit:"Global COO for MAM. Important node for MAM account recovery."},
-  {id:null,first:"Christin",last:"Brown",title:"Chief Data Officer, MAM",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"At risk",eng:1,upcoming:"",urgency:"high",remit:"CDO for MAM. Critical for data and AI agenda but relationship is slightly negative."},
-  {id:null,first:"Aamir",last:"Aziz",title:"Enterprise Technology and Cybersecurity Lead, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:3,upcoming:"",urgency:"medium",remit:"Leads enterprise technology and cybersecurity for MAM Portfolio Performance Group."},
-  {id:null,first:"Ani",last:"Satchcroft",title:"Co-Head of APAC Infrastructure, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Co-Head of APAC Infrastructure within MAM."},
-  {id:null,first:"Anita",last:"Huynh",title:"COO EMEA, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"COO for MAM EMEA."},
-  {id:null,first:"John",last:"Ure",title:"Managing Director, Portfolio Performance Group",div:"MAM",location:"Texas",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Managing Director in MAM Portfolio Performance Group."},
-  {id:null,first:"Martin",last:"Bradley",title:"Head of Infrastructure, MAM EMEA",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads infrastructure investing for MAM across EMEA."},
-  {id:null,first:"Robbie",last:"Burns",title:"Head of Solutions, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"At risk",eng:0,upcoming:"",urgency:"high",remit:"Head of Solutions at MAM. Mildly negative relationship with zero engagements this FY."},
-  {id:null,first:"Robert",last:"Thornhill",title:"Associate Director, GIG",div:"MAM",location:"London",owner:"galia.jenshel",relLabel:"Unknown",eng:2,upcoming:"",urgency:"medium",remit:"Associate Director in MAM Global Infrastructure Group."},
-  {id:null,first:"Sue",last:"Sekar",title:"MAM US COO",div:"MAM",location:"New York",owner:"jason.lee",relLabel:"Neutral",eng:0,upcoming:"",urgency:"medium",remit:"COO for MAM in the United States."},
-  {id:null,first:"Vineet",last:"Mohan",title:"Global Head of Engineering and Asset Operations, GIG",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Mild +",eng:1,upcoming:"",urgency:"medium",remit:"Leads global engineering and asset operations for MAM Global Infrastructure Group."},
-  {id:null,first:"Elizabeth",last:"Sampson",title:"Head of Enterprise Technology and Cybersecurity, PPG",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"Enterprise technology and cybersecurity for MAM Portfolio Performance Group."},
-  {id:null,first:"Florian",last:"Christ",title:"Senior Managing Director, Infrastructure Energy Transition",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads infrastructure, energy transition and real assets investment for MAM."},
-  {id:null,first:"Lou",last:"Tricarico",title:"Managing Director, Specialised Asset Finance",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"Unknown",eng:1,upcoming:"",urgency:"medium",remit:"Leads specialised asset finance within MAM."},
-  {id:null,first:"Luc",last:"Hennekens",title:"Portfolio Performance Group MD, MIRA",div:"MAM",location:"Singapore",owner:"jordan.griffiths",relLabel:"Unknown",eng:2,upcoming:"SFF (Nov)",urgency:"medium",remit:"Managing Director in MAM Portfolio Performance Group. Singapore-based."},
+  {id:null,first:"Jason",last:"O'Connell",title:"CTO, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:3,upcoming:"",urgency:"medium",remit:"Chief Technology Officer for BFS. Key for digital and AI delivery programs."},
+  {id:null,first:"Ashwin",last:"Sinha",title:"Chief Data and Digital Officer, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 1 Mild",eng:1,upcoming:"",urgency:"medium",remit:"Leads data, digital and AI strategy for BFS."},
+  {id:null,first:"Tony",last:"Graham",title:"Head of Product and Technology, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 3 Strong",eng:0,upcoming:"",urgency:"high",remit:"Head of Product and Technology at BFS. Strong relationship but zero engagement this FY."},
+  {id:null,first:"Michelle",last:"Perera",title:"Head of Delivery, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 3 Strong",eng:0,upcoming:"",urgency:"high",remit:"Leads delivery across BFS technology programs. Strong relationship, zero engagement this FY."},
+  {id:null,first:"Daniel",last:"Coleman",title:"VP Engineering — Payments, Wealth and Core Platforms",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:4,upcoming:"",urgency:"low",remit:"Engineering leadership for Payments, Wealth and Core Platforms."},
+  {id:null,first:"Pedram",last:"Sanayei",title:"VP Head of Cloud Platforms, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:0,upcoming:"",urgency:"medium",remit:"Cloud platform strategy and architecture for BFS."},
+  {id:null,first:"Philip",last:"Grasso-Nguyen",title:"VP Head of Reliability, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:2,upcoming:"",urgency:"low",remit:"Reliability engineering across BFS technology platforms."},
+  {id:null,first:"Steve",last:"Ebrill",title:"CISO, BFS",div:"BFS",location:"Sydney",owner:"faizal.janif",relLabel:"+ 1 Mild",eng:3,upcoming:"",urgency:"medium",remit:"Chief Information Security Officer. Cyber strategy and architecture."},
+  {id:null,first:"Ciaran",last:"Chan",title:"VP Engineering — Data and Analytics, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:0,upcoming:"",urgency:"medium",remit:"Engineering leadership for data and analytics platforms at BFS."},
+  {id:null,first:"Sharmaine",last:"Salis",title:"Director of Product — Customer Core, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 1 Mild",eng:0,upcoming:"",urgency:"medium",remit:"Product director for Customer Core platforms at BFS."},
+  {id:null,first:"Ronan",last:"Ryan",title:"VP Engineering — Digital, BFS",div:"BFS",location:"Sydney",owner:"dakshai.soni",relLabel:"+ 2 Good",eng:0,upcoming:"",urgency:"medium",remit:"Leads digital engineering for BFS consumer-facing platforms."},
+  {id:null,first:"Charlie",last:"Pickard",title:"Senior Managing Director, Structuring and Execution",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:2,upcoming:"",urgency:"medium",remit:"Senior Managing Director in CGM Structuring. Key entry point into CGM London."},
+  {id:null,first:"Gaurav",last:"Singh",title:"Head of Transformation, CGM",div:"CGM",location:"Singapore",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"SFF (Nov)",urgency:"high",remit:"Leads CGM transformation agenda globally. Singapore Fintech Festival in November."},
+  {id:null,first:"Sen",last:"Nanthakumaran",title:"Head of Post-Trade Technology, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 2 Good",eng:1,upcoming:"",urgency:"low",remit:"Post-trade technology leadership for CGM."},
+  {id:null,first:"Adam",last:"Prettejohn",title:"Chief Information Officer, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"high",remit:"CIO for Commodities and Global Markets. Zero engagement this FY."},
+  {id:null,first:"Andrew",last:"Gee",title:"Executive Director, Division Head TMT — CAF Group",div:"CGM",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 2 Good",eng:0,upcoming:"",urgency:"medium",remit:"Leads the TMT sector within CGM Corporate and Asset Finance."},
+  {id:null,first:"Jamie",last:"Broom",title:"Head of Operations, CGM",div:"CGM",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:2,upcoming:"",urgency:"medium",remit:"Heads operations for CGM."},
+  {id:null,first:"Mike",last:"Winn",title:"Head of Client Fulfilment, CGM",div:"CGM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"Leads client fulfilment operations for CGM."},
+  {id:null,first:"Sarah",last:"Rees-Williams",title:"COO, Corporate Operations Group",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Group COO. Attended Frank Kwok introductory meeting."},
+  {id:null,first:"Matthew",last:"Ellis",title:"Chief Digital Officer, COG",div:"COG",location:"Sydney",owner:"wendy.saintruth",relLabel:"+ 1 Mild",eng:0,upcoming:"",urgency:"high",remit:"CDO for Macquarie Group. No engagement this FY despite positive relationship score."},
+  {id:null,first:"Scott",last:"Harmer",title:"Regional COO Asia, COG",div:"COG",location:"Hong Kong",owner:"wendy.saintruth",relLabel:"+ 1 Mild",eng:0,upcoming:"",urgency:"medium",remit:"Regional COO for Asia. Hong Kong-based."},
+  {id:null,first:"Thomas",last:"Poulton",title:"Global Head of Procurement, COG",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"Controls third-party vendor relationships and enterprise spend."},
+  {id:null,first:"Chai",last:"Pinnamaneni",title:"Cyber Infrastructure Lead, COG",div:"COG",location:"Sydney",owner:"faizal.janif",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads cyber infrastructure for Macquarie Group COG."},
+  {id:null,first:"Adam",last:"Hain",title:"Global Head of Infrastructure Advisory, MacCap",div:"MacCap",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads MacCap global infrastructure advisory practice."},
+  {id:null,first:"Dan",last:"Philips",title:"Executive Director, MacCap Venture Capital",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 3 Strong",eng:1,upcoming:"",urgency:"low",remit:"Executive Director of MacCap Venture Capital. Strong personal relationship."},
+  {id:null,first:"Tim",last:"Joyce",title:"Head of MacCap APAC",div:"MacCap",location:"Melbourne",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"high",remit:"Leads MacCap operations across APAC."},
+  {id:null,first:"Sam",last:"Shah",title:"Co-Head of MacCap Americas and Global Head of Software and Services",div:"MacCap",location:"Chicago",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Co-leads MacCap Americas and heads the global Software and Services investment vertical."},
+  {id:null,first:"Sam",last:"Jacobson",title:"Vice President, MacCap Venture Capital",div:"MacCap",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"low",remit:"Vice President in MacCap Venture Capital."},
+  {id:null,first:"Tobias",last:"Bachteler",title:"Chief Commercial Officer and Head of Strategy — Americas and EMEA",div:"MacCap",location:"New York",owner:"galia.jenshel",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads commercial strategy for MacCap across Americas and EMEA."},
+  {id:null,first:"John",last:"Pickhaver",title:"Head of Infrastructure and Energy Capital, Americas",div:"MacCap",location:"New York",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"Heads infrastructure and energy capital investing for MacCap Americas."},
+  {id:null,first:"Gary",last:"Munitz",title:"Global Co-Head MCVC",div:"MacCap",location:"Tel Aviv",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"Global Co-Head of Macquarie Capital Venture Capital."},
+  {id:null,first:"Ed",last:"Burley",title:"Executive Director, Head of Digital Infrastructure",div:"MacCap",location:"Melbourne",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads Digital Infrastructure investing for MacCap."},
+  {id:null,first:"Chris",last:"Morgan",title:"Deal Lead, Commercial Property Group",div:"MacCap",location:"Sydney",owner:"galia.jenshel",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"low",remit:"Deal lead for commercial property within MacCap."},
+  {id:null,first:"Keith",last:"Gray",title:"COO APAC, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 3 Strong",eng:1,upcoming:"",urgency:"medium",remit:"COO for MAM APAC. Strong relationship — key intermediary for MAM account recovery."},
+  {id:null,first:"James",last:"Dyckoff",title:"COO, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"+ 1 Mild",eng:1,upcoming:"",urgency:"high",remit:"Global COO for MAM. Important node for MAM account recovery."},
+  {id:null,first:"Christin",last:"Brown",title:"Chief Data Officer, MAM",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"- 1 At risk",eng:1,upcoming:"",urgency:"high",remit:"CDO for MAM. Critical for data and AI agenda but relationship is slightly negative."},
+  {id:null,first:"Aamir",last:"Aziz",title:"Enterprise Technology and Cybersecurity Lead, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:3,upcoming:"",urgency:"medium",remit:"Leads enterprise technology and cybersecurity for MAM Portfolio Performance Group."},
+  {id:null,first:"Ani",last:"Satchcroft",title:"Co-Head of APAC Infrastructure, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Co-Head of APAC Infrastructure within MAM."},
+  {id:null,first:"Anita",last:"Huynh",title:"COO EMEA, MAM",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"COO for MAM EMEA."},
+  {id:null,first:"John",last:"Ure",title:"Managing Director, Portfolio Performance Group",div:"MAM",location:"Texas",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Managing Director in MAM Portfolio Performance Group."},
+  {id:null,first:"Martin",last:"Bradley",title:"Head of Infrastructure, MAM EMEA",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads infrastructure investing for MAM across EMEA."},
+  {id:null,first:"Robbie",last:"Burns",title:"Head of Solutions, MAM",div:"MAM",location:"Sydney",owner:"jordan.griffiths",relLabel:"- 1 At risk",eng:0,upcoming:"",urgency:"high",remit:"Head of Solutions at MAM. Mildly negative relationship with zero engagements this FY."},
+  {id:null,first:"Robert",last:"Thornhill",title:"Associate Director, GIG",div:"MAM",location:"London",owner:"galia.jenshel",relLabel:"0 Neutral",eng:2,upcoming:"",urgency:"medium",remit:"Associate Director in MAM Global Infrastructure Group."},
+  {id:null,first:"Sue",last:"Sekar",title:"MAM US COO",div:"MAM",location:"New York",owner:"jason.lee",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"COO for MAM in the United States."},
+  {id:null,first:"Vineet",last:"Mohan",title:"Global Head of Engineering and Asset Operations, GIG",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"+ 1 Mild",eng:1,upcoming:"",urgency:"medium",remit:"Leads global engineering and asset operations for MAM Global Infrastructure Group."},
+  {id:null,first:"Elizabeth",last:"Sampson",title:"Head of Enterprise Technology and Cybersecurity, PPG",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"Enterprise technology and cybersecurity for MAM Portfolio Performance Group."},
+  {id:null,first:"Florian",last:"Christ",title:"Senior Managing Director, Infrastructure Energy Transition",div:"MAM",location:"New York",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads infrastructure, energy transition and real assets investment for MAM."},
+  {id:null,first:"Lou",last:"Tricarico",title:"Managing Director, Specialised Asset Finance",div:"MAM",location:"London",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:1,upcoming:"",urgency:"medium",remit:"Leads specialised asset finance within MAM."},
+  {id:null,first:"Luc",last:"Hennekens",title:"Portfolio Performance Group MD, MIRA",div:"MAM",location:"Singapore",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:2,upcoming:"SFF (Nov)",urgency:"medium",remit:"Managing Director in MAM Portfolio Performance Group. Singapore-based."},
   // ── New contacts from MMS extract July 2026 ──
-  {id:null,first:"Craig",last:"Griffin",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Sales Reinvention Roundtable and Salesforce World Tour."},
-  {id:null,first:"David",last:"McPartling",title:"Payments and Banking Executive, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged on payments and banking transformation topics including Bank of England and Agentic Commerce."},
-  {id:null,first:"Steve",last:"Pritchard",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"Unknown",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Learning, Reinvented thought leadership report."},
+  {id:null,first:"Craig",last:"Griffin",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Sales Reinvention Roundtable and Salesforce World Tour."},
+  {id:null,first:"David",last:"McPartling",title:"Payments and Banking Executive, BFS",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged on payments and banking transformation topics including Bank of England and Agentic Commerce."},
+  {id:null,first:"Steve",last:"Pritchard",title:"Executive, Banking and Financial Services",div:"BFS",location:"Sydney",owner:"wendy.saintruth",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"medium",remit:"BFS executive. Engaged via Learning, Reinvented thought leadership report."},
   // ── Exec and Group contacts with engagements ──
-  {id:null,first:"Nicole",last:"Sorbara",title:"COO and Head of Corporate Operations Group",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Unknown",eng:0,upcoming:"",urgency:"critical",remit:"COO of Macquarie Group and Head of COG. Leads technology, data, AI, procurement and group operations. One of the most critical coverage gaps on the account. Stanford AI Course invite sent Sep 2025."},
-  {id:null,first:"Shemara",last:"Wikramanayake",title:"Managing Director and CEO (retiring November 2026)",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"Good",eng:0,upcoming:"",urgency:"medium",remit:"Outgoing Group CEO, retiring November 2026 when Greg Ward takes over. Julie Sweet 1:1 meeting in October 2025. TQ access offered via Company Secretary January 2026."},
+  {id:null,first:"Nicole",last:"Sorbara",title:"COO and Head of Corporate Operations Group",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"0 Neutral",eng:0,upcoming:"",urgency:"critical",remit:"COO of Macquarie Group and Head of COG. Leads technology, data, AI, procurement and group operations. One of the most critical coverage gaps on the account. Stanford AI Course invite sent Sep 2025."},
+  {id:null,first:"Shemara",last:"Wikramanayake",title:"Managing Director and CEO (retiring November 2026)",div:"COG",location:"Sydney",owner:"jordan.griffiths",relLabel:"+ 2 Good",eng:0,upcoming:"",urgency:"medium",remit:"Outgoing Group CEO, retiring November 2026 when Greg Ward takes over. Julie Sweet 1:1 meeting in October 2025. TQ access offered via Company Secretary January 2026."},
 ];
 
 const SEED_ENGAGEMENTS = [
@@ -2386,7 +2570,7 @@ const VIP_NAMES = ["Tony Graham","Ashwin Sinha"];
 // Low = 1-2 engagements
 // Zero = no engagements
 function engLabel(eng12m){
-  if(eng12m>=5) return "Strong";
+  if(eng12m>=5) return "+ 3 Strong";
   if(eng12m>=3) return "Moderate";
   if(eng12m>=1) return "Low";
   return "Zero";
@@ -2415,7 +2599,7 @@ let _profileSource="p3";
 function relBadge(label, eng){
   // If eng count provided, use engagement-based label; else fall back to legacy label
   if(eng !== undefined) return engBadge(eng);
-  const m={Strong:"b-strong",Good:"b-good","Mild +":"b-mild",Building:"b-mild",Neutral:"b-neutral","At risk":"b-neg",Unknown:"b-none"};
+  const m={"+ 3 Strong":"b-strong","+ 2 Good":"b-good","+ 1 Mild":"b-mild","0 Neutral":"b-neutral","- 1 At risk":"b-neg","Not engaged":"b-none"};
   return `<span class="badge ${m[label]||"b-none"}">${label||"Unknown"}</span>`;
 }
 function engDots(n){
@@ -2467,7 +2651,7 @@ function reconcile(){
   TABLE_DATA.forEach(d=>{
     if(!d._baseUrgency)d._baseUrgency=d.urgency;
     const hasEntries=entries.some(e=>e.contact===`${d.first} ${d.last}`);
-    if(d.relLabel==="At risk")d.urgency="critical";
+    if(d.relLabel==="- 1 At risk")d.urgency="critical";
     else if(hasEntries&&d._baseUrgency==="critical")d.urgency="high";
     else d.urgency=d._baseUrgency||d.urgency;
   });
@@ -2563,6 +2747,7 @@ function refreshOverview(){
   renderLatestEngagements();
   renderVIPs();
   renderARSChart();
+  renderQuarterlyEngagement();
 }
 
 function renderLatestEngagements(){
@@ -2838,7 +3023,7 @@ function renderEntries(){
     const ini=e.contact.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
     const dateStr=e.date?new Date(e.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}):"";
     const tc=TYPE_CLASS[e.type]||"et-meeting";
-    const hc={Strong:"b-strong",Good:"b-good","Mild +":"b-mild",Neutral:"b-neutral","At risk":"b-neg"}[e.health]||"b-none";
+    const hc={"+ 3 Strong":"b-strong","+ 2 Good":"b-good","+ 1 Mild":"b-mild","0 Neutral":"b-neutral","- 1 At risk":"b-neg"}[e.health]||"b-none";
     return `<div class="entry-card"><div class="entry-av">${ini}</div><div class="entry-body"><div class="entry-top"><span class="entry-name">${e.contact}</span><span class="entry-type ${tc}">${e.type}</span>${e.health?`<span class="badge ${hc}">${e.health}</span>`:""}</div><div class="entry-meta">${dateStr}${e.owner?" · "+e.owner.split(".")[0]:""}</div><div class="entry-summary">${e.summary}</div>${e.notes?`<div class="entry-notes">${e.notes}</div>`:""}${e.action?`<div style="margin-top:5px;font-size:11px;color:var(--amber-text);background:var(--amber-bg);padding:3px 8px;display:inline-block">Next: ${e.action}</div>`:""}</div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button class="entry-del" onclick="openModifyModal(${e.id})" title="Edit" style="color:var(--purple-deep);font-size:14px">✎</button><button class="entry-del" onclick="deleteEntry(${e.id})" title="Delete">×</button></div></div>`;
   }).join("");
 }
@@ -3116,7 +3301,7 @@ async function submitNewContact(){
   await saveCustomContacts(customs);
   ["nc-first","nc-last","nc-title","nc-remit","nc-strategic"].forEach(id=>{const el=document.getElementById(id);el.value="";el.style.borderColor="";el.style.background="";});
   ["nc-div","nc-location","nc-owner"].forEach(id=>{document.getElementById(id).value="";document.getElementById(id).style.borderColor="";document.getElementById(id).style.background="";});
-  document.getElementById("nc-health").value="Unknown";
+  document.getElementById("nc-health").value="0 Neutral";
   document.getElementById("nc-urgency").value="medium";
   const success=document.getElementById("contact-success");
   success.textContent=`${fullName} added`;
@@ -3264,26 +3449,25 @@ function renderOverdueAlerts(){
 function renderHeatmap(){
   const el=document.getElementById("heatmap");
   if(!el)return;
-  // Use engagement-count colours for heatmap
-  const HEALTH_ORDER={Strong:5,Good:4,"Mild +":3,Building:3,Neutral:2,Unknown:1,"At risk":0};
+  const REL_COLOR={"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
+  const HEALTH_ORDER={"+ 3 Strong":5,"+ 2 Good":4,"+ 1 Mild":3,"0 Neutral":2,"- 1 At risk":0,"Not engaged":1};
   const divs=["MacCap","COG","BFS","MAM","CGM"];
   const byDiv={};
   divs.forEach(d=>byDiv[d]=[]);
   TABLE_DATA.forEach(d=>{if(byDiv[d.div])byDiv[d.div].push(d);});
   divs.forEach(div=>byDiv[div].sort((a,b)=>(HEALTH_ORDER[b.relLabel]||0)-(HEALTH_ORDER[a.relLabel]||0)||a.last.localeCompare(b.last)));
-  const colW=24,colGap=3;
-  let html=`<div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">`;
+  const colW=28,colGap=4;
+  let html=`<div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">`;
   divs.forEach(div=>{
     const contacts=byDiv[div];
     html+=`<div><div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--divider)">${div} <span style="font-weight:400;opacity:.6">(${contacts.length})</span></div><div style="display:flex;gap:${colGap}px;flex-wrap:wrap;max-width:${Math.ceil(contacts.length/2)*(colW+colGap)}px">`;
     contacts.forEach(c=>{
-      const color=engColor(c.eng);
-      const textColor=c.eng>=1?"#fff":"var(--dark-gray)";
+      const color=REL_COLOR[c.relLabel]||"#999";
       const ini=initials(c.first,c.last);
-      const engRing=c.eng>0?`box-shadow:0 0 0 2px #fff,0 0 0 3px ${color}`:"";
-      const tooltip=`${c.first} ${c.last} · ${engLabel(c.eng)} · ${c.eng} engagement${c.eng!==1?"s":""}`;
+      const ownerFirst=(c.owner||"").split(".")[0];
+      const tooltip=`${c.first} ${c.last} · ${c.relLabel||"0 Neutral"} · Owner: ${ownerFirst||"—"} · ${c.eng} engagement${c.eng!==1?"s":""}`;
       const clickFn=c.id?`onclick="showProfile('${c.id}')"`:MINI_PROFILES[`${c.first} ${c.last}`]?`onclick="showMiniProfile('${c.first} ${c.last}')"`:"";
-      html+=`<div title="${tooltip}" ${clickFn} style="width:${colW}px;height:${colW}px;background:${color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${textColor};cursor:${clickFn?"pointer":"default"};${engRing};transition:transform .1s;flex-shrink:0" onmouseover="this.style.transform='scale(1.12)'" onmouseout="this.style.transform='scale(1)'">${ini}</div>`;
+      html+=`<div title="${tooltip}" ${clickFn} style="width:${colW}px;height:${colW}px;background:${color};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;cursor:${clickFn?"pointer":"default"};transition:transform .1s;flex-shrink:0" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'">${ini}</div>`;
     });
     html+=`</div></div>`;
   });
@@ -3339,6 +3523,7 @@ function showProfile(id){
       <div class="stat-row">
         <div class="stat-box"><div class="sv">${d.eng}</div><div class="sl">Engagements</div></div>
         <div class="stat-box"><div class="sv" style="color:var(--purple-plum)">${extras.ars||"—"}</div><div class="sl">ARS score</div></div>
+        <div class="stat-box"><div class="sv" style="font-size:13px;color:${{"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"}[d.relLabel]||"#888"}">${d.relLabel||"—"}</div><div class="sl">Rel. score</div></div>
         <div class="stat-box"><div class="sv">${d.upcoming&&d.upcoming!=="None urgent"&&d.upcoming!=="None logged"?"Yes":"No"}</div><div class="sl">Upcoming</div></div>
       </div>
     </div>
@@ -3637,7 +3822,7 @@ function renderDirectory(filter){
   // Update All button count dynamically
   const allBtn=document.getElementById("dir-all-btn");
   if(allBtn) allBtn.textContent=`All (${TABLE_DATA.length})`;
-  const HC={Strong:"#1a8c66",Good:"#1a5fa5","Mild +":"#9e6010",Building:"#9e6010",Neutral:"#7a7a7a","At risk":"#c0291e",Unknown:"#aaaaaa"};
+  const HC={"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
   grid.innerHTML="";
   let source=TABLE_DATA,groupByDiv=true;
   if(filter==="EXEC"){source=TABLE_DATA.filter(d=>d.id&&EXEC_COMMITTEE.has(d.id));groupByDiv=false;}
@@ -3675,12 +3860,13 @@ function renderDirectory(filter){
     const proTags=(p.interests&&p.interests.pro||[]).slice(0,2).map(t=>`<span style="font-size:9px;padding:2px 5px;background:var(--lavender);color:var(--purple-plum);font-weight:600;letter-spacing:.03em;text-transform:uppercase">${t}</span>`).join("");
     const dots=Array.from({length:5},(_,i)=>`<div class="dir-eng-dot${i<p.eng?" on":""}"></div>`).join("");
     const bodyText=p.bio?p.bio.slice(0,100)+(p.bio.length>100?"…":""):p.remit?p.remit.slice(0,100)+(p.remit.length>100?"…":""):"";
-    el.innerHTML=`<div class="dir-card-top"><div class="dir-av" style="background:${bg};color:#fff">${initials(p.first,p.last)}</div><div class="dir-info"><div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px"><div class="dir-name">${p.first} ${p.last}</div>${isExec?`<span style="font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:var(--purple-plum);color:#fff;padding:1px 5px">EC</span>`:""}${engagedFY?`<span style="font-size:9px;font-weight:700;background:var(--green-bg);color:var(--green-text);padding:1px 5px">FY26 ✓</span>`:""}</div><div class="dir-title">${p.title}</div><div class="dir-badges">${relBadge(p.relLabel, p.eng)}<span class="badge b-neutral">${p.location||""}</span></div></div></div>${bodyText?`<div class="dir-card-body">${bodyText}</div>`:""}${proTags?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:3px">${proTags}</div>`:""}<div class="dir-card-footer"><div style="display:flex;align-items:center;gap:5px"><div class="dir-eng-dots">${dots}</div><span>${p.eng} engagement${p.eng!==1?"s":""}</span></div><span>${(p.owner||"").split(".")[0]}</span></div>`;
+    el.innerHTML=`<div class="dir-card-top"><div class="dir-av" style="background:${bg};color:#fff">${initials(p.first,p.last)}</div><div class="dir-info"><div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px"><div class="dir-name">${p.first} ${p.last}</div>${isExec?`<span style="font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;background:var(--purple-plum);color:#fff;padding:1px 5px">EC</span>`:""}${engagedFY?`<span style="font-size:9px;font-weight:700;background:var(--green-bg);color:var(--green-text);padding:1px 5px">FY26 ✓</span>`:""}</div><div class="dir-title">${p.title}</div><div class="dir-badges">${relBadge(p.relLabel, p.eng)}<span class="badge b-neutral">${p.location||""}</span></div></div></div>${bodyText?`<div class="dir-card-body">${bodyText}</div>`:""}${proTags?`<div style="margin-top:5px;display:flex;flex-wrap:wrap;gap:3px">${proTags}</div>`:""}<div class="dir-card-footer"><div style="display:flex;align-items:center;gap:5px"><span style="font-size:10px;font-weight:700;color:${{"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"}[p.relLabel]||"#888"}">${p.relLabel||"0 Neutral"}</span><span style="color:var(--label-gray)"> · ${p.eng} eng</span></div><span>${(p.owner||"").split(".")[0]}</span></div>`;
     return el;
   }
   if(groupByDiv){
     ["MacCap","COG","BFS","MAM","CGM"].forEach(div=>{
-      const group=source.filter(p=>p.div===div);
+      const REL_SORT={"+ 3 Strong":4,"+ 2 Good":3,"+ 1 Mild":2,"0 Neutral":1,"- 1 At risk":-1,"Not engaged":0};
+      const group=source.filter(p=>p.div===div).sort((a,b)=>(REL_SORT[b.relLabel]??1)-(REL_SORT[a.relLabel]??1)||a.last.localeCompare(b.last));
       if(!group.length)return;
       const head=document.createElement("div");
       head.className="dir-section-head";
@@ -3690,6 +3876,8 @@ function renderDirectory(filter){
     });
   } else {
     if(!source.length){const empty=document.createElement("div");empty.style.cssText="grid-column:1/-1;padding:32px;text-align:center;color:var(--label-gray);font-size:13px";empty.textContent="No contacts match this filter.";grid.appendChild(empty);return;}
+    const REL_SORT_F={"+ 3 Strong":4,"+ 2 Good":3,"+ 1 Mild":2,"0 Neutral":1,"- 1 At risk":-1,"Not engaged":0};
+    source.sort((a,b)=>(REL_SORT_F[b.relLabel]??1)-(REL_SORT_F[a.relLabel]??1)||a.last.localeCompare(b.last));
     source.forEach(p=>grid.appendChild(makeCard(p)));
   }
 }
@@ -3699,15 +3887,506 @@ function goBack(){
   document.getElementById("profile-page").classList.remove("active");
   const src=_profileSource||"p3";
   document.getElementById(src).classList.add("active");
-  const tabIdx={p1:0,p4:1,p3:2,p5:3};
+  const tabIdx={p1:0,p4:1,p3:2,p6:3,p5:4};
   document.querySelectorAll(".nav-tab").forEach((t,i)=>{t.classList.toggle("active",i===tabIdx[src])});
 }
+
+// ── EVENTS TAB ─────────────────────────────────────────────
+const EVENTS_DATA = [
+  {name:"Digital Financial Services Summit",date:"2026-09-03",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Payments",audience:["Chief Digital Officer","Head of Digital Banking","Head of Payments","Chief Innovation Officer","Chief Risk Officer"],desc:"Premier ANZ forum on digital banking, payments innovation and financial services technology strategy. Draws CxOs from banks, insurers and fintechs."},
+  {name:"Intersekt / Fintech Week Australia",date:"2026-09-03",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Payments",audience:["CEO","Chief Innovation Officer","Head of Payments","Head of Regulatory Affairs"],desc:"Australia's largest fintech gathering. Policy, product and partnership conversations across payments, lending, regtech and open banking."},
+  {name:"The AI Summit Australia",date:"2026-09-07",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","Chief Data Officer","CIO","CTO","Head of AI Governance"],desc:"Focused on enterprise AI adoption — strategy, governance, responsible AI and applied machine learning across industries."},
+  {name:"Future of Banking — FST Media",date:"2026-09-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["CEO","CIO","CTO","Chief Operating Officer","Head of Digital Banking"],desc:"FST Media's flagship banking conference covering digital transformation, core modernisation and AI-driven customer experience."},
+  {name:"Seahawks Trophy Tour (Hospitality)",date:"2026-09-11",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["Chief Marketing Officer","Head of Client Engagement","CEO"],desc:"NFL Seahawks Trophy Tour hospitality event. Relationship and entertainment engagement opportunity for senior client contacts."},
+  {name:"Stanford AI Training",date:"2026-09-17",loc:"Sydney",market:"ANZ",type:"Workshop",theme:"AI & Data",audience:["Chief AI Officer","CIO","Head of Digital Transformation"],desc:"Executive education programme on AI strategy and implementation. Ideal for senior leaders driving AI agendas within their organisations."},
+  {name:"AFR Cyber Summit",date:"2026-09-21",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","Chief Risk Officer","Head of Cybersecurity","Head of Fraud"],desc:"Australian Financial Review's premier cybersecurity summit. Covers threat landscape, regulatory obligations and enterprise security strategy."},
+  {name:"Dreamforce San Francisco",date:"2026-09-15",loc:"San Francisco",market:"US",type:"Conference",theme:"Customer & Growth",audience:["Chief Customer Officer","CIO","Chief Marketing Officer","CDO"],desc:"Salesforce's global customer conference. Key themes: AI-powered CRM, data cloud, customer 360 and enterprise automation at scale."},
+  {name:"Sibos Miami",date:"2026-09-28",loc:"Miami",market:"US",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Transaction Banking"],desc:"SWIFT's annual global financial services conference. Covers payments, securities, compliance and the future of financial infrastructure."},
+  {name:"CyberCon 2026",date:"2026-10-14",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","Head of Cybersecurity","Security Architect","Chief Risk Officer"],desc:"Australia's largest cybersecurity conference run by AISA. Covers threat intelligence, incident response, cloud security and risk governance."},
+  {name:"CRO Circle Connect",date:"2026-10-21",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Risk & Compliance",audience:["Chief Risk Officer","CRO"],desc:"Exclusive peer forum for Chief Risk Officers. Agenda focuses on emerging risk, regulatory change and risk operating model design."},
+  {name:"FinTech & Banking Summit 2026",date:"2026-10-15",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Payments",audience:["Head of Digital Banking","Head of Payments","Chief Innovation Officer"],desc:"Mid-market banking and fintech summit covering embedded finance, digital lending, open banking and payments modernisation."},
+  {name:"CyberXchange Breakfast — Sydney",date:"2026-10-22",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","CIO","CTO"],desc:"Executive-level cybersecurity breakfast forum. Intimate roundtable format covering threat trends and CISO priorities."},
+  {name:"Money 20/20 USA",date:"2026-10-18",loc:"Las Vegas",market:"US",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"The world's largest fintech event. Key themes: payments, banking-as-a-service, AI in finance and embedded finance infrastructure."},
+  {name:"Workday Rising 2026",date:"2026-10-12",loc:"Las Vegas",market:"US",type:"Conference",theme:"Digital Core",audience:["CHRO","CFO","CIO","Head of HR Technology"],desc:"Workday's annual customer conference covering HR technology, financial management, workforce planning and AI-powered ERP."},
+  {name:"Faculty AI Impact Summit",date:"2026-11-05",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["CMO","CDO","CSO","CCO"],desc:"Accenture-affiliated AI leadership summit focused on applied AI, agentic systems and responsible AI governance for enterprise leaders."},
+  {name:"Agentic Experiences — Auckland",date:"2026-11-05",loc:"Auckland",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Agentic Experiences — Sydney",date:"2026-11-10",loc:"Sydney",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Agentic Experiences — Melbourne",date:"2026-11-12",loc:"Melbourne",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Microsoft Ignite",date:"2026-11-16",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CIO","CTO"],desc:"Microsoft's flagship tech conference. Enterprise cloud, AI Copilot, Azure and Microsoft 365 innovations for IT and business leaders."},
+  {name:"CFO Edge",date:"2026-11-17",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Leadership",audience:["CFO","Head of Finance Transformation"],desc:"Senior finance leader forum. Covers AI in finance, FP&A modernisation, finance transformation and CFO agenda priorities."},
+  {name:"Singapore Fintech Festival",date:"2026-11-18",loc:"Singapore",market:"SEA",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"World's largest fintech festival. Policy, regulation, payments, digital assets and financial inclusion across the Asia-Pacific."},
+  {name:"NAB Transformation — Leadership Perspectives",date:"2026-11-27",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Leadership",audience:["CEO","CIO","Chief Transformation Officer"],desc:"Industry briefing on enterprise-wide transformation — technology modernisation, workforce change and strategic execution at scale."},
+  {name:"AWS re:Invent",date:"2026-11-30",loc:"Las Vegas",market:"US",type:"Conference",theme:"Cloud",audience:["CIO","CTO","Chief Cloud Officer","CDO"],desc:"Amazon Web Services' global cloud conference. AI, machine learning, data infrastructure, security and cloud-native development."},
+  {name:"Australasian Finance & Banking Conference",date:"2026-12-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Risk & Compliance",audience:["Chief Economist","Head of Research","Head of Market Risk"],desc:"Academic and practitioner conference on banking economics, credit risk, market risk and financial system stability."},
+  {name:"WEF Davos",date:"2027-01-18",loc:"Davos",market:"EMEA",type:"Conference",theme:"Leadership",audience:["CEO","CFO","Chief Strategy Officer","Chief Risk Officer"],desc:"World Economic Forum Annual Meeting. Global leaders in business, government and civil society shaping the global agenda."},
+  {name:"Australian Open (Hospitality)",date:"2027-01-17",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["CIO","CTO","CEO","Head of Client Engagement"],desc:"Premium Grand Slam tennis hospitality. Key relationship and entertainment engagement for senior executive contacts."},
+  {name:"Microsoft World Tour",date:"2027-02-04",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Digital Core",audience:["CIO","CTO"],desc:"Microsoft's regional tour showcasing Azure AI, Microsoft 365 Copilot and enterprise cloud roadmap."},
+  {name:"AI Leaders Symposium",date:"2027-03-11",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","CIO","CDO"],desc:"Curated forum for enterprise AI leaders covering applied AI, governance, responsible deployment and organisational change."},
+  {name:"Nvidia GTC",date:"2027-03-15",loc:"San Jose",market:"US",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","CIO","CTO"],desc:"Nvidia's GPU Technology Conference — the world's leading AI and accelerated computing event for researchers and enterprise leaders."},
+  {name:"Google Cloud Next",date:"2027-04-22",loc:"Las Vegas",market:"US",type:"Conference",theme:"Cloud",audience:["CIO","CTO","CDO"],desc:"Google Cloud's annual conference. AI, data analytics, multi-cloud strategy and enterprise application modernisation."},
+  {name:"F1 Grand Prix Hospitality",date:"2027-04-01",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["CEO","Head of Client Engagement"],desc:"Formula 1 Melbourne Grand Prix premium hospitality. Flagship relationship and entertainment engagement event."},
+  {name:"Databricks Summit",date:"2027-06-21",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CDO","Chief AI Officer","Head of Data Engineering"],desc:"Data + AI Summit by Databricks. Lakehouse architecture, MLOps, streaming analytics and enterprise AI platform strategy."},
+  {name:"Snowflake Summit",date:"2027-06-07",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CDO","Head of Analytics"],desc:"Snowflake's annual data cloud conference. Data sharing, AI/ML on data cloud, governance and enterprise analytics."},
+];
+
+const THEME_MATCH = {
+  "AI & Data":["data","ai","digital","analytics","technology","engineering","information","transformation","innovation","cdo","cto","cio","cdio"],
+  "Cybersecurity":["security","ciso","cyber","risk","fraud","resilience","infrastructure","compliance"],
+  "Payments":["payment","banking","fintech","transaction","digital banking","deposits","lending","retail bank","business bank"],
+  "Leadership":["ceo","md","coo","group head","chairman","managing director","executive"],
+  "Customer & Growth":["customer","marketing","growth","cmo","commercial","revenue","sales","cco","product"],
+  "Digital Core":["engineering","platform","architecture","cloud","infrastructure","technology","cio","cto","reliability","operations"],
+  "Cloud":["cloud","infrastructure","platform","architecture","cto","cio","engineering"],
+  "Risk & Compliance":["risk","compliance","regulatory","legal","governance","cro","cfo","treasury","finance"],
+};
+
+const THEME_COLORS = {
+  "AI & Data":"#1a5fa5","Cybersecurity":"#c0392b","Payments":"#1a8c66",
+  "Leadership":"#7e57c2","Customer & Growth":"#d4830a","Digital Core":"#0d6e8a",
+  "Cloud":"#0d8a6e","Risk & Compliance":"#8a6a0d","Geopolitics":"#5a5a8a","default":"#666"
+};
+
+const REL_CHIP = {
+  "+ 3 Strong":"background:#1a8c66;color:#fff","+ 2 Good":"background:#1a5fa5;color:#fff",
+  "+ 1 Mild":"background:#d4830a;color:#fff","0 Neutral":"background:#888;color:#fff",
+  "- 1 At risk":"background:#c0392b;color:#fff","Not engaged":"background:#444;color:#fff"
+};
+
+function getStakeholderMatches(event) {
+  const themeKeys = (THEME_MATCH[event.theme]||[]);
+  const matches = [];
+  TABLE_DATA.forEach(p => {
+    const titleLow = (p.title||"").toLowerCase();
+    const themeMatch = themeKeys.some(k => titleLow.includes(k));
+    const audienceMatch = (event.audience||[]).some(a => {
+      const aLow = a.toLowerCase();
+      return titleLow.includes(aLow.split(" ").slice(-1)[0]) || titleLow.includes(aLow.split(" ")[0]);
+    });
+    if(themeMatch || audienceMatch) matches.push(p);
+  });
+  const REL_SORT = {"+ 3 Strong":4,"+ 2 Good":3,"+ 1 Mild":2,"0 Neutral":1,"- 1 At risk":-1,"Not engaged":0};
+  matches.sort((a,b) => (REL_SORT[b.relLabel]??1)-(REL_SORT[a.relLabel]??1));
+  return matches.slice(0,8);
+}
+
+function evtMarket(ev) {
+  if(!ev.loc) return ev.market||"Global";
+  if(["Sydney","Melbourne","Auckland","Brisbane","Perth","Adelaide"].includes(ev.loc)) return "ANZ";
+  if(["Singapore","Bangkok","Kuala Lumpur","Hong Kong","Wellington"].includes(ev.loc)) return "SEA";
+  if(["London","Davos","Frankfurt"].includes(ev.loc)) return "EMEA";
+  return ev.market||"Global";
+}
+
+let _evtYear = 2026, _evtMonth = 8; // 0-indexed month; start Sep 2026
+
+function shiftEvtMonth(dir) {
+  _evtMonth += dir;
+  if(_evtMonth > 11){ _evtMonth=0; _evtYear++; }
+  if(_evtMonth < 0){ _evtMonth=11; _evtYear--; }
+  renderEvents();
+}
+
+function renderEvents() {
+  const locFilter = document.getElementById("evt-filter-loc")?.value||"ALL";
+  const themeFilter = document.getElementById("evt-filter-theme")?.value||"ALL";
+  const cal = document.getElementById("evt-calendar");
+  if(!cal) return;
+
+  const MONTH_NAMES = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const lbl = document.getElementById("evt-month-label");
+  if(lbl) lbl.textContent = `${MONTH_NAMES[_evtMonth]} ${_evtYear}`;
+
+  // Filter events to this month
+  const filtered = EVENTS_DATA.filter(ev => {
+    const d = new Date(ev.date);
+    if(d.getFullYear()!==_evtYear || d.getMonth()!==_evtMonth) return false;
+    const mkt = evtMarket(ev);
+    if(locFilter!=="ALL" && mkt!==locFilter) return false;
+    if(themeFilter!=="ALL" && ev.theme!==themeFilter) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById("evt-count");
+  if(countEl) countEl.textContent = `${filtered.length} event${filtered.length===1?"":"s"}`;
+
+  // Build calendar grid
+  const firstDay = new Date(_evtYear, _evtMonth, 1).getDay(); // 0=Sun
+  const daysInMonth = new Date(_evtYear, _evtMonth+1, 0).getDate();
+  const today = new Date();
+
+  // Group events by day
+  const byDay = {};
+  filtered.forEach(ev => {
+    const d = new Date(ev.date).getDate();
+    if(!byDay[d]) byDay[d] = [];
+    byDay[d].push(ev);
+  });
+
+  const DAY_LABELS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  let html = `<div style="background:var(--card-bg);border:1px solid var(--divider);border-radius:10px;overflow:hidden">`;
+  // Day headers
+  html += `<div style="display:grid;grid-template-columns:repeat(7,1fr);border-bottom:2px solid var(--divider)">`;
+  DAY_LABELS.forEach(d => { html += `<div style="padding:8px 4px;text-align:center;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray)">${d}</div>`; });
+  html += `</div>`;
+
+  // Day cells
+  html += `<div style="display:grid;grid-template-columns:repeat(7,1fr)">`;
+  // Empty cells before first day
+  const startOffset = firstDay; // Sun=0
+  for(let i=0;i<startOffset;i++) html += `<div style="min-height:80px;border-right:1px solid var(--divider);border-bottom:1px solid var(--divider);background:var(--bg);opacity:.4"></div>`;
+
+  for(let day=1; day<=daysInMonth; day++) {
+    const isToday = today.getFullYear()===_evtYear && today.getMonth()===_evtMonth && today.getDate()===day;
+    const events = byDay[day]||[];
+    const col = (startOffset + day - 1) % 7;
+    const isWeekend = col===0||col===6;
+    const borderR = col===6 ? "" : "border-right:1px solid var(--divider);";
+    html += `<div style="min-height:80px;${borderR}border-bottom:1px solid var(--divider);padding:4px;${isWeekend?"background:var(--bg);":""}${isToday?"outline:2px solid var(--purple-primary);outline-offset:-2px":""}">`;
+    html += `<div style="font-size:11px;font-weight:${isToday?"800":"600"};color:${isToday?"var(--purple-primary)":"var(--dark-gray)"};margin-bottom:3px">${day}</div>`;
+    events.forEach(ev => {
+      const c = THEME_COLORS[ev.theme]||THEME_COLORS.default;
+      html += `<div onclick="showEvtDetail('${ev.name.replace(/'/g,"\\'")}','${ev.date}')" style="font-size:9px;font-weight:700;padding:2px 4px;background:${c};color:#fff;border-radius:3px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%" title="${ev.name}">${ev.name}</div>`;
+    });
+    html += `</div>`;
+  }
+  // Trailing cells
+  const totalCells = startOffset + daysInMonth;
+  const remainder = totalCells % 7;
+  if(remainder>0) {
+    for(let i=remainder;i<7;i++) html += `<div style="min-height:80px;border-right:1px solid var(--divider);border-bottom:1px solid var(--divider);background:var(--bg);opacity:.4"></div>`;
+  }
+  html += `</div></div>`;
+
+  // Legend
+  html += `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;font-size:11px">`;
+  Object.entries(THEME_COLORS).filter(([k])=>k!=="default").forEach(([theme,color])=>{
+    html += `<span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:${color};border-radius:2px;flex-shrink:0"></span>${theme}</span>`;
+  });
+  html += `</div>`;
+
+  cal.innerHTML = html;
+  // Hide detail panel when re-rendering
+  const det = document.getElementById("evt-detail");
+  if(det) det.style.display="none";
+}
+
+
+// ── EVENT LOG MODAL ────────────────────────────────────────
+function openEvtLogModal(contactName, eventName, eventDate, existingEntryId) {
+  const modal = document.getElementById("evt-log-modal");
+  if(!modal) return;
+  document.getElementById("elm-event-label").textContent = eventName;
+  document.getElementById("elm-contact-label").textContent = contactName;
+  document.getElementById("elm-contact-name").value = contactName;
+  document.getElementById("elm-entry-id").value = existingEntryId||"";
+  // Pre-fill date with event date
+  document.getElementById("elm-date").value = eventDate||"";
+  document.getElementById("elm-entry-date").value = new Date().toISOString().split("T")[0];
+  // If editing, load existing entry
+  if(existingEntryId) {
+    const entries = loadEntries();
+    const e = entries.find(x => String(x.id)===String(existingEntryId));
+    if(e) {
+      document.getElementById("elm-owner").value = e.owner||"";
+      document.getElementById("elm-date").value = e.date||eventDate||"";
+      document.getElementById("elm-entry-date").value = e.entryDate||"";
+      document.getElementById("elm-type").value = e.type||"";
+      document.getElementById("elm-summary").value = e.summary||"";
+      document.getElementById("elm-notes").value = e.notes||"";
+      document.getElementById("elm-action").value = e.action||"";
+    }
+  } else {
+    // Reset for new entry — pre-fill type as Social/event for events
+    document.getElementById("elm-owner").value = "";
+    document.getElementById("elm-type").value = "Social / event";
+    document.getElementById("elm-summary").value = "";
+    document.getElementById("elm-notes").value = "";
+    document.getElementById("elm-action").value = "";
+  }
+  modal.style.display = "flex";
+}
+
+function closeEvtLogModal() {
+  const modal = document.getElementById("evt-log-modal");
+  if(modal) modal.style.display = "none";
+}
+
+async function saveEvtLogEntry() {
+  const contactName = document.getElementById("elm-contact-name").value;
+  const existingId  = document.getElementById("elm-entry-id").value;
+  const owner  = document.getElementById("elm-owner").value;
+  const date   = document.getElementById("elm-date").value;
+  const edate  = document.getElementById("elm-entry-date").value;
+  const type   = document.getElementById("elm-type").value;
+  const summary= document.getElementById("elm-summary").value.trim();
+  const notes  = document.getElementById("elm-notes").value.trim();
+  const action = document.getElementById("elm-action").value.trim();
+
+  if(!contactName||!date||!type||!summary) {
+    ["elm-date","elm-type","elm-summary"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.borderColor=!el.value?"var(--red)":"";
+    });
+    return;
+  }
+  ["elm-date","elm-type","elm-summary"].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.style.borderColor="";
+  });
+
+  const entries = loadEntries();
+  if(existingId) {
+    // Edit existing
+    const idx = entries.findIndex(x => String(x.id)===String(existingId));
+    if(idx>=0) {
+      entries[idx] = {...entries[idx], owner, date, entryDate:edate, type, summary, notes, action, ts:new Date().toISOString()};
+    }
+  } else {
+    // New entry
+    const newId = Date.now();
+    entries.unshift({id:newId, owner, contact:contactName, date, entryDate:edate, type, summary, notes, action, ts:new Date().toISOString()});
+  }
+  await saveEntries(entries);
+
+  const suc = document.getElementById("elm-success");
+  if(suc){suc.style.display="inline-block";}
+  // Capture event context before modal closes
+  const _evtName = document.getElementById("elm-event-label").textContent;
+  const _evtDate = document.getElementById("elm-date").value;
+  setTimeout(async ()=>{
+    if(suc) suc.style.display="none";
+    closeEvtLogModal();
+    // Re-render event detail panel with updated invite status
+    const det = document.getElementById("evt-detail");
+    if(det && det.style.display!=="none") {
+      const ev = EVENTS_DATA.find(e=>e.name===_evtName);
+      if(ev) showEvtDetail(ev.name, ev.date);
+    }
+    // Full refresh — entries already saved to Firebase via saveEntries→spPersist
+    reconcile();
+    renderEntries();
+    renderTable(_curTableFilter||"ALL");
+    renderPipeline();
+    refreshOverview();
+    renderOverdueAlerts();
+    renderHeatmap();
+    renderQuarterlyEngagement();
+  }, 600);
+}
+
+// Close modal on backdrop click
+document.addEventListener("click", function(e) {
+  const modal = document.getElementById("evt-log-modal");
+  if(modal && e.target===modal) closeEvtLogModal();
+});
+
+function showEvtDetail(name, dateStr) {
+  const ev = EVENTS_DATA.find(e => e.name===name && e.date===dateStr);
+  const det = document.getElementById("evt-detail");
+  if(!ev||!det) return;
+  const matches = getStakeholderMatches(ev);
+  const themeColor = THEME_COLORS[ev.theme]||THEME_COLORS.default;
+  const dateDisp = new Date(ev.date+"T00:00:00").toLocaleDateString("en-AU",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  const allEntries = loadEntries();
+  const REL_COL_E = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
+
+  // Build stakeholder rows with owner + invite log
+  const stakeholderRows = matches.length
+    ? matches.map(p => {
+        const relColor = REL_COL_E[p.relLabel]||"#888";
+        const ownerFirst = (p.owner||"").split(".")[0]||"—";
+        const contactName = `${p.first} ${p.last}`;
+        // Check engagement log for any entry referencing this event (by event name keyword)
+        const evKeyword = ev.name.split(/[\s\-—]/)[0].toLowerCase();
+        const inviteEntries = allEntries.filter(e => {
+          const s = ((e.summary||"")+" "+(e.notes||"")).toLowerCase();
+          return e.contact===contactName && (s.includes(ev.name.toLowerCase().slice(0,15)) || s.includes("invite") || s.includes("event") || s.includes("conference") || s.includes(evKeyword));
+        });
+        const invited = inviteEntries.length > 0;
+        const latestEntry = invited ? inviteEntries[0] : null;
+        const inviteChip = invited
+          ? `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','${latestEntry.id}')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:#2d0057;color:#fff;border:none;cursor:pointer;white-space:nowrap">✓ Logged · Edit</button>`
+          : `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--divider);color:var(--dark-gray);border:none;cursor:pointer;white-space:nowrap">+ Log engagement</button>`;
+        const inviteNote = invited ? `<div style="font-size:10px;color:var(--label-gray);margin-top:3px;padding:4px 8px;background:var(--bg);border-radius:4px">${latestEntry.date||""} · ${latestEntry.type||""} · ${(latestEntry.summary||"").slice(0,70)}${(latestEntry.summary||"").length>70?"…":""}</div>` : "";
+        const clickFn = p.id ? `onclick="showProfile('${p.id}');_profileSource='p6'"` : "";
+        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--divider)">
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span ${clickFn} style="font-weight:700;font-size:12px;color:var(--dark-gray);${p.id?"cursor:pointer;text-decoration:underline;text-decoration-color:var(--divider)":""}">${contactName}</span>
+              <span style="font-size:11px;color:var(--label-gray)">${p.div}</span>
+              <span style="font-size:11px;font-weight:700;color:${relColor}">${p.relLabel||"0 Neutral"}</span>
+              <span style="font-size:11px;color:var(--label-gray)">Owner: <b style="color:var(--dark-gray)">${ownerFirst}</b></span>
+            </div>
+            <div style="font-size:11px;color:var(--label-gray);margin-top:2px">${p.title}</div>
+            ${inviteNote}
+          </div>
+          <div style="flex-shrink:0;padding-top:2px">${inviteChip}</div>
+        </div>`;
+      }).join("")
+    : `<div style="font-size:12px;color:var(--label-gray);padding:12px 0">No direct stakeholder matches in directory.</div>`;
+
+  det.style.display="block";
+  det.innerHTML=`
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px">
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+          <span style="background:${themeColor};color:#fff;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;letter-spacing:.04em">${ev.theme}</span>
+          <span style="background:var(--divider);color:var(--label-gray);font-size:10px;padding:2px 8px;border-radius:10px">${ev.type}</span>
+          <span style="background:var(--divider);color:var(--label-gray);font-size:10px;padding:2px 8px;border-radius:10px">${ev.loc||"TBD"}</span>
+        </div>
+        <div style="font-size:18px;font-weight:700;color:var(--dark-gray);margin-bottom:3px">${ev.name}</div>
+        <div style="font-size:12px;color:var(--label-gray);margin-bottom:10px">${dateDisp}</div>
+        ${ev.desc ? `<div style="font-size:12px;color:var(--dark-gray);line-height:1.6;padding:10px 12px;background:var(--bg);border-left:3px solid ${themeColor};margin-bottom:4px">${ev.desc}</div>` : ""}
+      </div>
+      <button onclick="document.getElementById('evt-detail').style.display='none'" style="font-size:20px;border:none;background:none;cursor:pointer;color:var(--label-gray);padding:0 4px;line-height:1;flex-shrink:0">×</button>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:4px">Suggested stakeholders (${matches.length})</div>
+    <div style="font-size:10px;color:var(--label-gray);margin-bottom:10px">Click name to open profile. Invite log checks engagement entries for event references.</div>
+    <div>${stakeholderRows}</div>`;
+  det.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function renderQuarterlyEngagement() {
+  const el = document.getElementById("quarterly-engagement-table");
+  if(!el) return;
+
+  const ownerF = (document.getElementById("qt-filter-owner")?.value||"ALL").toLowerCase();
+  const divF   = document.getElementById("qt-filter-div")?.value||"ALL";
+  const period = document.getElementById("qt-filter-period")?.value||"FY";
+  const sortOrd= document.getElementById("qt-sort-order")?.value||"desc";
+
+  const today = new Date();
+  const ninetyDaysAgo = new Date(today); ninetyDaysAgo.setDate(today.getDate()-90);
+
+  const quarters = [
+    {label:"Q1",title:"Jul–Sep 26",start:"2026-07-01",end:"2026-09-30"},
+    {label:"Q2",title:"Oct–Dec 26",start:"2026-10-01",end:"2026-12-31"},
+    {label:"Q3",title:"Jan–Mar 27",start:"2027-01-01",end:"2027-03-31"},
+    {label:"Q4",title:"Apr–Jun 27",start:"2027-04-01",end:"2027-06-30"},
+  ];
+
+  const entries = loadEntries();
+
+  // Filter contacts
+  let contacts = TABLE_DATA.filter(p => {
+    if(divF!=="ALL" && p.div!==divF) return false;
+    if(ownerF!=="ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF)) return false;
+    return true;
+  });
+
+  // Count logged engagements per contact per quarter (or 90d)
+  const REL_C = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
+
+  const rows = contacts.map(p => {
+    const name = `${p.first} ${p.last}`;
+    let qEngs;
+    if(period==="90") {
+      // Single bucket: last 90 days
+      const cnt = entries.filter(e => {
+        if(e.contact!==name||!e.date) return false;
+        return new Date(e.date) >= ninetyDaysAgo;
+      }).length;
+      qEngs = [cnt, null, null, null]; // only Q1 slot used for 90d mode
+    } else {
+      qEngs = quarters.map(q => entries.filter(e => {
+        if(e.contact!==name||!e.date) return false;
+        const d = new Date(e.date);
+        return d >= new Date(q.start) && d <= new Date(q.end);
+      }).length);
+    }
+    const total = qEngs.reduce((a,b)=>a+(b||0),0);
+
+    // Upcoming events matched to this contact (future only)
+    const upcomingEvts = EVENTS_DATA.filter(ev => {
+      if(new Date(ev.date) <= today) return false;
+      return getStakeholderMatches(ev).some(m => `${m.first} ${m.last}`===name);
+    }).map(ev => ({name:ev.name, date:ev.date, q: (() => {
+      const d = new Date(ev.date);
+      for(let i=0;i<quarters.length;i++){
+        if(d>=new Date(quarters[i].start)&&d<=new Date(quarters[i].end)) return i;
+      }
+      return -1;
+    })()})).filter(e=>e.q>=0);
+
+    return {p, name, qEngs, total, upcomingEvts};
+  });
+
+  // Sort
+  rows.sort((a,b) => sortOrd==="asc" ? a.total-b.total : b.total-a.total);
+
+  const maxLogged = Math.max(1, ...rows.map(r => Math.max(...r.qEngs.map(n=>n||0))));
+
+  // Render
+  const is90 = period==="90";
+  const colHeaders = is90
+    ? `<th style="padding:6px 10px;color:var(--label-gray);font-weight:700;text-align:center;min-width:80px">Last 90 days</th>`
+    : quarters.map(q=>`<th style="padding:6px 10px;color:var(--label-gray);font-weight:700;text-align:center;min-width:80px" title="${q.title}">${q.label}</th>`).join("");
+
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead>
+      <tr style="border-bottom:2px solid var(--divider)">
+        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700;min-width:140px">Stakeholder</th>
+        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700">Owner</th>
+        <th style="text-align:left;padding:6px 8px;color:var(--label-gray);font-weight:700">Rel. score</th>
+        ${colHeaders}
+        <th style="padding:6px 8px;color:var(--label-gray);font-weight:700;text-align:center">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map((r,i) => {
+        const ownerFirst=(r.p.owner||"").split(".")[0]||"—";
+        const relCol=REL_C[r.p.relLabel]||"#aaa";
+
+        const qCells = is90
+          ? (() => {
+              const n = r.qEngs[0]||0;
+              const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
+              const bar = `<div style="display:flex;align-items:flex-end;justify-content:center;height:44px;gap:2px">
+                ${n>0?`<div style="width:22px;height:${bh}px;background:#5b2d8e;border-radius:3px 3px 0 0"></div>`:`<div style="width:22px;height:2px;background:var(--divider);margin-top:42px"></div>`}
+              </div>
+              <div style="text-align:center;font-size:11px;font-weight:600;color:${n>0?"#5b2d8e":"var(--label-gray)"}">${n>0?n:"—"}</div>`;
+              return `<td style="padding:6px 8px;vertical-align:bottom">${bar}</td>`;
+            })()
+          : quarters.map((q,qi) => {
+              const n = r.qEngs[qi]||0;
+              // upcoming events in this quarter for this contact
+              const evtsThisQ = r.upcomingEvts.filter(e=>e.q===qi);
+              const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
+              const evtBarH = evtsThisQ.length>0 ? Math.max(6, Math.round((evtsThisQ.length/3)*20)) : 0;
+              const loggedBar = n>0?`<div style="width:20px;height:${bh}px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0" title="${n} logged"></div>`:`<div style="width:20px;height:2px;background:var(--divider);margin-top:40px;flex-shrink:0"></div>`;
+              const evtBar = evtsThisQ.length>0?`<div style="width:14px;height:${evtBarH}px;background:rgba(161,0,255,.28);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0" title="${evtsThisQ.length} upcoming event${evtsThisQ.length>1?"s":""}: ${evtsThisQ.map(e=>e.name).join(", ")}"></div>`:"";
+              const cellLabel = [n>0?`<span style="color:#5b2d8e;font-weight:700">${n}</span>`:"", evtsThisQ.length>0?`<span style="color:#a100ff;font-size:10px">+${evtsThisQ.length}</span>`:""].filter(Boolean).join(" ");
+              return `<td style="padding:6px 8px;vertical-align:bottom;text-align:center">
+                <div style="display:flex;align-items:flex-end;justify-content:center;height:44px;gap:3px">${loggedBar}${evtBar}</div>
+                <div style="font-size:10px;margin-top:2px;min-height:14px">${cellLabel||`<span style="color:var(--label-gray)">—</span>`}</div>
+              </td>`;
+            }).join("");
+
+        // navigation: profile link if has id, else directory; rel page for rel score
+        const profClick = r.p.id
+          ? `style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--divider)" onclick="showProfile('${r.p.id}');_profileSource='p1'"`
+          : `style="cursor:pointer;text-decoration:underline;text-decoration-color:var(--divider)" onclick="showMiniProfile('${r.name}',${JSON.stringify({first:r.p.first,last:r.p.last,title:r.p.title,div:r.p.div,relLabel:r.p.relLabel,eng:r.p.eng,owner:r.p.owner,location:r.p.location})});"`;
+        const relClick = `style="cursor:pointer;text-decoration:underline;text-decoration-color:rgba(0,0,0,.1)" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===2)});document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p3').classList.add('active');_activePage='p3';"`;
+        const evtClick = `style="cursor:pointer;text-decoration:underline;text-decoration-color:rgba(0,0,0,.1)" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>{t.classList.toggle('active',i===3)});document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p6').classList.add('active');_activePage='p6';renderEvents();"`;
+        return `<tr style="border-bottom:1px solid var(--divider);${i%2===0?"background:var(--bg)":""}">
+          <td style="padding:7px 8px;font-weight:600;color:var(--dark-gray)" ${profClick}>${r.name}</td>
+          <td style="padding:7px 8px;font-size:11px;color:var(--label-gray)">${ownerFirst}</td>
+          <td style="padding:7px 8px;font-size:11px;font-weight:700;color:${relCol}" ${relClick}>${r.p.relLabel||"0 Neutral"}</td>
+          ${qCells}
+          <td style="padding:7px 8px;text-align:center;font-weight:700;color:${r.total>0?"var(--dark-gray)":"var(--label-gray)"}">${r.total||"—"}</td>
+        </tr>`;
+      }).join("")}
+    </tbody>
+  </table>
+  ${rows.length===0?`<div style="text-align:center;padding:24px;color:var(--label-gray);font-size:13px">No contacts match the selected filters.</div>`:""}`;
+}
+
 function showPage(id,tab){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
   document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
   tab.classList.add("active");
   if(id==="p4")renderDirectory("ALL");
+  if(id==="p6")renderEvents();
   _activePage=id;
   window.scrollTo(0,0);
 }
@@ -3723,6 +4402,7 @@ async function refreshAll(){
   refreshOverview();
   renderOverdueAlerts();
   renderHeatmap();
+  renderQuarterlyEngagement();
   renderDirectory("ALL");
   populateLeadDropdowns();
   renderLeadsManager();
