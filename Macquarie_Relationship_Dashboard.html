@@ -479,11 +479,20 @@ tbody tr:hover td{background:var(--lavender-2)}
           <option value="desc">Most → least</option>
           <option value="asc">Least → most</option>
         </select>
+        <select id="qt-filter-rel" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
+          <option value="ALL">All scores</option>
+          <option value="+ 3 Strong">+ 3 Strong</option>
+          <option value="+ 2 Good">+ 2 Good</option>
+          <option value="+ 1 Mild">+ 1 Mild</option>
+          <option value="0 Neutral">0 Neutral</option>
+          <option value="- 1 At risk">- 1 At risk</option>
+          <option value="Not engaged">Not engaged</option>
+        </select>
       </div>
     </div>
     <div style="display:flex;gap:14px;align-items:center;font-size:11px;color:var(--label-gray);margin-bottom:12px">
-      <span><span style="display:inline-block;width:10px;height:10px;background:#5b2d8e;border-radius:2px;margin-right:4px"></span>Logged engagements</span>
-      <span><span style="display:inline-block;width:10px;height:10px;background:rgba(161,0,255,.25);border-radius:2px;border:1px dashed #a100ff;margin-right:4px"></span>Upcoming event opps</span>
+      <span><span style="display:inline-flex;align-items:center;background:#ede7f6;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700;color:#5b2d8e;margin-right:4px">✓ N logged</span>Click to view entries</span>
+      <span><span style="display:inline-block;width:28px;height:10px;background:#fdf5ff;border:1px solid #a100ff;border-left:3px solid #a100ff;border-radius:3px;margin-right:4px"></span>Upcoming event — click to open</span>
     </div>
     <div id="quarterly-engagement-table" style="overflow-x:auto"></div>
     <div id="qe-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9000;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
@@ -3966,7 +3975,7 @@ function getStakeholderMatches(event) {
   });
   const REL_SORT = {"+ 3 Strong":4,"+ 2 Good":3,"+ 1 Mild":2,"0 Neutral":1,"- 1 At risk":-1,"Not engaged":0};
   matches.sort((a,b) => (REL_SORT[b.relLabel]??1)-(REL_SORT[a.relLabel]??1));
-  return matches.slice(0,8);
+  return matches;
 }
 
 function evtMarket(ev) {
@@ -4192,8 +4201,16 @@ function showEvtDetail(name, dateStr) {
   const REL_COL_E = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
 
   // Build stakeholder rows with owner + invite log
-  const stakeholderRows = matches.length
-    ? matches.map(p => {
+  // Group matches by rel tier
+  const REL_TIERS = [
+    {label:"+ 3 Strong",    keys:["+ 3 Strong"]},
+    {label:"+ 2 Good",      keys:["+ 2 Good"]},
+    {label:"+ 1 Mild",      keys:["+ 1 Mild"]},
+    {label:"0 Neutral",     keys:["0 Neutral"]},
+    {label:"At risk / Not engaged", keys:["- 1 At risk","Not engaged"]},
+  ];
+
+  const renderStakeholderRow = (p) => {
         const relColor = REL_COL_E[p.relLabel]||"#888";
         const ownerFirst = (p.owner||"").split(".")[0]||"—";
         const contactName = `${p.first} ${p.last}`;
@@ -4228,6 +4245,16 @@ function showEvtDetail(name, dateStr) {
             ${inviteNote}
           </div>
           <div style="flex-shrink:0;padding-top:2px">${inviteChip}</div>
+        </div>`;
+  };
+
+  const stakeholderRows = matches.length
+    ? REL_TIERS.map(tier => {
+        const group = matches.filter(p => tier.keys.includes(p.relLabel));
+        if(!group.length) return "";
+        return `<div style="margin-bottom:8px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);padding:4px 0;border-bottom:1px solid var(--divider);margin-bottom:4px">${tier.label} (${group.length})</div>
+          ${group.map(p => renderStakeholderRow(p)).join("")}
         </div>`;
       }).join("")
     : `<div style="font-size:12px;color:var(--label-gray);padding:12px 0">No direct stakeholder matches in directory.</div>`;
@@ -4267,18 +4294,28 @@ function showQEPopup(contactName, period, entries, profileId, evts) {
   let html = "";
 
   if(evts && evts.length > 0) {
-    // Upcoming events popup — link to Events tab
-    html += '<div style="font-size:12px;color:var(--label-gray);margin-bottom:12px">Click an event to open in the Events tab.</div>';
-    html += evts.map(ev => {
+    html += '<div style="font-size:11px;color:var(--label-gray);margin-bottom:12px">'+evts.length+' upcoming event'+(evts.length>1?'s':'')+' matched to '+contactName+'</div>';
+    html += evts.slice().sort((a,b)=>new Date(a.date)-new Date(b.date)).map(ev => {
       const evData = EVENTS_DATA.find(e=>e.name===ev.name);
       const dateStr = ev.date ? new Date(ev.date+"T00:00:00").toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"}) : "";
       const themeColor = evData ? (THEME_COLORS[evData.theme]||"#666") : "#666";
-      return `<div onclick="goToEvent('${ev.name.replace(/'/g,"\\'")}','${ev.date}')" style="display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid var(--divider);margin-bottom:8px;cursor:pointer;border-radius:6px;border-left:3px solid ${themeColor}" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
-        <div style="flex:1">
-          <div style="font-size:12px;font-weight:700;color:var(--dark-gray);margin-bottom:2px">${ev.name}</div>
-          <div style="font-size:11px;color:var(--label-gray)">${dateStr}${evData?" · "+evData.loc:""}${evData?" · "+evData.theme:""}</div>
+      const desc = evData && evData.desc ? evData.desc : "";
+      const safeName = ev.name.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+      const safeContact = contactName.replace(/'/g,"\\'");
+      return `<div style="padding:12px;border:1px solid var(--divider);margin-bottom:10px;border-radius:6px;border-left:3px solid ${themeColor}">
+        <div style="margin-bottom:6px">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap">
+            <span style="background:${themeColor};color:#fff;font-size:9px;font-weight:700;padding:1px 7px;border-radius:8px">${evData?evData.theme:"Event"}</span>
+            <span style="font-size:10px;color:var(--label-gray)">${evData?evData.type:""}</span>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--dark-gray);margin-bottom:2px">${ev.name}</div>
+          <div style="font-size:11px;color:var(--label-gray)">${dateStr}${evData&&evData.loc?" · "+evData.loc:""}</div>
         </div>
-        <span style="font-size:10px;font-weight:700;color:#a100ff;flex-shrink:0">Open →</span>
+        ${desc?`<div style="font-size:11px;color:#333;line-height:1.55;padding:8px;background:#fafafa;border-radius:4px;margin-bottom:8px">${desc}</div>`:""}
+        <div style="display:flex;gap:8px">
+          <button onclick="document.getElementById('qe-popup').style.display='none';goToEvent('${safeName}','${ev.date}')" style="flex:1;font-size:11px;font-weight:700;padding:6px 10px;background:#ffffff;color:#2d0057;border:2px solid #2d0057;border-radius:5px;cursor:pointer">View event →</button>
+          <button onclick="document.getElementById('qe-popup').style.display='none';openEvtLogModal('${safeContact}','${safeName}','${ev.date}','')" style="flex:1;font-size:11px;font-weight:700;padding:6px 10px;background:#2d0057;color:#fff;border:none;border-radius:5px;cursor:pointer">Log Invite</button>
+        </div>
       </div>`;
     }).join("");
   } else if(entries && entries.length > 0) {
@@ -4331,6 +4368,7 @@ function renderQuarterlyEngagement() {
   const divF    = document.getElementById("qt-filter-div")?.value||"ALL";
   const period  = document.getElementById("qt-filter-period")?.value||"FY";
   const sortOrd = document.getElementById("qt-sort-order")?.value||"desc";
+  const relF    = document.getElementById("qt-filter-rel")?.value||"ALL";
 
   const today = new Date();
   const ninetyAgo = new Date(today); ninetyAgo.setDate(today.getDate()-90);
@@ -4355,6 +4393,7 @@ function renderQuarterlyEngagement() {
   const contacts = TABLE_DATA.filter(p => {
     if(divF !== "ALL" && p.div !== divF) return false;
     if(ownerF !== "ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF.toLowerCase())) return false;
+    if(relF !== "ALL" && (p.relLabel||"0 Neutral") !== relF) return false;
     return true;
   });
 
@@ -4466,24 +4505,20 @@ function renderQuarterlyEngagement() {
     const colCount = is90 ? 1 : 4;
     for(let qi=0; qi<colCount; qi++){
       const td = tr.insertCell();
-      td.style.cssText = "padding:6px 8px;vertical-align:bottom;text-align:center";
+      td.style.cssText = "padding:5px 8px;vertical-align:top";
 
       const n = r.qEngs[qi]||0;
       const evtsQ = is90 ? [] : r.upcomingEvts.filter(e=>e.q===qi);
-      const bh = n>0 ? Math.max(10, Math.round((n/maxLogged)*40)) : 0;
-      const evtH = evtsQ.length>0 ? Math.max(6, Math.round((evtsQ.length/3)*20)) : 0;
 
-      const barWrap = document.createElement("div");
-      barWrap.style.cssText = "display:flex;align-items:flex-end;justify-content:center;height:44px;gap:3px";
-
+      // Logged engagement count pill (clickable)
       if(n>0){
-        const b = document.createElement("div");
-        b.style.cssText = "width:20px;height:"+bh+"px;background:#5b2d8e;border-radius:3px 3px 0 0;flex-shrink:0;cursor:pointer;transition:opacity .15s";
-        b.title = "Click to see "+n+" logged engagement"+(n>1?"s":"")+" for "+r.name+(is90?"":" in "+Qs[qi].label);
-        b.onmouseenter = ()=>b.style.opacity=".7";
-        b.onmouseleave = ()=>b.style.opacity="1";
-        b.onclick = ()=>{
-          // Filter entries for this contact in this quarter
+        const engPill = document.createElement("div");
+        engPill.style.cssText = "display:inline-flex;align-items:center;gap:4px;background:#ede7f6;border-radius:4px;padding:2px 7px;font-size:11px;font-weight:700;color:#5b2d8e;cursor:pointer;margin-bottom:5px;white-space:nowrap";
+        engPill.innerHTML = "&#10003; "+n+" logged";
+        engPill.title = "Click to view engagements";
+        engPill.onmouseenter = ()=>engPill.style.background="#d1c4e9";
+        engPill.onmouseleave = ()=>engPill.style.background="#ede7f6";
+        engPill.onclick = ()=>{
           const qEntries = is90
             ? entries.filter(e=>e.contact===r.name && e.date && new Date(e.date)>=ninetyAgo)
             : entries.filter(e=>{
@@ -4493,31 +4528,45 @@ function renderQuarterlyEngagement() {
               });
           showQEPopup(r.name, is90?"Last 90 days":Qs[qi].label, qEntries, r.p.id||null, null);
         };
-        barWrap.appendChild(b);
-      } else {
-        const b = document.createElement("div");
-        b.style.cssText = "width:20px;height:2px;background:var(--divider);margin-top:40px;flex-shrink:0";
-        barWrap.appendChild(b);
+        td.appendChild(engPill);
+        td.appendChild(document.createElement("br"));
       }
-      if(evtsQ.length>0){
-        const b = document.createElement("div");
-        b.style.cssText = "width:14px;height:"+evtH+"px;background:rgba(161,0,255,.25);border:1px dashed #a100ff;border-radius:3px 3px 0 0;flex-shrink:0;cursor:pointer;transition:opacity .15s";
-        b.title = "Click to see "+evtsQ.length+" upcoming event"+(evtsQ.length>1?"s":"")+" — "+evtsQ.map(e=>e.name).join(", ");
-        b.onmouseenter = ()=>b.style.opacity=".7";
-        b.onmouseleave = ()=>b.style.opacity="1";
-        b.onclick = ()=>{ showQEPopup(r.name, (is90?"Upcoming":Qs[qi].label)+" events", [], null, evtsQ); };
-        barWrap.appendChild(b);
-      }
-      td.appendChild(barWrap);
 
-      const lbl = document.createElement("div");
-      lbl.style.cssText = "font-size:10px;margin-top:2px;min-height:14px;text-align:center";
-      let lblHtml = "";
-      if(n>0) lblHtml += '<span style="color:#5b2d8e;font-weight:700">'+n+'</span>';
-      if(evtsQ.length>0) lblHtml += (lblHtml?" ":"")+'<span style="color:#a100ff;font-size:10px">+'+evtsQ.length+'</span>';
-      if(!lblHtml) lblHtml = '<span style="color:var(--label-gray)">—</span>';
-      lbl.innerHTML = lblHtml;
-      td.appendChild(lbl);
+      // Group upcoming events by category, render one chip per category
+      if(evtsQ.length > 0){
+        const byCat = {};
+        evtsQ.forEach(ev=>{
+          const evData = EVENTS_DATA.find(e=>e.name===ev.name);
+          const cat = evData ? (evData.theme||"Other") : "Other";
+          if(!byCat[cat]) byCat[cat]=[];
+          byCat[cat].push(ev);
+        });
+        Object.entries(byCat).forEach(([cat, catEvts])=>{
+          const catColor = THEME_COLORS[cat]||"#666";
+          const chip = document.createElement("div");
+          chip.style.cssText = "display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid "+catColor+";border-left:3px solid "+catColor+";border-radius:3px;padding:2px 7px;font-size:10px;color:#222;cursor:pointer;margin-bottom:3px;margin-right:2px;white-space:nowrap";
+          const badge = document.createElement("span");
+          badge.style.cssText = "background:"+catColor+";color:#fff;border-radius:8px;padding:0 5px;font-size:9px;font-weight:700";
+          badge.textContent = catEvts.length;
+          const label = document.createElement("span");
+          label.textContent = cat;
+          chip.appendChild(badge);
+          chip.appendChild(label);
+          chip.title = cat+": "+catEvts.map(e=>e.name).join(", ")+" — click to open in Events tab";
+          chip.onmouseenter = ()=>chip.style.background="#f9f0ff";
+          chip.onmouseleave = ()=>chip.style.background="#fff";
+          // Navigate to events tab filtered by this category, set month to first event
+          chip.onclick = ()=>{ showQEPopup(r.name, cat, [], null, catEvts); };
+          td.appendChild(chip);
+        });
+      }
+
+      if(n===0 && evtsQ.length===0){
+        const dash = document.createElement("span");
+        dash.style.cssText = "color:var(--label-gray);font-size:11px";
+        dash.textContent = "—";
+        td.appendChild(dash);
+      }
     }
 
     // Total cell
