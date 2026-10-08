@@ -4257,7 +4257,7 @@ function renderQuarterlyEngagement() {
   const el = document.getElementById("quarterly-engagement-table");
   if(!el) return;
 
-  const ownerF  = (document.getElementById("qt-filter-owner")?.value||"ALL").toLowerCase();
+  const ownerF  = document.getElementById("qt-filter-owner")?.value||"ALL";
   const divF    = document.getElementById("qt-filter-div")?.value||"ALL";
   const period  = document.getElementById("qt-filter-period")?.value||"FY";
   const sortOrd = document.getElementById("qt-sort-order")?.value||"desc";
@@ -4284,7 +4284,7 @@ function renderQuarterlyEngagement() {
   // Filter contacts
   const contacts = TABLE_DATA.filter(p => {
     if(divF !== "ALL" && p.div !== divF) return false;
-    if(ownerF !== "ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF)) return false;
+    if(ownerF !== "ALL" && !(p.owner||"").toLowerCase().startsWith(ownerF.toLowerCase())) return false;
     return true;
   });
 
