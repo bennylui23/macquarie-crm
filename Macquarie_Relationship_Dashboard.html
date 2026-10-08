@@ -839,15 +839,13 @@ tbody tr:hover td{background:var(--lavender-2)}
       <option value="EMEA">EMEA</option>
     </select>
     <select id="evt-filter-theme" onchange="renderEvents()" style="font-size:12px;padding:6px 10px;border:1px solid var(--divider);border-radius:6px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
-      <option value="ALL">All themes</option>
-      <option value="AI & Data">AI &amp; Data</option>
-      <option value="Cybersecurity">Cybersecurity</option>
-      <option value="Payments">Payments</option>
-      <option value="Leadership">Leadership</option>
-      <option value="Customer & Growth">Customer &amp; Growth</option>
-      <option value="Digital Core">Digital Core</option>
-      <option value="Cloud">Cloud</option>
-      <option value="Risk & Compliance">Risk &amp; Compliance</option>
+      <option value="ALL">All categories</option>
+      <option value="Accenture">Accenture</option>
+      <option value="Ecosystem">Ecosystem</option>
+      <option value="Macquarie">Macquarie</option>
+      <option value="Industry">Industry</option>
+      <option value="Hospitality">Hospitality</option>
+      <option value="Global Leadership">Global Leadership</option>
     </select>
     <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
       <button onclick="shiftEvtMonth(-1)" style="font-size:18px;border:1px solid var(--divider);background:var(--card-bg);color:var(--dark-gray);width:32px;height:32px;border-radius:6px;cursor:pointer;line-height:1">‹</button>
@@ -861,7 +859,7 @@ tbody tr:hover td{background:var(--lavender-2)}
 </div>
 <!-- EVENT LOG MODAL -->
 <div id="evt-log-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center">
-  <div style="background:var(--card-bg);border:1px solid var(--divider);max-width:560px;width:94%;max-height:90vh;overflow-y:auto;padding:28px 28px 20px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.22)">
+  <div style="background:#ffffff;border:1px solid var(--divider);max-width:560px;width:94%;max-height:90vh;overflow-y:auto;padding:28px 28px 20px;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.25)">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px">
       <div>
         <div class="eyebrow" id="elm-event-label" style="margin-bottom:4px"></div>
@@ -881,7 +879,7 @@ tbody tr:hover td{background:var(--lavender-2)}
       <div><div class="lf-label">Next action</div><input type="text" id="elm-action" class="lf-input" placeholder="e.g. Send calendar invite by Friday"></div>
     </div>
     <div class="log-actions" style="margin-top:16px">
-      <button class="btn-primary" onclick="saveEvtLogEntry()">Save engagement</button>
+      <button class="btn-primary" onclick="saveEvtLogEntry()">Save invite log</button>
       <button class="btn-secondary" onclick="closeEvtLogModal()">Cancel</button>
       <span id="elm-success" class="log-success" style="display:none">Saved ✓</span>
     </div>
@@ -3899,57 +3897,53 @@ function goBack(){
 
 // ── EVENTS TAB ─────────────────────────────────────────────
 const EVENTS_DATA = [
-  {name:"Digital Financial Services Summit",date:"2026-09-03",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Payments",audience:["Chief Digital Officer","Head of Digital Banking","Head of Payments","Chief Innovation Officer","Chief Risk Officer"],desc:"Premier ANZ forum on digital banking, payments innovation and financial services technology strategy. Draws CxOs from banks, insurers and fintechs."},
-  {name:"Intersekt / Fintech Week Australia",date:"2026-09-03",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Payments",audience:["CEO","Chief Innovation Officer","Head of Payments","Head of Regulatory Affairs"],desc:"Australia's largest fintech gathering. Policy, product and partnership conversations across payments, lending, regtech and open banking."},
-  {name:"The AI Summit Australia",date:"2026-09-07",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","Chief Data Officer","CIO","CTO","Head of AI Governance"],desc:"Focused on enterprise AI adoption — strategy, governance, responsible AI and applied machine learning across industries."},
-  {name:"Future of Banking — FST Media",date:"2026-09-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["CEO","CIO","CTO","Chief Operating Officer","Head of Digital Banking"],desc:"FST Media's flagship banking conference covering digital transformation, core modernisation and AI-driven customer experience."},
-  {name:"Seahawks Trophy Tour (Hospitality)",date:"2026-09-11",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["Chief Marketing Officer","Head of Client Engagement","CEO"],desc:"NFL Seahawks Trophy Tour hospitality event. Relationship and entertainment engagement opportunity for senior client contacts."},
-  {name:"Stanford AI Training",date:"2026-09-17",loc:"Sydney",market:"ANZ",type:"Workshop",theme:"AI & Data",audience:["Chief AI Officer","CIO","Head of Digital Transformation"],desc:"Executive education programme on AI strategy and implementation. Ideal for senior leaders driving AI agendas within their organisations."},
-  {name:"AFR Cyber Summit",date:"2026-09-21",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","Chief Risk Officer","Head of Cybersecurity","Head of Fraud"],desc:"Australian Financial Review's premier cybersecurity summit. Covers threat landscape, regulatory obligations and enterprise security strategy."},
-  {name:"Dreamforce San Francisco",date:"2026-09-15",loc:"San Francisco",market:"US",type:"Conference",theme:"Customer & Growth",audience:["Chief Customer Officer","CIO","Chief Marketing Officer","CDO"],desc:"Salesforce's global customer conference. Key themes: AI-powered CRM, data cloud, customer 360 and enterprise automation at scale."},
-  {name:"Sibos Miami",date:"2026-09-28",loc:"Miami",market:"US",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Transaction Banking"],desc:"SWIFT's annual global financial services conference. Covers payments, securities, compliance and the future of financial infrastructure."},
-  {name:"CyberCon 2026",date:"2026-10-14",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","Head of Cybersecurity","Security Architect","Chief Risk Officer"],desc:"Australia's largest cybersecurity conference run by AISA. Covers threat intelligence, incident response, cloud security and risk governance."},
-  {name:"CRO Circle Connect",date:"2026-10-21",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Risk & Compliance",audience:["Chief Risk Officer","CRO"],desc:"Exclusive peer forum for Chief Risk Officers. Agenda focuses on emerging risk, regulatory change and risk operating model design."},
-  {name:"FinTech & Banking Summit 2026",date:"2026-10-15",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Payments",audience:["Head of Digital Banking","Head of Payments","Chief Innovation Officer"],desc:"Mid-market banking and fintech summit covering embedded finance, digital lending, open banking and payments modernisation."},
-  {name:"CyberXchange Breakfast — Sydney",date:"2026-10-22",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Cybersecurity",audience:["CISO","CIO","CTO"],desc:"Executive-level cybersecurity breakfast forum. Intimate roundtable format covering threat trends and CISO priorities."},
-  {name:"Money 20/20 USA",date:"2026-10-18",loc:"Las Vegas",market:"US",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"The world's largest fintech event. Key themes: payments, banking-as-a-service, AI in finance and embedded finance infrastructure."},
-  {name:"Workday Rising 2026",date:"2026-10-12",loc:"Las Vegas",market:"US",type:"Conference",theme:"Digital Core",audience:["CHRO","CFO","CIO","Head of HR Technology"],desc:"Workday's annual customer conference covering HR technology, financial management, workforce planning and AI-powered ERP."},
-  {name:"Faculty AI Impact Summit",date:"2026-11-05",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["CMO","CDO","CSO","CCO"],desc:"Accenture-affiliated AI leadership summit focused on applied AI, agentic systems and responsible AI governance for enterprise leaders."},
-  {name:"Agentic Experiences — Auckland",date:"2026-11-05",loc:"Auckland",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
-  {name:"Agentic Experiences — Sydney",date:"2026-11-10",loc:"Sydney",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
-  {name:"Agentic Experiences — Melbourne",date:"2026-11-12",loc:"Melbourne",market:"ANZ",type:"Roundtable",theme:"Customer & Growth",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
-  {name:"Microsoft Ignite",date:"2026-11-16",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CIO","CTO"],desc:"Microsoft's flagship tech conference. Enterprise cloud, AI Copilot, Azure and Microsoft 365 innovations for IT and business leaders."},
-  {name:"CFO Edge",date:"2026-11-17",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Leadership",audience:["CFO","Head of Finance Transformation"],desc:"Senior finance leader forum. Covers AI in finance, FP&A modernisation, finance transformation and CFO agenda priorities."},
-  {name:"Singapore Fintech Festival",date:"2026-11-18",loc:"Singapore",market:"SEA",type:"Conference",theme:"Payments",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"World's largest fintech festival. Policy, regulation, payments, digital assets and financial inclusion across the Asia-Pacific."},
-  {name:"NAB Transformation — Leadership Perspectives",date:"2026-11-27",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Leadership",audience:["CEO","CIO","Chief Transformation Officer"],desc:"Industry briefing on enterprise-wide transformation — technology modernisation, workforce change and strategic execution at scale."},
-  {name:"AWS re:Invent",date:"2026-11-30",loc:"Las Vegas",market:"US",type:"Conference",theme:"Cloud",audience:["CIO","CTO","Chief Cloud Officer","CDO"],desc:"Amazon Web Services' global cloud conference. AI, machine learning, data infrastructure, security and cloud-native development."},
-  {name:"Australasian Finance & Banking Conference",date:"2026-12-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Risk & Compliance",audience:["Chief Economist","Head of Research","Head of Market Risk"],desc:"Academic and practitioner conference on banking economics, credit risk, market risk and financial system stability."},
-  {name:"WEF Davos",date:"2027-01-18",loc:"Davos",market:"EMEA",type:"Conference",theme:"Leadership",audience:["CEO","CFO","Chief Strategy Officer","Chief Risk Officer"],desc:"World Economic Forum Annual Meeting. Global leaders in business, government and civil society shaping the global agenda."},
-  {name:"Australian Open (Hospitality)",date:"2027-01-17",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["CIO","CTO","CEO","Head of Client Engagement"],desc:"Premium Grand Slam tennis hospitality. Key relationship and entertainment engagement for senior executive contacts."},
-  {name:"Microsoft World Tour",date:"2027-02-04",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Digital Core",audience:["CIO","CTO"],desc:"Microsoft's regional tour showcasing Azure AI, Microsoft 365 Copilot and enterprise cloud roadmap."},
-  {name:"AI Leaders Symposium",date:"2027-03-11",loc:"Sydney",market:"ANZ",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","CIO","CDO"],desc:"Curated forum for enterprise AI leaders covering applied AI, governance, responsible deployment and organisational change."},
-  {name:"Nvidia GTC",date:"2027-03-15",loc:"San Jose",market:"US",type:"Conference",theme:"AI & Data",audience:["Chief AI Officer","CIO","CTO"],desc:"Nvidia's GPU Technology Conference — the world's leading AI and accelerated computing event for researchers and enterprise leaders."},
-  {name:"Google Cloud Next",date:"2027-04-22",loc:"Las Vegas",market:"US",type:"Conference",theme:"Cloud",audience:["CIO","CTO","CDO"],desc:"Google Cloud's annual conference. AI, data analytics, multi-cloud strategy and enterprise application modernisation."},
-  {name:"F1 Grand Prix Hospitality",date:"2027-04-01",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Leadership",audience:["CEO","Head of Client Engagement"],desc:"Formula 1 Melbourne Grand Prix premium hospitality. Flagship relationship and entertainment engagement event."},
-  {name:"Databricks Summit",date:"2027-06-21",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CDO","Chief AI Officer","Head of Data Engineering"],desc:"Data + AI Summit by Databricks. Lakehouse architecture, MLOps, streaming analytics and enterprise AI platform strategy."},
-  {name:"Snowflake Summit",date:"2027-06-07",loc:"San Francisco",market:"US",type:"Conference",theme:"AI & Data",audience:["CDO","Head of Analytics"],desc:"Snowflake's annual data cloud conference. Data sharing, AI/ML on data cloud, governance and enterprise analytics."},
+  {name:"Digital Financial Services Summit",date:"2026-09-03",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["Chief Digital Officer","Head of Digital Banking","Head of Payments","Chief Innovation Officer","Chief Risk Officer"],desc:"Premier ANZ forum on digital banking, payments innovation and financial services technology strategy. Draws CxOs from banks, insurers and fintechs."},
+  {name:"Intersekt / Fintech Week Australia",date:"2026-09-03",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Industry",audience:["CEO","Chief Innovation Officer","Head of Payments","Head of Regulatory Affairs"],desc:"Australia's largest fintech gathering. Policy, product and partnership conversations across payments, lending, regtech and open banking."},
+  {name:"The AI Summit Australia",date:"2026-09-07",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Industry",audience:["Chief AI Officer","Chief Data Officer","CIO","CTO","Head of AI Governance"],desc:"Focused on enterprise AI adoption — strategy, governance, responsible AI and applied machine learning across industries."},
+  {name:"Future of Banking — FST Media",date:"2026-09-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["CEO","CIO","CTO","Chief Operating Officer","Head of Digital Banking"],desc:"FST Media's flagship banking conference covering digital transformation, core modernisation and AI-driven customer experience."},
+  {name:"Seahawks Trophy Tour (Hospitality)",date:"2026-09-11",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Hospitality",audience:["Chief Marketing Officer","Head of Client Engagement","CEO"],desc:"NFL Seahawks Trophy Tour hospitality event. Relationship and entertainment engagement opportunity for senior client contacts."},
+  {name:"Stanford AI Training",date:"2026-09-17",loc:"Sydney",market:"ANZ",type:"Workshop",theme:"Accenture",audience:["Chief AI Officer","CIO","Head of Digital Transformation"],desc:"Executive education programme on AI strategy and implementation. Ideal for senior leaders driving AI agendas within their organisations."},
+  {name:"AFR Cyber Summit",date:"2026-09-21",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["CISO","Chief Risk Officer","Head of Cybersecurity","Head of Fraud"],desc:"Australian Financial Review's premier cybersecurity summit. Covers threat landscape, regulatory obligations and enterprise security strategy."},
+  {name:"Dreamforce San Francisco",date:"2026-09-15",loc:"San Francisco",market:"US",type:"Conference",theme:"Ecosystem",audience:["Chief Customer Officer","CIO","Chief Marketing Officer","CDO"],desc:"Salesforce's global customer conference. Key themes: AI-powered CRM, data cloud, customer 360 and enterprise automation at scale."},
+  {name:"Sibos Miami",date:"2026-09-28",loc:"Miami",market:"US",type:"Conference",theme:"Industry",audience:["CEO","Head of Payments","Head of Transaction Banking"],desc:"SWIFT's annual global financial services conference. Covers payments, securities, compliance and the future of financial infrastructure."},
+  {name:"CyberCon 2026",date:"2026-10-14",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Industry",audience:["CISO","Head of Cybersecurity","Security Architect","Chief Risk Officer"],desc:"Australia's largest cybersecurity conference run by AISA. Covers threat intelligence, incident response, cloud security and risk governance."},
+  {name:"CRO Circle Connect",date:"2026-10-21",loc:"Melbourne",market:"ANZ",type:"Conference",theme:"Industry",audience:["Chief Risk Officer","CRO"],desc:"Exclusive peer forum for Chief Risk Officers. Agenda focuses on emerging risk, regulatory change and risk operating model design."},
+  {name:"FinTech & Banking Summit 2026",date:"2026-10-15",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["Head of Digital Banking","Head of Payments","Chief Innovation Officer"],desc:"Mid-market banking and fintech summit covering embedded finance, digital lending, open banking and payments modernisation."},
+  {name:"CyberXchange Breakfast — Sydney",date:"2026-10-22",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["CISO","CIO","CTO"],desc:"Executive-level cybersecurity breakfast forum. Intimate roundtable format covering threat trends and CISO priorities."},
+  {name:"Money 20/20 USA",date:"2026-10-18",loc:"Las Vegas",market:"US",type:"Conference",theme:"Industry",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"The world's largest fintech event. Key themes: payments, banking-as-a-service, AI in finance and embedded finance infrastructure."},
+  {name:"Workday Rising 2026",date:"2026-10-12",loc:"Las Vegas",market:"US",type:"Conference",theme:"Ecosystem",audience:["CHRO","CFO","CIO","Head of HR Technology"],desc:"Workday's annual customer conference covering HR technology, financial management, workforce planning and AI-powered ERP."},
+  {name:"Faculty AI Impact Summit",date:"2026-11-05",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Accenture",audience:["CMO","CDO","CSO","CCO"],desc:"Accenture-affiliated AI leadership summit focused on applied AI, agentic systems and responsible AI governance for enterprise leaders."},
+  {name:"Agentic Experiences — Auckland",date:"2026-11-05",loc:"Auckland",market:"ANZ",type:"Roundtable",theme:"Accenture",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Agentic Experiences — Sydney",date:"2026-11-10",loc:"Sydney",market:"ANZ",type:"Roundtable",theme:"Accenture",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Agentic Experiences — Melbourne",date:"2026-11-12",loc:"Melbourne",market:"ANZ",type:"Roundtable",theme:"Accenture",audience:["CMO","CSO","CDO","CCO"],desc:"Accenture-hosted executive roundtable on agentic AI — autonomous systems, AI orchestration and enterprise reinvention. Intimate format."},
+  {name:"Microsoft Ignite",date:"2026-11-16",loc:"San Francisco",market:"US",type:"Conference",theme:"Ecosystem",audience:["CIO","CTO"],desc:"Microsoft's flagship tech conference. Enterprise cloud, AI Copilot, Azure and Microsoft 365 innovations for IT and business leaders."},
+  {name:"CFO Edge",date:"2026-11-17",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["CFO","Head of Finance Transformation"],desc:"Senior finance leader forum. Covers AI in finance, FP&A modernisation, finance transformation and CFO agenda priorities."},
+  {name:"Singapore Fintech Festival",date:"2026-11-18",loc:"Singapore",market:"SEA",type:"Conference",theme:"Industry",audience:["CEO","Head of Payments","Head of Digital Banking"],desc:"World's largest fintech festival. Policy, regulation, payments, digital assets and financial inclusion across the Asia-Pacific."},
+    {name:"AWS re:Invent",date:"2026-11-30",loc:"Las Vegas",market:"US",type:"Conference",theme:"Ecosystem",audience:["CIO","CTO","Chief Cloud Officer","CDO"],desc:"Amazon Web Services' global cloud conference. AI, machine learning, data infrastructure, security and cloud-native development."},
+  {name:"Australasian Finance & Banking Conference",date:"2026-12-10",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["Chief Economist","Head of Research","Head of Market Risk"],desc:"Academic and practitioner conference on banking economics, credit risk, market risk and financial system stability."},
+  {name:"WEF Davos",date:"2027-01-18",loc:"Davos",market:"EMEA",type:"Conference",theme:"Global Leadership",audience:["CEO","CFO","Chief Strategy Officer","Chief Risk Officer"],desc:"World Economic Forum Annual Meeting. Global leaders in business, government and civil society shaping the global agenda."},
+  {name:"Australian Open (Hospitality)",date:"2027-01-17",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Hospitality",audience:["CIO","CTO","CEO","Head of Client Engagement"],desc:"Premium Grand Slam tennis hospitality. Key relationship and entertainment engagement for senior executive contacts."},
+  {name:"Microsoft World Tour",date:"2027-02-04",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Ecosystem",audience:["CIO","CTO"],desc:"Microsoft's regional tour showcasing Azure AI, Microsoft 365 Copilot and enterprise cloud roadmap."},
+  {name:"AI Leaders Symposium",date:"2027-03-11",loc:"Sydney",market:"ANZ",type:"Conference",theme:"Industry",audience:["Chief AI Officer","CIO","CDO"],desc:"Curated forum for enterprise AI leaders covering applied AI, governance, responsible deployment and organisational change."},
+  {name:"Nvidia GTC",date:"2027-03-15",loc:"San Jose",market:"US",type:"Conference",theme:"Ecosystem",audience:["Chief AI Officer","CIO","CTO"],desc:"Nvidia's GPU Technology Conference — the world's leading AI and accelerated computing event for researchers and enterprise leaders."},
+  {name:"Google Cloud Next",date:"2027-04-22",loc:"Las Vegas",market:"US",type:"Conference",theme:"Ecosystem",audience:["CIO","CTO","CDO"],desc:"Google Cloud's annual conference. AI, data analytics, multi-cloud strategy and enterprise application modernisation."},
+  {name:"F1 Grand Prix Hospitality",date:"2027-04-01",loc:"Melbourne",market:"ANZ",type:"Hospitality",theme:"Hospitality",audience:["CEO","Head of Client Engagement"],desc:"Formula 1 Melbourne Grand Prix premium hospitality. Flagship relationship and entertainment engagement event."},
+  {name:"Databricks Summit",date:"2027-06-21",loc:"San Francisco",market:"US",type:"Conference",theme:"Ecosystem",audience:["CDO","Chief AI Officer","Head of Data Engineering"],desc:"Data + AI Summit by Databricks. Lakehouse architecture, MLOps, streaming analytics and enterprise AI platform strategy."},
+  {name:"Snowflake Summit",date:"2027-06-07",loc:"San Francisco",market:"US",type:"Conference",theme:"Ecosystem",audience:["CDO","Head of Analytics"],desc:"Snowflake's annual data cloud conference. Data sharing, AI/ML on data cloud, governance and enterprise analytics."},
 ];
 
 const THEME_MATCH = {
-  "AI & Data":["data","ai","digital","analytics","technology","engineering","information","transformation","innovation","cdo","cto","cio","cdio"],
-  "Cybersecurity":["security","ciso","cyber","risk","fraud","resilience","infrastructure","compliance"],
-  "Payments":["payment","banking","fintech","transaction","digital banking","deposits","lending","retail bank","business bank"],
-  "Leadership":["ceo","md","coo","group head","chairman","managing director","executive"],
-  "Customer & Growth":["customer","marketing","growth","cmo","commercial","revenue","sales","cco","product"],
-  "Digital Core":["engineering","platform","architecture","cloud","infrastructure","technology","cio","cto","reliability","operations"],
-  "Cloud":["cloud","infrastructure","platform","architecture","cto","cio","engineering"],
-  "Risk & Compliance":["risk","compliance","regulatory","legal","governance","cro","cfo","treasury","finance"],
+  "Accenture":["cto","cio","cdo","ai","data","digital","technology","chief","innovation","transformation","head of","engineering","analytics"],
+  "Ecosystem":["cto","cio","cdo","cloud","data","engineering","platform","architecture","technology","infrastructure","analytics"],
+  "Macquarie":["ceo","coo","cfo","chief","head of","managing director","group head","chairman","executive"],
+  "Industry":["ceo","coo","cto","cio","cdo","ciso","cfo","cmo","chief","head of","risk","payments","banking","fintech","data","digital","security","compliance","finance"],
+  "Hospitality":["ceo","coo","cfo","cto","cio","head of","managing director","group head","chairman","executive"],
+  "Global Leadership":["ceo","cfo","chairman","managing director","group head","chief strategy","chief executive","president"],
 };
 
 const THEME_COLORS = {
-  "AI & Data":"#1a5fa5","Cybersecurity":"#c0392b","Payments":"#1a8c66",
-  "Leadership":"#7e57c2","Customer & Growth":"#d4830a","Digital Core":"#0d6e8a",
-  "Cloud":"#0d8a6e","Risk & Compliance":"#8a6a0d","Geopolitics":"#5a5a8a","default":"#666"
+  "Accenture":"#a100ff","Ecosystem":"#1a5fa5","Macquarie":"#c0392b",
+  "Industry":"#1a8c66","Hospitality":"#d4830a","Global Leadership":"#2d0057","default":"#666"
 };
 
 const REL_CHIP = {
@@ -4218,8 +4212,8 @@ function showEvtDetail(name, dateStr) {
         const invited = inviteEntries.length > 0;
         const latestEntry = invited ? inviteEntries[0] : null;
         const inviteChip = invited
-          ? `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','${latestEntry.id}')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:#2d0057;color:#fff;border:none;cursor:pointer;white-space:nowrap">✓ Logged · Edit</button>`
-          : `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--divider);color:var(--dark-gray);border:none;cursor:pointer;white-space:nowrap">+ Log engagement</button>`;
+          ? `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','${latestEntry.id}')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:#2d0057;color:#fff;border:none;cursor:pointer;white-space:nowrap">Invited · Edit</button>`
+          : `<button onclick="openEvtLogModal('${contactName.replace(/'/g,"\'")}','${ev.name.replace(/'/g,"\'")}','${ev.date}','')" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--divider);color:var(--dark-gray);border:none;cursor:pointer;white-space:nowrap">Log Invite</button>`;
         const inviteNote = invited ? `<div style="font-size:10px;color:var(--label-gray);margin-top:3px;padding:4px 8px;background:var(--bg);border-radius:4px">${latestEntry.date||""} · ${latestEntry.type||""} · ${(latestEntry.summary||"").slice(0,70)}${(latestEntry.summary||"").length>70?"…":""}</div>` : "";
         const clickFn = p.id ? `onclick="showProfile('${p.id}');_profileSource='p6'"` : "";
         return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--divider)">
