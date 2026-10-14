@@ -1229,30 +1229,23 @@ function tryFbInit(){
 async function fbInit(){
   if(_fbInited) return;
   try{
-    // ── Silent Firebase Auth via REST (no Auth SDK required) ───────────
-    // Calls the Firebase Auth REST API to exchange email+password for an
-    // idToken, then injects that token into the Realtime Database SDK's
-    // persistent connection before any data is read or written.
-    // Firebase rules: ".read": "auth != null" — satisfied by this token.
-    // The credential only exists inside this HTML file. Anyone without
-    // the file (i.e. without SharePoint access) cannot reach the database.
-    const FB_AUTH_EMAIL    = "benny.lui@accenture.com";
-    const FB_AUTH_PASSWORD = "Macquarie-ACN2026";
-    const FB_API_KEY       = FIREBASE_CONFIG.apiKey;
+    // ── Firebase Anonymous Auth via REST ───────────────────────────────
+    // Signs in anonymously using the Firebase Auth REST API.
+    // No credential exchange needed — just the API key.
+    // Firebase rules: ".read": "auth != null" — satisfied by anon token.
+    // Dashboard password gate controls human access; anon auth satisfies
+    // Firebase security rules without any machine-specific credential fetch.
+    const FB_API_KEY = FIREBASE_CONFIG.apiKey;
 
-    spSetStatus("amber","Authenticating…");
+    spSetStatus("amber","Connecting…");
     let idToken = null;
     try {
       const authRes = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`,
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`,
         {
           method:  "POST",
           headers: {"Content-Type":"application/json"},
-          body:    JSON.stringify({
-            email:             FB_AUTH_EMAIL,
-            password:          FB_AUTH_PASSWORD,
-            returnSecureToken: true
-          })
+          body:    JSON.stringify({returnSecureToken: true})
         }
       );
       const authData = await authRes.json();
@@ -1260,11 +1253,11 @@ async function fbInit(){
         idToken = authData.idToken;
       } else {
         const msg = (authData.error && authData.error.message) || "Unknown error";
-        spSetStatus("red","Firebase auth failed: "+msg);
+        spSetStatus("red","Auth failed: "+msg);
         return;
       }
     } catch(authErr){
-      spSetStatus("red","Auth network error: "+authErr.message);
+      spSetStatus("red","Network error: "+authErr.message);
       return;
     }
 
@@ -1274,10 +1267,6 @@ async function fbInit(){
     _dbRef = _db.ref("macquarie_crm");
 
     // ── Inject the idToken into the database SDK ───────────────────────
-    // The Realtime Database SDK's persistent connection exposes
-    // refreshAuthToken() which is the same method the Auth SDK uses
-    // internally. Calling it before any listener is attached ensures
-    // every read/write carries a valid auth token.
     function injectToken(token){
       try {
         const repo = _db._delegate && _db._delegate._repo;
@@ -1290,16 +1279,12 @@ async function fbInit(){
       return false;
     }
 
-    // The persistent connection may not exist yet on first init —
-    // poll briefly until it is available, then inject.
     let injected = false;
     for(let i = 0; i < 20; i++){
       if(injectToken(idToken)){ injected = true; break; }
       await new Promise(r => setTimeout(r, 150));
     }
     if(!injected){
-      // Fallback: attach token refresh listener on connection object
-      // by overriding the internal auth provider getToken method.
       try {
         const repo = _db._delegate && _db._delegate._repo;
         if(repo && repo.authTokenProvider_){
