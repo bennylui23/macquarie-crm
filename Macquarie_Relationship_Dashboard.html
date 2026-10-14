@@ -1229,69 +1229,16 @@ function tryFbInit(){
 async function fbInit(){
   if(_fbInited) return;
   try{
-    // ── Firebase Anonymous Auth via REST ───────────────────────────────
-    // Signs in anonymously using the Firebase Auth REST API.
-    // No credential exchange needed — just the API key.
-    // Firebase rules: ".read": "auth != null" — satisfied by anon token.
-    // Dashboard password gate controls human access; anon auth satisfies
-    // Firebase security rules without any machine-specific credential fetch.
-    const FB_API_KEY = FIREBASE_CONFIG.apiKey;
-
+    // ── Direct Firebase connection — no auth SDK required ─────────────
+    // Firebase rules set to open read/write.
+    // Access is controlled by the dashboard password gate and
+    // SharePoint distribution — no external auth call needed.
     spSetStatus("amber","Connecting…");
-    let idToken = null;
-    try {
-      const authRes = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`,
-        {
-          method:  "POST",
-          headers: {"Content-Type":"application/json"},
-          body:    JSON.stringify({returnSecureToken: true})
-        }
-      );
-      const authData = await authRes.json();
-      if(authData.idToken){
-        idToken = authData.idToken;
-      } else {
-        const msg = (authData.error && authData.error.message) || "Unknown error";
-        spSetStatus("red","Auth failed: "+msg);
-        return;
-      }
-    } catch(authErr){
-      spSetStatus("red","Network error: "+authErr.message);
-      return;
-    }
 
     // ── Initialise Firebase app ────────────────────────────────────────
     const app = firebase.initializeApp(FIREBASE_CONFIG);
     _db    = firebase.database(app);
     _dbRef = _db.ref("macquarie_crm");
-
-    // ── Inject the idToken into the database SDK ───────────────────────
-    function injectToken(token){
-      try {
-        const repo = _db._delegate && _db._delegate._repo;
-        const conn = repo && repo.persistentConnection_;
-        if(conn && typeof conn.refreshAuthToken === "function"){
-          conn.refreshAuthToken(token);
-          return true;
-        }
-      } catch(e){}
-      return false;
-    }
-
-    let injected = false;
-    for(let i = 0; i < 20; i++){
-      if(injectToken(idToken)){ injected = true; break; }
-      await new Promise(r => setTimeout(r, 150));
-    }
-    if(!injected){
-      try {
-        const repo = _db._delegate && _db._delegate._repo;
-        if(repo && repo.authTokenProvider_){
-          repo.authTokenProvider_.getToken = async () => ({accessToken: idToken});
-        }
-      } catch(e){}
-    }
 
     _fbInited = true;
     _dbRef.on("value",(snap)=>{
