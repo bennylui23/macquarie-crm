@@ -356,6 +356,24 @@ tbody tr:hover td{background:var(--lavender-2)}
 .modal-close:hover{color:var(--dark-gray)}
 .sp-saving{position:fixed;top:60px;right:20px;.sp-saving{position:fixed;top:60px;right:20px;background:var(--purple-plum);color:#fff;font-size:11px;font-weight:600;letter-spacing:.05em;padding:8px 14px;z-index:300;display:none;animation:fadeout 2.5s forwards}
 @keyframes fadeout{0%,70%{opacity:1}100%{opacity:0;display:none}}
+
+/* ── PRINT / PDF ───────────────────────────────────────────
+   Only the diagnostic snapshot prints. Everything else hidden. */
+@media print {
+  body { background: #fff !important; }
+  nav, .sp-bar, .sp-saving, #pwd-gate,
+  #qe-popup, #evt-log-modal, .modal-overlay,
+  #ins-snapshot-editor, #ins-prev-snapshots,
+  .page:not(#p8) { display: none !important; }
+  #p8 { display: block !important; }
+  #p8 > .eyebrow,
+  #p8 > h1,
+  #p8 > p,
+  #p8 > div:not(:first-of-type) { display: none !important; }
+  #ins-snapshot-print { display: block !important; }
+  .ins-print-hide { display: none !important; }
+  @page { margin: 18mm 16mm; size: A4; }
+}
 </style>
 </head>
 <body>
@@ -952,46 +970,35 @@ tbody tr:hover td{background:var(--lavender-2)}
 
 <!-- PAGE 8: INSIGHTS -->
 <div id="p8" class="page">
-  <div class="eyebrow" style="margin-bottom:6px">Portfolio intelligence</div>
-  <h1 style="margin-bottom:4px">Insights</h1>
-  <p style="font-size:13px;color:var(--label-gray);margin-bottom:20px;max-width:680px">Live signals from your engagement log and relationship data. AI snapshots are updated manually — shared across all users via Firebase.</p>
+  <div class="eyebrow ins-print-hide" style="margin-bottom:6px">Portfolio intelligence</div>
+  <h1 class="ins-print-hide" style="margin-bottom:4px">Insights</h1>
+  <p class="ins-print-hide" style="font-size:13px;color:var(--label-gray);margin-bottom:20px;max-width:680px">Live signals from your engagement log and relationship data. AI snapshot updated manually — shared across all users.</p>
 
   <!-- 1. AI Snapshot panel -->
-  <div class="card" style="margin-bottom:20px;border-left:4px solid #a100ff">
+  <div class="card ins-print-hide" style="margin-bottom:20px;border-left:4px solid #a100ff">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap">
       <div>
-        <div class="eyebrow" style="color:#a100ff;margin-bottom:3px">1 · AI snapshot</div>
-        <div style="font-size:14px;font-weight:600;color:var(--dark-gray)">Portfolio narrative &amp; theme analysis</div>
+        <div class="eyebrow" style="color:#a100ff;margin-bottom:3px">Account diagnostic snapshot</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark-gray)">AI-generated · updated manually</div>
         <div id="ins-snapshot-meta" style="font-size:11px;color:var(--label-gray);margin-top:3px">No snapshot saved yet</div>
       </div>
-      <button onclick="openSnapshotEditor()" style="font-size:11px;font-weight:700;padding:6px 14px;background:#2d0057;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;flex-shrink:0">✎ Update snapshot</button>
-    </div>
-
-    <!-- Snapshot display -->
-    <div id="ins-snapshot-display" style="display:none">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a100ff;margin-bottom:8px">Portfolio narrative</div>
-          <div id="ins-narrative-display" style="font-size:13px;line-height:1.7;color:var(--dark-gray)"></div>
-        </div>
-        <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#a100ff;margin-bottom:8px">Theme analysis</div>
-          <div id="ins-themes-display" style="font-size:13px;line-height:1.7;color:var(--dark-gray)"></div>
-        </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button onclick="printDiagnostic()" style="font-size:11px;font-weight:700;padding:6px 14px;background:#fff;color:#2d0057;border:2px solid #2d0057;border-radius:5px;cursor:pointer;white-space:nowrap">⎙ Save as PDF</button>
+        <button onclick="openSnapshotEditor()" style="font-size:11px;font-weight:700;padding:6px 14px;background:#2d0057;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap">✎ Update snapshot</button>
       </div>
     </div>
 
-    <!-- Snapshot editor (hidden by default) -->
+    <!-- Snapshot editor -->
     <div id="ins-snapshot-editor" style="display:none;border-top:1px solid var(--divider);padding-top:16px;margin-top:4px">
-      <div style="font-size:12px;color:var(--label-gray);margin-bottom:12px;line-height:1.6">Paste AI-generated content below. To generate, open a Claude conversation, share your engagement data, and ask for a portfolio narrative and theme analysis. Save here to share with all users.</div>
+      <div style="font-size:12px;color:var(--label-gray);margin-bottom:12px;line-height:1.6">Paste AI-generated content below. Use the format guide: <code>## HYPOTHESIS</code> for hypothesis, <code>## SITUATION</code> for situation, <code>## FINDINGS</code> for findings, <code>## ACTIONS</code> for actions. In themes: <code>##</code> headers, <code>-</code> bullets, <code>&gt;</code> action boxes.</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:12px">
         <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:6px">Portfolio narrative</div>
-          <textarea id="ins-narrative-input" placeholder="Paste narrative from Claude here…" style="width:100%;height:160px;font-size:12px;padding:10px;border:1px solid var(--divider);border-radius:5px;font-family:inherit;resize:vertical;color:var(--dark-gray);background:#fff"></textarea>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:6px">Diagnostic narrative</div>
+          <textarea id="ins-narrative-input" placeholder="Paste narrative from Claude here…" style="width:100%;height:200px;font-size:12px;padding:10px;border:1px solid var(--divider);border-radius:5px;font-family:inherit;resize:vertical;color:var(--dark-gray);background:#fff"></textarea>
         </div>
         <div>
-          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:6px">Theme analysis</div>
-          <textarea id="ins-themes-input" placeholder="Paste theme analysis from Claude here…" style="width:100%;height:160px;font-size:12px;padding:10px;border:1px solid var(--divider);border-radius:5px;font-family:inherit;resize:vertical;color:var(--dark-gray);background:#fff"></textarea>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:6px">Commercial themes</div>
+          <textarea id="ins-themes-input" placeholder="Paste theme analysis from Claude here…" style="width:100%;height:200px;font-size:12px;padding:10px;border:1px solid var(--divider);border-radius:5px;font-family:inherit;resize:vertical;color:var(--dark-gray);background:#fff"></textarea>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -1008,8 +1015,32 @@ tbody tr:hover td{background:var(--lavender-2)}
     </div>
   </div>
 
+  <!-- Print-only diagnostic output — hidden on screen, shown in print -->
+  <div id="ins-snapshot-print" style="display:none"></div>
+
+  <!-- Screen snapshot display -->
+  <div id="ins-snapshot-display" style="display:none;margin-bottom:20px">
+    <div style="background:#fff;border:1px solid var(--divider);padding:32px 36px">
+      <!-- Header -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;margin-bottom:20px;border-bottom:3px solid #2d0057">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a100ff;margin-bottom:4px">Accenture · Macquarie Group Tier 1</div>
+          <div style="font-size:22px;font-weight:700;color:#2d0057;letter-spacing:-.02em">Account Diagnostic</div>
+        </div>
+        <div id="ins-display-meta" style="text-align:right;font-size:11px;color:var(--label-gray);line-height:1.7"></div>
+      </div>
+      <!-- Narrative -->
+      <div id="ins-narrative-display" style="margin-bottom:28px"></div>
+      <!-- Divider -->
+      <div style="border-top:2px solid #ede7f6;margin:24px 0"></div>
+      <!-- Themes -->
+      <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a100ff;margin-bottom:16px">Commercial themes</div>
+      <div id="ins-themes-display"></div>
+    </div>
+  </div>
+
   <!-- 2. Three strategic signals -->
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+  <div class="ins-print-hide" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
     <div class="card" style="border-top:3px solid #2d0057">
       <div class="eyebrow" style="margin-bottom:4px">2a · Portfolio coverage</div>
       <div style="font-size:13px;font-weight:600;color:var(--dark-gray);margin-bottom:10px">12-month engagement rate</div>
@@ -1030,7 +1061,7 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 
   <!-- 3. Engagement quality -->
-  <div class="card" style="margin-bottom:20px">
+  <div class="card ins-print-hide" style="margin-bottom:20px">
     <div class="eyebrow" style="margin-bottom:4px">3 · Engagement quality</div>
     <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:16px">How are we engaging — mode, discipline and coverage by owner</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
@@ -1046,7 +1077,7 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 
   <!-- 4. Relationship trajectory -->
-  <div class="card" style="margin-bottom:20px">
+  <div class="card ins-print-hide" style="margin-bottom:20px">
     <div class="eyebrow" style="margin-bottom:4px">4 · Relationship trajectory</div>
     <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:4px">Health progression across successive engagements (3+ touchpoints)</div>
     <div style="font-size:12px;color:var(--label-gray);margin-bottom:16px">Shows whether engagement quality is improving, stable or declining over time.</div>
@@ -1054,7 +1085,7 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 
   <!-- Concentration -->
-  <div class="card" style="margin-bottom:20px">
+  <div class="card ins-print-hide" style="margin-bottom:20px">
     <div class="eyebrow" style="margin-bottom:4px">Engagement concentration</div>
     <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:16px">Coverage by owner and division</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
@@ -5513,6 +5544,81 @@ async function saveInsightSnapshot() {
   }, 800);
 }
 
+function formatSnapshot(t) {
+  if(!t||!t.trim()) return '<span style="color:var(--label-gray);font-size:12px">No content saved yet.</span>';
+  const lines = t.split('\n');
+  let html = '';
+  let inActions = false;
+  let actionNum = 0;
+
+  lines.forEach(raw => {
+    const l = raw.trim();
+    if(!l) { html += '<div style="height:6px"></div>'; return; }
+
+    // ## HYPOTHESIS — big single statement
+    if(l.startsWith('## HYPOTHESIS')) {
+      inActions = false;
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a100ff;margin:20px 0 8px">Hypothesis</div>';
+      return;
+    }
+    // ## SITUATION
+    if(l.startsWith('## SITUATION')) {
+      inActions = false;
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a100ff;margin:20px 0 8px">Situation</div>';
+      return;
+    }
+    // ## FINDINGS
+    if(l.startsWith('## FINDINGS')) {
+      inActions = false;
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a100ff;margin:20px 0 8px">Diagnostic findings</div>';
+      return;
+    }
+    // ## ACTIONS
+    if(l.startsWith('## ACTIONS') || l.startsWith('## PRIORITY ACTIONS')) {
+      inActions = true; actionNum = 0;
+      html += '<div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#a100ff;margin:20px 0 8px">Priority actions</div>';
+      return;
+    }
+    // ## other section (themes etc)
+    if(l.startsWith('## ')) {
+      inActions = false;
+      html += `<div style="font-size:13px;font-weight:700;color:#2d0057;margin:16px 0 6px;padding-bottom:5px;border-bottom:1.5px solid #ede7f6">${l.slice(3).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')}</div>`;
+      return;
+    }
+    // ### sub-header (division etc)
+    if(l.startsWith('### ')) {
+      html += `<div style="font-size:11px;font-weight:700;color:#5b2d8e;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.05em">${l.slice(4)}</div>`;
+      return;
+    }
+    // > action box
+    if(l.startsWith('> ')) {
+      html += `<div style="background:#f9f0ff;border-left:3px solid #a100ff;padding:9px 13px;margin:8px 0;font-size:12px;color:#2d0057;border-radius:0 5px 5px 0;line-height:1.6">${l.slice(2).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')}</div>`;
+      return;
+    }
+    // numbered action line (1. or 1))
+    if(inActions && /^\d+[\.\)]/.test(l)) {
+      actionNum++;
+      const text = l.replace(/^\d+[\.\)]\s*/,'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+      html += `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f5f0ff;align-items:flex-start">
+        <span style="font-size:11px;font-weight:700;color:#fff;background:#2d0057;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${actionNum}</span>
+        <span style="font-size:12px;color:var(--dark-gray);line-height:1.6">${text}</span>
+      </div>`;
+      return;
+    }
+    // bullet line
+    if(l.startsWith('- ') || l.startsWith('* ')) {
+      html += `<div style="display:flex;gap:8px;padding:3px 0;font-size:12px;color:var(--dark-gray);line-height:1.6"><span style="color:#a100ff;flex-shrink:0;font-size:14px;margin-top:-1px">·</span><span>${l.slice(2).replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')}</span></div>`;
+      return;
+    }
+    // hypothesis statement — if previous line was ## HYPOTHESIS, render big
+    // plain paragraph
+    const bold = l.replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#2d0057">$1</strong>');
+    html += `<div style="font-size:13px;color:var(--dark-gray);line-height:1.7;margin:4px 0">${bold}</div>`;
+  });
+
+  return html;
+}
+
 function renderSnapshotDisplay() {
   const metaEl    = document.getElementById("ins-snapshot-meta");
   const displayEl = document.getElementById("ins-snapshot-display");
@@ -5520,41 +5626,61 @@ function renderSnapshotDisplay() {
   const prevList  = document.getElementById("ins-prev-list");
   const narrEl    = document.getElementById("ins-narrative-display");
   const themesEl  = document.getElementById("ins-themes-display");
+  const metaDisp  = document.getElementById("ins-display-meta");
+  const printEl   = document.getElementById("ins-snapshot-print");
 
   if(!_snapshots.length) {
     if(metaEl) metaEl.textContent = "No snapshot saved yet — click Update snapshot to add one";
     if(displayEl) displayEl.style.display = "none";
     if(prevEl) prevEl.style.display = "none";
+    if(printEl) printEl.style.display = "none";
     return;
   }
 
   const latest = _snapshots[0];
-  const ts = new Date(latest.ts).toLocaleString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const ts = new Date(latest.ts).toLocaleString("en-AU",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
   const entryCount = loadEntries().length;
+
   if(metaEl) metaEl.innerHTML = `Last updated <strong>${ts}</strong> by ${latest.user} &nbsp;·&nbsp; Based on ${entryCount} engagement entries at time of export`;
   if(displayEl) displayEl.style.display = "block";
+  if(metaDisp) metaDisp.innerHTML = `${ts}<br>Prepared by: ${latest.user}<br>Entries at export: ${latest.entryCount||entryCount}`;
 
-  function formatSnapshot(t) {
-    if(!t) return '<span style="color:var(--label-gray)">No content added.</span>';
-    return t.split("\n").map(line => {
-      const l = line.trim();
-      if(!l) return '<div style="height:8px"></div>';
-      if(l.startsWith("## ")) return '<div style="font-size:13px;font-weight:700;color:#2d0057;letter-spacing:-.01em;margin:14px 0 6px;padding-bottom:4px;border-bottom:2px solid #ede7f6">'+l.slice(3)+'</div>';
-      if(l.startsWith("> "))  return '<div style="background:#f9f0ff;border-left:3px solid #a100ff;padding:8px 12px;margin:6px 0;font-size:12px;font-weight:600;color:#2d0057;border-radius:0 4px 4px 0">'+l.slice(2)+'</div>';
-      if(l.startsWith("- ")||l.startsWith("* ")) return '<div style="display:flex;gap:8px;padding:3px 0;font-size:12px;color:var(--dark-gray)"><span style="color:#a100ff;flex-shrink:0">•</span><span>'+l.slice(2).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")+'</span></div>';
-      return '<div style="font-size:13px;color:var(--dark-gray);line-height:1.65;margin:3px 0">'+l.replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#2d0057">$1</strong>')+'</div>';
-    }).join("");
+  const narrHtml   = formatSnapshot(latest.narrative||'');
+  const themesHtml = formatSnapshot(latest.themes||'');
+
+  if(narrEl)   narrEl.innerHTML   = narrHtml;
+  if(themesEl) themesEl.innerHTML = themesHtml;
+
+  // Build print version
+  if(printEl) {
+    const today = new Date().toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"});
+    printEl.innerHTML = `
+      <div style="font-family:'Graphik','Arial',sans-serif;color:#1a1a1a;max-width:720px;margin:0 auto">
+        <div style="border-bottom:3px solid #2d0057;padding-bottom:14px;margin-bottom:22px;display:flex;justify-content:space-between;align-items:flex-end">
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a100ff;margin-bottom:4px">Accenture · Macquarie Group Tier 1</div>
+            <div style="font-size:22px;font-weight:700;color:#2d0057;letter-spacing:-.02em">Account Diagnostic</div>
+          </div>
+          <div style="text-align:right;font-size:10px;color:#666;line-height:1.6">
+            ${ts}<br>Prepared by: ${latest.user}<br>${latest.entryCount||entryCount} engagement entries
+          </div>
+        </div>
+        <div>${narrHtml}</div>
+        <div style="border-top:2px solid #ede7f6;margin:22px 0"></div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#a100ff;margin-bottom:14px">Commercial themes</div>
+        <div>${themesHtml}</div>
+        <div style="border-top:1px solid #ddd;margin-top:28px;padding-top:10px;font-size:9px;color:#999">
+          Accenture Confidential · Macquarie Group Tier 1 Account · Generated ${today}
+        </div>
+      </div>`;
   }
 
-    if(narrEl)   narrEl.innerHTML   = formatSnapshot(latest.narrative||'');
-  if(themesEl) themesEl.innerHTML = formatSnapshot(latest.themes||'');
-
-  // Previous snapshots (2nd and 3rd)
+  // Previous snapshots
   const prev = _snapshots.slice(1);
   if(prevEl) prevEl.style.display = prev.length ? "block" : "none";
   if(prevList && prev.length) {
     prevList.innerHTML = prev.map((s,i) => {
-      const pts = new Date(s.ts).toLocaleString("en-AU",{day:"numeric",month:"short",year:"numeric"});
+      const pts = new Date(s.ts).toLocaleString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
       return `<div style="display:flex;align-items:center;gap:10px;padding:6px 10px;background:var(--bg);border-radius:5px;font-size:11px">
         <span style="color:var(--label-gray)">${pts}</span>
         <span style="color:var(--label-gray)">by ${s.user}</span>
@@ -5563,6 +5689,21 @@ function renderSnapshotDisplay() {
     }).join("");
   }
 }
+
+function printDiagnostic() {
+  if(!_snapshots.length) { alert("No snapshot saved yet. Add one via Update snapshot."); return; }
+  // Show print div, hide screen div temporarily
+  const printEl   = document.getElementById("ins-snapshot-print");
+  const displayEl = document.getElementById("ins-snapshot-display");
+  if(printEl)   printEl.style.display = "block";
+  if(displayEl) displayEl.style.display = "none";
+  window.print();
+  setTimeout(()=>{
+    if(printEl)   printEl.style.display = "none";
+    if(displayEl) displayEl.style.display = "block";
+  }, 500);
+}
+
 
 function restoreSnapshot(idx) {
   if(!_snapshots[idx]) return;
