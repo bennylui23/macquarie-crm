@@ -5530,7 +5530,8 @@ function renderSnapshotDisplay() {
 
   const latest = _snapshots[0];
   const ts = new Date(latest.ts).toLocaleString("en-AU",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-  if(metaEl) metaEl.textContent = `Last updated ${ts} by ${latest.user}`;
+  const entryCount = loadEntries().length;
+  if(metaEl) metaEl.innerHTML = `Last updated <strong>${ts}</strong> by ${latest.user} &nbsp;·&nbsp; Based on ${entryCount} engagement entries at time of export`;
   if(displayEl) displayEl.style.display = "block";
 
   function formatSnapshot(t) {
