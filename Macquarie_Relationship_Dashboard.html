@@ -757,28 +757,37 @@ tbody tr:hover td{background:var(--lavender-2)}
     </div>
 
     <div class="card" style="border-top:2px solid var(--green);grid-column:1/-1">
-      <div class="eyebrow" style="margin-bottom:4px;color:var(--green-text)">Data backup</div>
-      <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:12px">Automatic + manual backup of all Firebase data</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="eyebrow" style="margin-bottom:4px;color:var(--green-text)">Data &amp; insights</div>
+      <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:16px">Backup, restore and AI insights export</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px">
+
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Manual backup</div>
-          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Downloads a complete JSON snapshot of all entries, contacts, extras, leads and settings. Save to your desktop or SharePoint.</div>
-          <button class="btn-primary" onclick="downloadBackup()" style="background:var(--green)">⬇ Download backup now</button>
+          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:4px">Full data backup</div>
+          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Complete JSON snapshot of all entries, contacts, extras, leads and settings.</div>
+          <button class="btn-primary" onclick="downloadBackup()" style="background:var(--green)">⬇ Download backup</button>
         </div>
+
         <div>
-          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Restore from backup</div>
-          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Upload a previously downloaded backup file to restore all data. This will merge with current Firebase data — no deletions.</div>
+          <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:4px">Restore from backup</div>
+          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Merge a previously downloaded backup file. No data will be deleted.</div>
           <label style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;padding:8px 18px;border:none;background:var(--purple-plum);color:#fff;cursor:pointer">
             ⬆ Restore from file
             <input type="file" id="restore-file-input" accept=".json" style="display:none" onchange="restoreFromBackup(this)">
           </label>
         </div>
+
+        <div style="border-left:2px solid #ede7f6;padding-left:16px">
+          <div style="font-size:12px;font-weight:600;color:#2d0057;margin-bottom:4px">💡 Insights export</div>
+          <div style="font-size:11px;color:var(--label-gray);margin-bottom:10px;line-height:1.6">Downloads a plain-text file with all engagement entries, relationship scores and contact context — ready to paste into Claude to generate your AI snapshot.</div>
+          <button class="btn-primary" onclick="downloadInsightsExport()" style="background:#2d0057">⬇ Download for Claude</button>
+        </div>
+
       </div>
-      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--divider)">
+      <div style="padding-top:12px;border-top:1px solid var(--divider)">
         <div style="font-size:12px;font-weight:600;color:var(--dark-gray);margin-bottom:6px">Automatic backups</div>
         <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
           <div style="font-size:11px;color:var(--label-gray)">Last backup: <span id="last-backup-time" style="font-weight:600;color:var(--dark-gray)">—</span></div>
-          <div style="font-size:11px;color:var(--label-gray)">Schedule: <span style="font-weight:600;color:var(--dark-gray)">On open + every Friday at 5pm</span></div>
+          <div style="font-size:11px;color:var(--label-gray)">Schedule: <span style="font-weight:600;color:var(--dark-gray)">Every Friday at 5pm</span></div>
           <div id="backup-status" style="font-size:11px;color:var(--green-text)"></div>
         </div>
       </div>
@@ -1276,6 +1285,110 @@ function buildBackupPayload(){
     divs:       loadDivs(),
     locs:       loadLocs(),
   };
+}
+
+
+function downloadInsightsExport() {
+  const entries  = loadEntries();
+  const today    = new Date();
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+  const ninetyAgo  = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+
+  // ── Section 1: Portfolio summary ─────────────────────────
+  const total     = TABLE_DATA.length;
+  const engaged12 = TABLE_DATA.filter(p => entries.some(e => e.contact===p.first+" "+p.last && e.date && new Date(e.date)>=twelveMAgo)).length;
+  const engaged90 = TABLE_DATA.filter(p => entries.some(e => e.contact===p.first+" "+p.last && e.date && new Date(e.date)>=ninetyAgo)).length;
+  const atRisk    = TABLE_DATA.filter(p => p.relLabel==="- 1 At risk").map(p=>p.first+" "+p.last);
+  const strong    = TABLE_DATA.filter(p => p.relLabel==="+ 3 Strong").map(p=>p.first+" "+p.last);
+  const good      = TABLE_DATA.filter(p => p.relLabel==="+ 2 Good").map(p=>p.first+" "+p.last);
+  const zero12    = TABLE_DATA.filter(p => !entries.some(e => e.contact===p.first+" "+p.last && e.date && new Date(e.date)>=twelveMAgo));
+
+  // Division coverage
+  const divLines = [...new Set(TABLE_DATA.map(p=>p.div).filter(Boolean))].map(div => {
+    const tot = TABLE_DATA.filter(p=>p.div===div).length;
+    const eng = TABLE_DATA.filter(p=>p.div===div && entries.some(e=>e.contact===p.first+" "+p.last&&e.date&&new Date(e.date)>=twelveMAgo)).length;
+    return `  ${div}: ${eng}/${tot} contacts engaged (${Math.round(eng/tot*100)}%)`;
+  }).join("\n");
+
+  // ── Section 2: All engagement entries sorted by date ────
+  const sortedEntries = [...entries]
+    .filter(e => e.date)
+    .sort((a,b) => new Date(b.date)-new Date(a.date));
+
+  const entryLines = sortedEntries.map(e => {
+    const p = TABLE_DATA.find(x=>x.first+" "+x.last===e.contact);
+    return `[${e.date}] ${e.contact} (${p?p.div+", "+p.relLabel:""}) — ${e.owner?(e.owner.split(".")[0]+") — "):""}}${e.type||"Engagement"}: ${e.summary||""}${e.notes?" | Notes: "+e.notes:""}${e.action?" | Next: "+e.action:""}`;
+  }).join("\n");
+
+  // ── Section 3: White space contacts ─────────────────────
+  const wsLines = zero12.sort((a,b)=>{
+    const o={"+ 3 Strong":0,"+ 2 Good":1,"+ 1 Mild":2,"0 Neutral":3,"- 1 At risk":4};
+    return (o[a.relLabel]??3)-(o[b.relLabel]??3);
+  }).map(p=>`  ${p.first} ${p.last} (${p.div}) — ${p.relLabel} — owner: ${(p.owner||"").split(".")[0]||"unassigned"}`).join("\n");
+
+  // ── Section 4: Upcoming events ──────────────────────────
+  const upcomingEvts = EVENTS_DATA
+    .filter(e => new Date(e.date) > today)
+    .sort((a,b) => new Date(a.date)-new Date(b.date))
+    .slice(0,20)
+    .map(e => `  ${e.date} — ${e.name} (${e.theme}, ${e.loc})`)
+    .join("\n");
+
+  // ── Assemble the document ────────────────────────────────
+  const dateStr = today.toLocaleDateString("en-AU",{day:"numeric",month:"long",year:"numeric"});
+  const doc = `MACQUARIE TIER 1 — INSIGHTS CONTEXT FOR CLAUDE
+Generated: ${dateStr}
+────────────────────────────────────────────────────
+
+INSTRUCTIONS FOR CLAUDE
+Paste this file into a Claude conversation and ask:
+"Based on this engagement data, please generate:
+1. A portfolio narrative (McKinsey hypothesis-first style, 4-5 paragraphs)
+2. A theme analysis (top 4-5 themes from the conversation content, with origination signals)
+Format using ## for headers and > for key actions."
+
+────────────────────────────────────────────────────
+SECTION 1: PORTFOLIO SUMMARY
+────────────────────────────────────────────────────
+Total contacts: ${total} across ${[...new Set(TABLE_DATA.map(p=>p.div).filter(Boolean))].length} divisions
+Engaged in past 12 months: ${engaged12} of ${total} (${Math.round(engaged12/total*100)}%)
+Engaged in past 90 days: ${engaged90}
+Zero engagements (12 months): ${zero12.length}
+
+Relationship scores:
+  + 3 Strong: ${strong.join(", ")||"none"}
+  + 2 Good: ${good.join(", ")||"none"}
+  - 1 At risk: ${atRisk.join(", ")||"none"}
+
+Division coverage (12 months):
+${divLines}
+
+────────────────────────────────────────────────────
+SECTION 2: ALL ENGAGEMENT ENTRIES (newest first)
+────────────────────────────────────────────────────
+${entryLines||"No entries logged yet."}
+
+────────────────────────────────────────────────────
+SECTION 3: CONTACTS WITH ZERO ENGAGEMENTS (12 months)
+────────────────────────────────────────────────────
+${wsLines||"All contacts engaged in past 12 months."}
+
+────────────────────────────────────────────────────
+SECTION 4: UPCOMING EVENTS (next 20)
+────────────────────────────────────────────────────
+${upcomingEvts||"No upcoming events."}
+
+────────────────────────────────────────────────────
+END OF EXPORT
+`;
+
+  const blob = new Blob([doc], {type:"text/plain"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href     = url;
+  a.download = `Macquarie_Insights_Export_${today.toISOString().slice(0,10)}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function downloadBackup(){
@@ -5420,13 +5533,20 @@ function renderSnapshotDisplay() {
   if(metaEl) metaEl.textContent = `Last updated ${ts} by ${latest.user}`;
   if(displayEl) displayEl.style.display = "block";
 
-  const formatText = t => t
-    .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#2d0057">$1</strong>')
-    .replace(/\n\n/g,'<br><br>')
-    .replace(/\n/g,'<br>');
+  function formatSnapshot(t) {
+    if(!t) return '<span style="color:var(--label-gray)">No content added.</span>';
+    return t.split("\n").map(line => {
+      const l = line.trim();
+      if(!l) return '<div style="height:8px"></div>';
+      if(l.startsWith("## ")) return '<div style="font-size:13px;font-weight:700;color:#2d0057;letter-spacing:-.01em;margin:14px 0 6px;padding-bottom:4px;border-bottom:2px solid #ede7f6">'+l.slice(3)+'</div>';
+      if(l.startsWith("> "))  return '<div style="background:#f9f0ff;border-left:3px solid #a100ff;padding:8px 12px;margin:6px 0;font-size:12px;font-weight:600;color:#2d0057;border-radius:0 4px 4px 0">'+l.slice(2)+'</div>';
+      if(l.startsWith("- ")||l.startsWith("* ")) return '<div style="display:flex;gap:8px;padding:3px 0;font-size:12px;color:var(--dark-gray)"><span style="color:#a100ff;flex-shrink:0">•</span><span>'+l.slice(2).replace(/\*\*([^*]+)\*\*/g,"<strong>$1</strong>")+'</span></div>';
+      return '<div style="font-size:13px;color:var(--dark-gray);line-height:1.65;margin:3px 0">'+l.replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#2d0057">$1</strong>')+'</div>';
+    }).join("");
+  }
 
-  if(narrEl)   narrEl.innerHTML   = latest.narrative ? formatText(latest.narrative) : '<span style="color:var(--label-gray)">No narrative added.</span>';
-  if(themesEl) themesEl.innerHTML = latest.themes    ? formatText(latest.themes)    : '<span style="color:var(--label-gray)">No theme analysis added.</span>';
+    if(narrEl)   narrEl.innerHTML   = formatSnapshot(latest.narrative||'');
+  if(themesEl) themesEl.innerHTML = formatSnapshot(latest.themes||'');
 
   // Previous snapshots (2nd and 3rd)
   const prev = _snapshots.slice(1);
