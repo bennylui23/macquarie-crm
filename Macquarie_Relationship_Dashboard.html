@@ -362,27 +362,30 @@ tbody tr:hover td{background:var(--lavender-2)}
 <!-- PASSWORD GATE -->
 <div class="pwd-gate" id="pwd-gate">
   <div class="pwd-box">
-    <div class="pwd-logo">Macquarie · Tier 1 Programme</div>
+    <div class="pwd-logo">Macquarie · Accenture</div>
     <div class="pwd-title">Relationship Dashboard</div>
     <div class="pwd-sub">Accenture internal access only</div>
-    <input type="password" class="pwd-input" id="pwd-input" placeholder="Enter password" onkeydown="if(event.key==='Enter')checkPassword()">
-    <button class="pwd-btn" onclick="checkPassword()">Access dashboard</button>
-    <div class="pwd-err" id="pwd-err">Incorrect password — try again</div>
+    <input type="text" class="pwd-input" id="pwd-username" placeholder="Username" onkeydown="if(event.key==='Enter')document.getElementById('pwd-input').focus()" style="margin-bottom:8px;letter-spacing:normal">
+    <input type="password" class="pwd-input" id="pwd-input" placeholder="Password" onkeydown="if(event.key==='Enter')checkPassword()">
+    <button class="pwd-btn" onclick="checkPassword()">Sign in</button>
+    <div class="pwd-err" id="pwd-err">Incorrect username or password — try again</div>
   </div>
 </div>
 
 <nav>
   <div class="nav-logo">Macquarie</div>
   <div class="nav-tab active" onclick="showPage('p1',this)">Overview</div>
-  <div class="nav-tab" onclick="showPage('p4',this)">Directory</div>
+  <div class="nav-tab" onclick="showPage('p8',this)">💡 Insights</div>
   <div class="nav-tab" onclick="showPage('p3',this)">Relationships<span class="nav-badge" id="nav-badge"></span></div>
   <div class="nav-tab" onclick="showPage('p6',this)">🗓 Events</div>
+  <div class="nav-tab" onclick="showPage('p4',this)">Directory</div>
+  <div class="nav-tab" onclick="showPage('p7',this)">📋 Activity</div>
   <div class="nav-tab" onclick="showPage('p5',this)">⚙ Settings</div>
 </nav>
 
 <div id="p1" class="page active">
   <div class="eyebrow" style="margin-bottom:6px">Macquarie Group Senior leadership coverage</div>
-  <h1 style="margin-bottom:6px">Executive relationship map</h1>
+  <h1 style="margin-bottom:6px">Account overview</h1>
   <p style="font-size:13px;color:var(--label-gray);margin-bottom:20px;max-width:640px">Coverage of Macquarie executive committee and divisional leadership. Updated FY26 Q3.</p>
 
   <div class="g4" style="margin-bottom:20px">
@@ -414,20 +417,36 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 
 
-  <!-- ARS by Quarter -->
-  <div class="card" style="margin-bottom:20px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
-      <div>
-        <div class="eyebrow">Accenture Relationship Strength</div>
-        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">Average ARS score by quarter — tracking relationship-building impact</div>
-      </div>
-      <span style="font-size:11px;color:var(--label-gray);padding-top:4px">Score out of 10 · higher is stronger</span>
+  <!-- Insight Summary Cards -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+
+    <!-- Coverage health -->
+    <div class="card" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===1));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p8').classList.add('active');_activePage='p8';renderInsights();" style="cursor:pointer;border-top:3px solid #2d0057;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
+      <div class="eyebrow" style="margin-bottom:6px">Portfolio coverage</div>
+      <div id="ov-coverage-score" style="font-size:32px;font-weight:700;color:#2d0057;line-height:1">—</div>
+      <div id="ov-coverage-label" style="font-size:12px;color:var(--label-gray);margin-top:4px;margin-bottom:8px">of contacts engaged (12 months)</div>
+      <div id="ov-coverage-bar" style="height:6px;background:var(--divider);border-radius:3px;overflow:hidden"><div id="ov-coverage-fill" style="height:100%;width:0%;background:#2d0057;border-radius:3px;transition:width .6s"></div></div>
+      <div style="font-size:10px;color:#a100ff;margin-top:8px;font-weight:600">View full breakdown →</div>
     </div>
-    <div id="ars-chart" style="display:flex;align-items:flex-end;gap:8px;height:80px;padding-bottom:4px">
-      <!-- Rendered by renderARSChart() -->
+
+    <!-- Momentum -->
+    <div class="card" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===1));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p8').classList.add('active');_activePage='p8';renderInsights();" style="cursor:pointer;border-top:3px solid #5b2d8e;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
+      <div class="eyebrow" style="margin-bottom:6px">Momentum</div>
+      <div id="ov-momentum-rising" style="margin-bottom:8px"></div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin-bottom:4px">Cooling</div>
+      <div id="ov-momentum-cooling"></div>
+      <div style="font-size:10px;color:#a100ff;margin-top:8px;font-weight:600">View momentum detail →</div>
     </div>
-    <div id="ars-chart-labels" style="display:flex;gap:8px;margin-top:6px;font-size:10px;color:var(--label-gray);letter-spacing:.04em"></div>
-    <div style="font-size:11px;color:var(--label-gray);margin-top:10px;padding-top:10px;border-top:1px solid var(--divider)">ARS scores updated manually. Add scores in the ARS_DATA config at the top of the script.</div>
+
+    <!-- White space alert -->
+    <div class="card" onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===1));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p8').classList.add('active');_activePage='p8';renderInsights();" style="cursor:pointer;border-top:3px solid #8e5dbf;transition:box-shadow .15s" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,.1)'" onmouseout="this.style.boxShadow=''">
+      <div class="eyebrow" style="margin-bottom:6px">White space</div>
+      <div id="ov-whitespace-count" style="font-size:32px;font-weight:700;color:#8e5dbf;line-height:1">—</div>
+      <div style="font-size:12px;color:var(--label-gray);margin-top:4px;margin-bottom:8px">contacts not engaged in 12 months</div>
+      <div id="ov-whitespace-divs" style="display:flex;flex-wrap:wrap;gap:4px"></div>
+      <div style="font-size:10px;color:#a100ff;margin-top:8px;font-weight:600">View origination opportunities →</div>
+    </div>
+
   </div>
 
   <!-- Relationship Map -->
@@ -450,7 +469,7 @@ tbody tr:hover td{background:var(--lavender-2)}
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div>
         <div class="eyebrow">Stakeholder engagement tracker</div>
-        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">FY27 engagements &amp; upcoming event opportunities</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">Rolling engagement view &amp; upcoming event opportunities</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <span style="font-size:11px;color:var(--label-gray)">Filters:</span>
@@ -472,8 +491,8 @@ tbody tr:hover td{background:var(--lavender-2)}
           <option value="COG">COG</option>
         </select>
         <select id="qt-filter-period" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
-          <option value="FY">Full FY27</option>
-          <option value="90">Last 90 days</option>
+          <option value="R12">Rolling 12 months</option>
+          <option value="90">Rolling 90 days</option>
         </select>
         <select id="qt-sort-order" onchange="renderQuarterlyEngagement()" style="font-size:11px;padding:4px 8px;border:1px solid var(--divider);border-radius:5px;background:var(--card-bg);color:var(--dark-gray);cursor:pointer">
           <option value="desc">Most → least</option>
@@ -895,6 +914,130 @@ tbody tr:hover td{background:var(--lavender-2)}
   </div>
 </div>
 
+<!-- PAGE 7: ACTIVITY LOG -->
+<div id="p7" class="page">
+  <div class="eyebrow" style="margin-bottom:6px">Audit trail</div>
+  <h1 style="margin-bottom:6px">Activity log</h1>
+  <p style="font-size:13px;color:var(--label-gray);margin-bottom:20px;max-width:600px">All dashboard activity logged by session. Updates in real time across all users.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+    <select id="al-filter-user" onchange="renderActivityLog()" style="font-size:12px;padding:6px 10px;border:1px solid var(--divider);border-radius:6px;background:#fff;color:var(--dark-gray);cursor:pointer">
+      <option value="ALL">All users</option>
+      <option value="benny.lui">benny.lui</option>
+      <option value="jordan.griffiths">jordan.griffiths</option>
+      <option value="will.turbet">will.turbet</option>
+    </select>
+    <select id="al-filter-type" onchange="renderActivityLog()" style="font-size:12px;padding:6px 10px;border:1px solid var(--divider);border-radius:6px;background:#fff;color:var(--dark-gray);cursor:pointer">
+      <option value="ALL">All activity</option>
+      <option value="login">Sign in</option>
+      <option value="new_entry">New engagement</option>
+      <option value="edit_entry">Edit engagement</option>
+      <option value="delete_entry">Delete engagement</option>
+      <option value="log_invite">Log invite</option>
+      <option value="edit_invite">Edit invite</option>
+    </select>
+    <button onclick="renderActivityLog()" style="font-size:11px;padding:6px 12px;background:var(--purple-plum);color:#fff;border:none;border-radius:5px;cursor:pointer">Refresh</button>
+    <span id="al-count" style="font-size:12px;color:var(--label-gray);margin-left:auto"></span>
+  </div>
+  <div id="activity-log-table" style="overflow-x:auto"></div>
+</div>
+
+<!-- PAGE 8: INSIGHTS -->
+<div id="p8" class="page">
+  <div class="eyebrow" style="margin-bottom:6px">Portfolio intelligence</div>
+  <h1 style="margin-bottom:4px">Insights</h1>
+  <p style="font-size:13px;color:var(--label-gray);margin-bottom:20px;max-width:680px">Generated from your engagement log, relationship scores and events calendar. Click Generate on each AI panel for a fresh read.</p>
+
+  <!-- 1. AI Narrative -->
+  <div class="card" style="margin-bottom:20px;border-left:4px solid #a100ff">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px">
+      <div>
+        <div class="eyebrow" style="color:#a100ff">1 · AI narrative</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">Portfolio summary — where do things stand?</div>
+      </div>
+      <button onclick="generateInsightNarrative()" id="ins-gen-btn" style="font-size:11px;font-weight:700;padding:6px 14px;background:#2d0057;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;flex-shrink:0">↺ Generate</button>
+    </div>
+    <div id="ins-narrative" style="font-size:13px;line-height:1.7;color:var(--dark-gray);min-height:60px">
+      <span style="color:var(--label-gray)">Click Generate to produce an AI summary of your engagement portfolio.</span>
+    </div>
+  </div>
+
+  <!-- 2. Three strategic signals -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+    <div class="card" style="border-top:3px solid #2d0057">
+      <div class="eyebrow" style="margin-bottom:4px">2a · Portfolio coverage</div>
+      <div style="font-size:13px;font-weight:600;color:var(--dark-gray);margin-bottom:10px">12-month engagement rate</div>
+      <div id="ins-coverage-score" style="font-size:36px;font-weight:700;color:#2d0057;line-height:1">—</div>
+      <div id="ins-coverage-label" style="font-size:12px;color:var(--label-gray);margin:4px 0 8px"></div>
+      <div style="height:6px;background:var(--divider);border-radius:3px;overflow:hidden"><div id="ins-coverage-fill" style="height:100%;width:0%;background:#2d0057;border-radius:3px;transition:width .6s"></div></div>
+    </div>
+    <div class="card" style="border-top:3px solid #5b2d8e">
+      <div class="eyebrow" style="margin-bottom:4px">2b · Momentum</div>
+      <div style="font-size:13px;font-weight:600;color:var(--dark-gray);margin-bottom:10px">90-day vs prior 90-day</div>
+      <div id="ins-momentum"></div>
+    </div>
+    <div class="card" style="border-top:3px solid #8e5dbf">
+      <div class="eyebrow" style="margin-bottom:4px">2c · White space</div>
+      <div style="font-size:13px;font-weight:600;color:var(--dark-gray);margin-bottom:10px">Zero engagements — 12 months</div>
+      <div id="ins-whitespace"></div>
+    </div>
+  </div>
+
+  <!-- 3. Engagement quality -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="eyebrow" style="margin-bottom:4px">3 · Engagement quality</div>
+    <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:16px">How are we engaging — mode, discipline and coverage by owner</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:10px">Engagement type breakdown</div>
+        <div id="ins-by-type"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:10px">Follow-through rate (entries with next action logged)</div>
+        <div id="ins-followthrough"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Relationship trajectory -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="eyebrow" style="margin-bottom:4px">4 · Relationship trajectory</div>
+    <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:4px">Health progression across successive engagements (3+ touchpoints)</div>
+    <div style="font-size:12px;color:var(--label-gray);margin-bottom:16px">Shows whether engagement quality is improving, stable or declining over time.</div>
+    <div id="ins-trajectory" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- 5. AI theme detection -->
+  <div class="card" style="margin-bottom:20px;border-left:4px solid #a100ff">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px">
+      <div>
+        <div class="eyebrow" style="color:#a100ff">5 · AI theme detection</div>
+        <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-top:2px">What are our conversations telling us commercially?</div>
+        <div style="font-size:12px;color:var(--label-gray);margin-top:3px">Reads entry summaries and notes to surface recurring themes and origination signals.</div>
+      </div>
+      <button onclick="generateThemeDetection()" id="ins-theme-btn" style="font-size:11px;font-weight:700;padding:6px 14px;background:#2d0057;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;flex-shrink:0">↺ Detect themes</button>
+    </div>
+    <div id="ins-themes" style="font-size:13px;line-height:1.7;color:var(--dark-gray);min-height:60px">
+      <span style="color:var(--label-gray)">Click Detect themes to analyse the content of your engagement log.</span>
+    </div>
+  </div>
+
+  <!-- Concentration (owner + division) -->
+  <div class="card" style="margin-bottom:20px">
+    <div class="eyebrow" style="margin-bottom:4px">Engagement concentration</div>
+    <div style="font-size:14px;font-weight:600;color:var(--dark-gray);margin-bottom:16px">Coverage by owner and division</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:10px">By owner</div>
+        <div id="ins-by-owner"></div>
+      </div>
+      <div>
+        <div style="font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--label-gray);margin-bottom:10px">By division</div>
+        <div id="ins-by-div"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
 <!-- SYNC STATUS BAR -->
 <div class="sp-bar">
   <div class="sp-dot amber pulse" id="sp-dot"></div>
@@ -923,14 +1066,23 @@ tbody tr:hover td{background:var(--lavender-2)}
 // ═══════════════════════════════════════════════════════════
 // FIREBASE CONFIG — paste your values here
 // ═══════════════════════════════════════════════════════════
-// ── PASSWORD ──────────────────────────────────────────────
-const PWD_HASH = "4e9f3b2a1d8c7e6f5a4b3c2d1e0f9a8b"; // obfuscated
+// ── AUTH ──────────────────────────────────────────────────
+const MQ_USERS = {
+  "benny.lui":       "boyboy23",
+  "jordan.griffiths":"jordan123",
+  "will.turbet":     "will123"
+};
+let _currentUser = null;
+
 function checkPassword(){
-  const val = document.getElementById("pwd-input").value;
+  const username = (document.getElementById("pwd-username").value||"").trim().toLowerCase();
+  const password = document.getElementById("pwd-input").value;
   const err = document.getElementById("pwd-err");
-  if(val === "Macquarie-ACN2026"){
+  if(MQ_USERS[username] && MQ_USERS[username] === password){
+    _currentUser = username;
     document.getElementById("pwd-gate").style.display = "none";
-    sessionStorage.setItem("mq_auth","1");
+    sessionStorage.setItem("mq_auth", username);
+    logActivity("login", "Signed in");
   } else {
     err.style.display = "block";
     document.getElementById("pwd-input").value = "";
@@ -939,7 +1091,9 @@ function checkPassword(){
 }
 // Check session on load
 (function(){
-  if(sessionStorage.getItem("mq_auth") === "1"){
+  const saved = sessionStorage.getItem("mq_auth");
+  if(saved && MQ_USERS[saved]){
+    _currentUser = saved;
     const gate = document.getElementById("pwd-gate");
     if(gate) gate.style.display = "none";
   } else {
@@ -1246,6 +1400,7 @@ async function fbInit(){
       if(!data)return;
       let changed=false;
       if(data.entries&&JSON.stringify(data.entries)!==JSON.stringify(_entries)){_entries=data.entries;localStorage.setItem("mq_log",JSON.stringify(_entries));changed=true;}
+      loadActivityFromFirebase(data);
       if(data.contacts&&JSON.stringify(data.contacts)!==JSON.stringify(_contacts)){_contacts=data.contacts;localStorage.setItem("mq_contacts",JSON.stringify(_contacts));changed=true;}
       if(data.extras&&JSON.stringify(data.extras)!==JSON.stringify(_extras)){_extras=data.extras;localStorage.setItem("mq_profile_extras",JSON.stringify(_extras));changed=true;}
       if(data.leads  &&Array.isArray(data.leads))  {localStorage.setItem("mq_leads", JSON.stringify(data.leads));  changed=true;}
@@ -2496,15 +2651,7 @@ const URGENCY_ROW={critical:"urg-critical",high:"urg-high",medium:"urg-medium",l
 
 // ── ARS SCORES ────────────────────────────────────────────
 // Update these quarterly. Score = average Accenture Relationship Strength across all contacts.
-const ARS_DATA = [
-  {quarter:"Q1 FY25", score:3.2},
-  {quarter:"Q2 FY25", score:3.5},
-  {quarter:"Q3 FY25", score:3.8},
-  {quarter:"Q4 FY25", score:4.1},
-  {quarter:"Q1 FY26", score:4.3},
-  {quarter:"Q2 FY26", score:4.6},
-  {quarter:"Q3 FY26", score:null}, // current quarter — update when scores available
-];
+// ARS_DATA removed — replaced by live Salesforce rel scores
 
 // ── VIP LIST ──────────────────────────────────────────────
 // Contacts always shown in the VIPs module on Overview
@@ -2629,6 +2776,82 @@ function getEngInPeriod(contactName, period){
   }).length;
 }
 
+
+function renderOverviewInsightCards() {
+  const entries = loadEntries();
+  const today = new Date();
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+  const ninetyAgo  = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+  const priorStart = new Date(ninetyAgo); priorStart.setDate(priorStart.getDate()-90);
+
+  // ── Coverage card ─────────────────────────────────────────
+  const engaged12m = new Set(
+    entries.filter(e => e.date && new Date(e.date) >= twelveMAgo).map(e => e.contact)
+  );
+  const total = TABLE_DATA.length;
+  const engCount = TABLE_DATA.filter(p => engaged12m.has(p.first+" "+p.last)).length;
+  const pct = total > 0 ? Math.round((engCount/total)*100) : 0;
+  const coverColor = pct>=70?"#1a8c66":pct>=40?"#d4830a":"#c0392b";
+
+  const scoreEl = document.getElementById("ov-coverage-score");
+  const labelEl = document.getElementById("ov-coverage-label");
+  const fillEl  = document.getElementById("ov-coverage-fill");
+  if(scoreEl) { scoreEl.textContent = pct+"%"; scoreEl.style.color = coverColor; }
+  if(labelEl) labelEl.textContent = `${engCount} of ${total} contacts engaged (12 months)`;
+  if(fillEl)  { fillEl.style.width = pct+"%"; fillEl.style.background = coverColor; }
+
+  // ── Momentum card ─────────────────────────────────────────
+  const momData = TABLE_DATA.map(p => {
+    const name = p.first+" "+p.last;
+    const recent = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=ninetyAgo).length;
+    const prior  = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=priorStart && new Date(e.date)<ninetyAgo).length;
+    const lastE  = entries.filter(e=>e.contact===name&&e.date).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return {name, recent, prior, delta:recent-prior, lastDate: lastE?lastE.date:null};
+  }).filter(r => r.recent>0 || r.prior>0);
+
+  // Sort rising by delta desc then recent desc, cooling by delta asc
+  const rising  = momData.filter(r=>r.delta>0).sort((a,b)=>b.delta-a.delta||b.recent-a.recent).slice(0,3);
+  const cooling = momData.filter(r=>r.delta<0).sort((a,b)=>a.delta-b.delta||b.prior-a.prior).slice(0,3);
+
+  const risingEl  = document.getElementById("ov-momentum-rising");
+  const coolingEl = document.getElementById("ov-momentum-cooling");
+
+  const momRow = (r, isRising) => {
+    const arrow = isRising?"↑":"↓";
+    const color = isRising?"#1a8c66":"#c0392b";
+    const daysAgo = r.lastDate ? Math.floor((today-new Date(r.lastDate))/(1000*60*60*24)) : null;
+    return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px">
+      <span style="color:${color};font-weight:700;font-size:14px;width:14px">${arrow}</span>
+      <span style="flex:1;font-weight:600;color:var(--dark-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</span>
+      <span style="color:var(--label-gray);white-space:nowrap">${daysAgo!==null?daysAgo+"d ago":""}</span>
+    </div>`;
+  };
+
+  if(risingEl) {
+    const label = `<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin-bottom:4px">Rising</div>`;
+    risingEl.innerHTML = label + (rising.length ? rising.map(r=>momRow(r,true)).join("") : '<div style="font-size:11px;color:var(--label-gray)">No rising contacts</div>');
+  }
+  if(coolingEl) {
+    coolingEl.innerHTML = cooling.length ? cooling.map(r=>momRow(r,false)).join("") : '<div style="font-size:11px;color:var(--label-gray)">No cooling contacts</div>';
+  }
+
+  // ── White space card ──────────────────────────────────────
+  const whitespace = TABLE_DATA.filter(p => !engaged12m.has(p.first+" "+p.last));
+  const wsCountEl = document.getElementById("ov-whitespace-count");
+  const wsDivsEl  = document.getElementById("ov-whitespace-divs");
+
+  if(wsCountEl) wsCountEl.textContent = whitespace.length;
+
+  if(wsDivsEl) {
+    const byDiv = {};
+    whitespace.forEach(p => { byDiv[p.div]=(byDiv[p.div]||0)+1; });
+    wsDivsEl.innerHTML = Object.entries(byDiv)
+      .sort((a,b)=>b[1]-a[1])
+      .map(([div,cnt])=>`<span style="font-size:10px;font-weight:700;padding:2px 8px;background:#f3e5ff;color:#5b2d8e;border-radius:8px">${div} ${cnt}</span>`)
+      .join("");
+  }
+}
+
 function refreshOverview(){
   const entries = loadEntries();
   // KPI counts — use reconciled eng values (set by reconcile() before this runs)
@@ -2691,8 +2914,8 @@ function refreshOverview(){
 
   renderLatestEngagements();
   renderVIPs();
-  renderARSChart();
   renderQuarterlyEngagement();
+  renderOverviewInsightCards();
 }
 
 function renderLatestEngagements(){
@@ -2738,30 +2961,6 @@ function renderVIPs(){
   }).join("");
 }
 
-function renderARSChart(){
-  const chartEl  = document.getElementById("ars-chart");
-  const labelEl  = document.getElementById("ars-chart-labels");
-  if(!chartEl || !labelEl) return;
-  const maxScore = 10;
-  const barH     = 72; // px height area
-  chartEl.innerHTML = ARS_DATA.map(q => {
-    if(q.score === null){
-      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px">
-        <div style="font-size:10px;color:var(--label-gray)">TBC</div>
-        <div style="width:100%;background:var(--neutral-light);height:${barH * 0.3}px;border:1px dashed var(--divider)"></div>
-      </div>`;
-    }
-    const h = Math.round((q.score / maxScore) * barH);
-    const color = q.score >= 6 ? "var(--purple-primary)" : q.score >= 4 ? "var(--purple-deep)" : "var(--purple-plum)";
-    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px">
-      <div style="font-size:10px;font-weight:600;color:var(--dark-gray)">${q.score.toFixed(1)}</div>
-      <div style="width:100%;background:${color};height:${h}px"></div>
-    </div>`;
-  }).join("");
-  labelEl.innerHTML = ARS_DATA.map(q => `<div style="flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px">${q.quarter}</div>`).join("");
-}
-
-// ── TABLE ──────────────────────────────────────────────────
 function filterTable(f, btn){
   _curTableFilter = f;
   document.querySelectorAll("#tbl-filters .tf[onclick^='filterTable']").forEach(b => b.classList.remove("active"));
@@ -2953,8 +3152,8 @@ function switchView(v){
 // ── ENTRIES FEED ───────────────────────────────────────────
 function renderEntries(){
   const entries=loadEntries().slice().sort((a,b)=>{
-    // Sort by entry date (when logged) descending, then by engagement date
-    const ta=a.entryDate||a.ts||""; const tb=b.entryDate||b.ts||"";
+    // Sort by engagement date (when it happened) descending
+    const ta=a.date||a.entryDate||a.ts||""; const tb=b.date||b.entryDate||b.ts||"";
     return tb.localeCompare(ta)||String(b.id).localeCompare(String(a.id));
   });
   const feed=document.getElementById("entry-feed");
@@ -3031,6 +3230,7 @@ async function submitLog(){
   const entries=loadEntries();
   const entryId=Date.now();
   entries.unshift({id:entryId,owner,contact,date,type,summary,notes,health,action,entryDate,ts:new Date().toISOString()});
+  logActivity("new_entry", type+": "+summary.slice(0,60), contact);
   await saveEntries(entries);
   ["lf-owner","lf-type","lf-health"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});document.getElementById("lf-entry-date").value=new Date().toISOString().split("T")[0];
   ["lf-summary","lf-notes","lf-action","lf-contact"].forEach(id=>{const el=document.getElementById(id);if(el)el.value="";});
@@ -3089,6 +3289,7 @@ async function saveModifiedEngagement(){
     health:     document.getElementById("mod-health").value,
     action:     document.getElementById("mod-action").value.trim(),
   };
+  logActivity("edit_entry", (entries[idx].type||"Engagement")+": "+(entries[idx].summary||"").slice(0,60), entries[idx].contact);
   await saveEntries(entries);
   closeModifyModal();
   refreshAll();
@@ -3154,6 +3355,9 @@ function deleteProfile(id){
 }
 
 function deleteEngagementFromProfile(entryId, profileId){
+  const _delEntries = loadEntries();
+  const _delTarget = _delEntries.find(x=>String(x.id)===String(entryId));
+  if(_delTarget) logActivity("delete_entry", (_delTarget.type||"Engagement")+" deleted", _delTarget.contact);
   if(!confirm("Delete this engagement entry?")) return;
   const entries=loadEntries();
   saveEntries(entries.filter(e=>e.id!==entryId));
@@ -3832,7 +4036,7 @@ function goBack(){
   document.getElementById("profile-page").classList.remove("active");
   const src=_profileSource||"p3";
   document.getElementById(src).classList.add("active");
-  const tabIdx={p1:0,p4:1,p3:2,p6:3,p5:4};
+  const tabIdx={p1:0,p8:1,p3:2,p6:3,p4:4,p7:5,p5:6};
   document.querySelectorAll(".nav-tab").forEach((t,i)=>{t.classList.toggle("active",i===tabIdx[src])});
 }
 
@@ -4080,6 +4284,7 @@ async function saveEvtLogEntry() {
     const idx = entries.findIndex(x => String(x.id)===String(existingId));
     if(idx>=0) {
       entries[idx] = {...entries[idx], owner, date, entryDate:edate, type, summary, notes, action, ts:new Date().toISOString()};
+      logActivity("edit_invite", summary.slice(0,60), contactName);
     }
   } else {
     // New entry — embed event name as prefix in notes for reliable matching
@@ -4087,6 +4292,7 @@ async function saveEvtLogEntry() {
     const taggedNotes = evLabel ? `[${evLabel}] ${notes}`.trim() : notes;
     const newId = Date.now();
     entries.unshift({id:newId, owner, contact:contactName, date, entryDate:edate, type, summary, notes:taggedNotes, action, ts:new Date().toISOString()});
+    logActivity("log_invite", summary.slice(0,60)||evLabel, contactName);
   }
   await saveEntries(entries);
 
@@ -4298,19 +4504,26 @@ function renderQuarterlyEngagement() {
 
   const ownerF  = document.getElementById("qt-filter-owner")?.value||"ALL";
   const divF    = document.getElementById("qt-filter-div")?.value||"ALL";
-  const period  = document.getElementById("qt-filter-period")?.value||"FY";
+  const period  = document.getElementById("qt-filter-period")?.value||"R12";
   const sortOrd = document.getElementById("qt-sort-order")?.value||"desc";
   const relF    = document.getElementById("qt-filter-rel")?.value||"ALL";
 
   const today = new Date();
   const ninetyAgo = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
 
-  const Qs = [
-    {label:"Q1",title:"Jul–Sep 26",start:"2026-07-01",end:"2026-09-30"},
-    {label:"Q2",title:"Oct–Dec 26",start:"2026-10-01",end:"2026-12-31"},
-    {label:"Q3",title:"Jan–Mar 27",start:"2027-01-01",end:"2027-03-31"},
-    {label:"Q4",title:"Apr–Jun 27",start:"2027-04-01",end:"2027-06-30"},
-  ];
+  // Build rolling 12-month columns (current month back 11)
+  const Qs = [];
+  for(let i=11; i>=0; i--){
+    const d = new Date(today.getFullYear(), today.getMonth()-i, 1);
+    const end = new Date(d.getFullYear(), d.getMonth()+1, 0);
+    Qs.push({
+      label: d.toLocaleDateString("en-AU",{month:"short"}),
+      title: d.toLocaleDateString("en-AU",{month:"long",year:"numeric"}),
+      start: d.toISOString().split("T")[0],
+      end:   end.toISOString().split("T")[0],
+    });
+  }
 
   const entries = loadEntries();
 
@@ -4336,8 +4549,9 @@ function renderQuarterlyEngagement() {
     let qEngs;
     if(period === "90") {
       const cnt = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=ninetyAgo).length;
-      qEngs = [cnt, 0, 0, 0];
+      qEngs = [cnt];
     } else {
+      // Rolling 12 months — one column per month
       qEngs = Qs.map(q => entries.filter(e => {
         if(e.contact!==name || !e.date) return false;
         const d = new Date(e.date);
@@ -4355,6 +4569,8 @@ function renderQuarterlyEngagement() {
       for(let i=0;i<Qs.length;i++){
         if(d>=new Date(Qs[i].start) && d<=new Date(Qs[i].end)){q=i;break;}
       }
+      // If event is beyond our rolling window, show in last column
+      if(q===-1 && d>today) q=Qs.length-1;
       return {name:ev.name, date:ev.date, q};
     }).filter(e => e.q >= 0);
 
@@ -4370,6 +4586,7 @@ function renderQuarterlyEngagement() {
 
   const maxLogged = Math.max(1, ...rows.map(r => Math.max(...r.qEngs)));
   const is90 = period === "90";
+  const colCount = is90 ? 1 : Qs.length;
 
   // Build table using DOM (avoids all template-literal escaping issues)
   const table = document.createElement("table");
@@ -4383,7 +4600,7 @@ function renderQuarterlyEngagement() {
     is90 ? ["Last 90 days"] : Qs.map(q=>q.label)
   ).concat(["Total"]);
   const htitles = ["","",""].concat(
-    is90 ? [""] : Qs.map(q=>q.title)
+    is90 ? ["Rolling 90 days"] : Qs.map(q=>q.title)
   ).concat([""]);
   hcols.forEach((txt,i) => {
     const th = document.createElement("th");
@@ -4434,7 +4651,7 @@ function renderQuarterlyEngagement() {
     };
 
     // Quarter / 90d cells
-    const colCount = is90 ? 1 : 4;
+    // colCount already set above
     for(let qi=0; qi<colCount; qi++){
       const td = tr.insertCell();
       td.style.cssText = "padding:5px 8px;vertical-align:top";
@@ -4512,6 +4729,441 @@ function renderQuarterlyEngagement() {
 }
 
 
+
+// ── ACTIVITY LOG ───────────────────────────────────────────
+let _activityLog = [];
+
+function logActivity(type, detail, contact) {
+  if(!_currentUser) return;
+  const entry = {
+    id:        Date.now(),
+    user:      _currentUser,
+    type,
+    detail:    detail||"",
+    contact:   contact||"",
+    ts:        new Date().toISOString()
+  };
+  _activityLog.unshift(entry);
+  // Persist to Firebase
+  if(_fbInited && _dbRef) {
+    _dbRef.child("activity").child(String(entry.id)).set(entry).catch(e=>console.warn("Activity log write failed:",e));
+  }
+  // Refresh if on activity tab
+  if(_activePage==="p7") renderActivityLog();
+}
+
+function renderActivityLog() {
+  const el = document.getElementById("activity-log-table");
+  if(!el) return;
+
+  const userF = document.getElementById("al-filter-user")?.value||"ALL";
+  const typeF = document.getElementById("al-filter-type")?.value||"ALL";
+
+  const TYPE_LABELS = {
+    "login":        "Sign in",
+    "new_entry":    "New engagement",
+    "edit_entry":   "Edit engagement",
+    "delete_entry": "Delete engagement",
+    "log_invite":   "Log invite",
+    "edit_invite":  "Edit invite"
+  };
+  const TYPE_COLORS = {
+    "login":        "#5b2d8e",
+    "new_entry":    "#1a8c66",
+    "edit_entry":   "#1a5fa5",
+    "delete_entry": "#c0392b",
+    "log_invite":   "#d4830a",
+    "edit_invite":  "#d4830a"
+  };
+  const USER_COLORS = {
+    "benny.lui":        "#2d0057",
+    "jordan.griffiths": "#1a5fa5",
+    "will.turbet":      "#1a8c66"
+  };
+
+  let filtered = _activityLog.filter(e => {
+    if(userF!=="ALL" && e.user!==userF) return false;
+    if(typeF!=="ALL" && e.type!==typeF) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById("al-count");
+  if(countEl) countEl.textContent = filtered.length+" event"+(filtered.length===1?"":"s");
+
+  if(!filtered.length) {
+    el.innerHTML = '<div style="padding:32px;text-align:center;color:var(--label-gray);font-size:13px">No activity logged yet.</div>';
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.style.cssText = "width:100%;border-collapse:collapse;font-size:12px";
+
+  const thead = table.createTHead();
+  const hrow = thead.insertRow();
+  hrow.style.borderBottom = "2px solid var(--divider)";
+  ["Timestamp","User","Activity","Detail","Contact"].forEach((txt,i) => {
+    const th = document.createElement("th");
+    th.textContent = txt;
+    th.style.cssText = "padding:8px 10px;color:var(--label-gray);font-weight:700;text-align:left;white-space:nowrap";
+    hrow.appendChild(th);
+  });
+
+  const tbody = table.createTBody();
+  filtered.forEach((e, i) => {
+    const tr = tbody.insertRow();
+    tr.style.cssText = "border-bottom:1px solid var(--divider);"+(i%2===0?"background:var(--bg)":"");
+
+    // Timestamp
+    const ts = new Date(e.ts);
+    const tdTs = tr.insertCell();
+    tdTs.style.cssText = "padding:8px 10px;white-space:nowrap;color:var(--label-gray);font-size:11px";
+    tdTs.textContent = ts.toLocaleDateString("en-AU",{day:"numeric",month:"short",year:"numeric"})
+      +" "+ts.toLocaleTimeString("en-AU",{hour:"2-digit",minute:"2-digit"});
+
+    // User
+    const tdUser = tr.insertCell();
+    tdUser.style.cssText = "padding:8px 10px;white-space:nowrap";
+    const userChip = document.createElement("span");
+    userChip.style.cssText = "font-size:11px;font-weight:700;padding:2px 8px;border-radius:8px;background:"+(USER_COLORS[e.user]||"#666")+";color:#fff";
+    userChip.textContent = e.user;
+    tdUser.appendChild(userChip);
+
+    // Activity type
+    const tdType = tr.insertCell();
+    tdType.style.cssText = "padding:8px 10px;white-space:nowrap";
+    const typeChip = document.createElement("span");
+    typeChip.style.cssText = "font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;background:"+(TYPE_COLORS[e.type]||"#888")+"22;color:"+(TYPE_COLORS[e.type]||"#888")+";border:1px solid "+(TYPE_COLORS[e.type]||"#888")+"44";
+    typeChip.textContent = TYPE_LABELS[e.type]||e.type;
+    tdType.appendChild(typeChip);
+
+    // Detail
+    const tdDetail = tr.insertCell();
+    tdDetail.style.cssText = "padding:8px 10px;color:var(--dark-gray);max-width:280px";
+    tdDetail.textContent = e.detail||"—";
+
+    // Contact
+    const tdContact = tr.insertCell();
+    tdContact.style.cssText = "padding:8px 10px;color:var(--label-gray);font-size:11px";
+    tdContact.textContent = e.contact||"—";
+  });
+
+  el.innerHTML = "";
+  el.appendChild(table);
+}
+
+// Load activity log from Firebase on connect
+function loadActivityFromFirebase(data) {
+  if(data && data.activity) {
+    const entries = Object.values(data.activity);
+    entries.sort((a,b) => new Date(b.ts)-new Date(a.ts));
+    _activityLog = entries;
+    if(_activePage==="p7") renderActivityLog();
+  }
+}
+
+
+
+// ── INSIGHTS ───────────────────────────────────────────────
+function renderInsights() {
+  const entries = loadEntries();
+  const today = new Date();
+  const ninetyAgo  = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+  const priorStart = new Date(ninetyAgo); priorStart.setDate(priorStart.getDate()-90);
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+
+  const REL_C = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
+
+  // ── Panel 1: Momentum ──────────────────────────────────────
+  const momEl = document.getElementById("ins-momentum");
+  if(momEl) {
+    const momData = TABLE_DATA.map(p => {
+      const name = p.first+" "+p.last;
+      const recent = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=ninetyAgo).length;
+      const prior  = entries.filter(e => e.contact===name && e.date && new Date(e.date)>=priorStart && new Date(e.date)<ninetyAgo).length;
+      return {p, name, recent, prior, delta: recent-prior};
+    }).filter(r => r.recent>0 || r.prior>0)
+      .sort((a,b) => b.recent-a.recent || a.delta-b.delta);
+
+    if(!momData.length) {
+      momEl.innerHTML = '<div style="font-size:12px;color:var(--label-gray)">No engagements logged yet.</div>';
+    } else {
+      momEl.innerHTML = momData.slice(0,10).map(r => {
+        const arrow = r.delta>0?"↑":r.delta<0?"↓":"→";
+        const arrowColor = r.delta>0?"#1a8c66":r.delta<0?"#c0392b":"#888";
+        const lastEntry = entries.filter(e=>e.contact===r.name&&e.date).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+        const daysAgo = lastEntry ? Math.floor((today-new Date(lastEntry.date))/(1000*60*60*24)) : null;
+        const matchedEvts = EVENTS_DATA.filter(ev=>new Date(ev.date)>today&&getStakeholderMatches(ev).some(m=>m.first+" "+m.last===r.name)).length;
+        return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--divider)">
+          <span style="font-size:18px;font-weight:700;color:${arrowColor};width:18px;text-align:center;flex-shrink:0">${arrow}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:700;color:var(--dark-gray)">${r.name} <span style="font-size:10px;color:var(--label-gray);font-weight:400">${r.p.div}</span></div>
+            <div style="font-size:10px;color:var(--label-gray)">${daysAgo!==null?daysAgo+"d since last touch · ":""}${matchedEvts>0?matchedEvts+" upcoming event"+(matchedEvts>1?"s":"")+"":" no upcoming events"}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:13px;font-weight:700;color:#2d0057">${r.recent}</div>
+            <div style="font-size:9px;color:var(--label-gray)">90d</div>
+          </div>
+          <div style="font-size:10px;font-weight:700;color:${arrowColor};flex-shrink:0">${r.delta>0?"+":""}${r.delta||"="}</div>
+        </div>`;
+      }).join("");
+    }
+  }
+
+  // ── Panel 2: White space ───────────────────────────────────
+  const wsEl = document.getElementById("ins-whitespace");
+  if(wsEl) {
+    const engaged12m = new Set(entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).map(e=>e.contact));
+    const whitespace = TABLE_DATA.filter(p => {
+      const name = p.first+" "+p.last;
+      return !engaged12m.has(name);
+    }).sort((a,b)=>{
+      const relOrder={"+ 3 Strong":0,"+ 2 Good":1,"+ 1 Mild":2,"0 Neutral":3,"- 1 At risk":4,"Not engaged":5};
+      return (relOrder[a.relLabel]??3)-(relOrder[b.relLabel]??3);
+    });
+
+    if(!whitespace.length) {
+      wsEl.innerHTML = '<div style="font-size:12px;color:#1a8c66;font-weight:600">✓ All contacts engaged in the past 12 months.</div>';
+    } else {
+      // Group by division
+      const byDiv = {};
+      whitespace.forEach(p => { if(!byDiv[p.div])byDiv[p.div]=[]; byDiv[p.div].push(p); });
+      wsEl.innerHTML = Object.entries(byDiv).map(([div,contacts])=>{
+        return `<div style="margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin-bottom:4px">${div} (${contacts.length})</div>
+          ${contacts.map(p=>{
+            const matchedEvts = EVENTS_DATA.filter(ev=>new Date(ev.date)>today&&getStakeholderMatches(ev).some(m=>m.first+" "+m.last===p.first+" "+p.last)).length;
+            const relCol = REL_C[p.relLabel]||"#aaa";
+            return `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px">
+              <span style="font-weight:700;color:var(--dark-gray);flex:1">${p.first} ${p.last}</span>
+              <span style="font-weight:700;color:${relCol};font-size:10px">${p.relLabel}</span>
+              ${matchedEvts>0?`<span onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===3));document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('p6').classList.add('active');_activePage='p6';renderEvents();" style="font-size:10px;color:#a100ff;cursor:pointer;white-space:nowrap">${matchedEvts} event${matchedEvts>1?"s":""} →</span>`:`<span style="font-size:10px;color:var(--label-gray)">no events</span>`}
+            </div>`;
+          }).join("")}
+        </div>`;
+      }).join("");
+    }
+  }
+
+  // ── Panel 3: Concentration by owner ───────────────────────
+  const ownerEl = document.getElementById("ins-by-owner");
+  if(ownerEl) {
+    const ownerMap = {};
+    const ownerContacts = {};
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const o = (e.owner||"unknown").split(".")[0];
+      ownerMap[o] = (ownerMap[o]||0)+1;
+    });
+    TABLE_DATA.forEach(p=>{
+      const o = (p.owner||"unknown").split(".")[0];
+      if(!ownerContacts[o]) ownerContacts[o]={total:0,engaged:0};
+      ownerContacts[o].total++;
+      if(entries.some(e=>e.contact===p.first+" "+p.last&&e.date&&new Date(e.date)>=twelveMAgo)) ownerContacts[o].engaged++;
+    });
+    const maxCount = Math.max(1,...Object.values(ownerMap));
+    ownerEl.innerHTML = Object.entries(ownerMap).sort((a,b)=>b[1]-a[1]).map(([owner,cnt])=>{
+      const oc = ownerContacts[owner]||{total:0,engaged:0};
+      const pct = Math.round((cnt/maxCount)*100);
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="font-weight:700;color:var(--dark-gray)">${owner}</span>
+          <span style="color:var(--label-gray)">${cnt} eng · ${oc.engaged}/${oc.total} contacts</span>
+        </div>
+        <div style="background:var(--divider);border-radius:3px;height:8px;overflow:hidden">
+          <div style="height:100%;width:${pct}%;background:#5b2d8e;border-radius:3px;transition:width .4s"></div>
+        </div>
+      </div>`;
+    }).join("") || '<div style="font-size:12px;color:var(--label-gray)">No owner data yet.</div>';
+  }
+
+  // ── Panel 4: Concentration by division ────────────────────
+  const divEl = document.getElementById("ins-by-div");
+  if(divEl) {
+    const divMap = {};
+    const divContacts = {};
+    TABLE_DATA.forEach(p=>{
+      if(!divContacts[p.div])divContacts[p.div]={total:0,engaged:0};
+      divContacts[p.div].total++;
+      if(entries.some(e=>e.contact===p.first+" "+p.last&&e.date&&new Date(e.date)>=twelveMAgo)) divContacts[p.div].engaged++;
+    });
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const p = TABLE_DATA.find(x=>x.first+" "+x.last===e.contact);
+      if(p) divMap[p.div] = (divMap[p.div]||0)+1;
+    });
+    const maxDiv = Math.max(1,...Object.values(divMap));
+    const allDivs = [...new Set(TABLE_DATA.map(p=>p.div))].filter(Boolean);
+    divEl.innerHTML = allDivs.sort((a,b)=>(divMap[b]||0)-(divMap[a]||0)).map(div=>{
+      const cnt = divMap[div]||0;
+      const dc = divContacts[div]||{total:0,engaged:0};
+      const pct = Math.round((cnt/maxDiv)*100);
+      const coveragePct = dc.total>0?Math.round((dc.engaged/dc.total)*100):0;
+      const coverageColor = coveragePct>=70?"#1a8c66":coveragePct>=40?"#d4830a":"#c0392b";
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="font-weight:700;color:var(--dark-gray)">${div}</span>
+          <span style="color:${coverageColor};font-weight:700">${coveragePct}% coverage</span>
+        </div>
+        <div style="background:var(--divider);border-radius:3px;height:8px;overflow:hidden">
+          <div style="height:100%;width:${pct||2}%;background:#5b2d8e;border-radius:3px;transition:width .4s"></div>
+        </div>
+        <div style="font-size:10px;color:var(--label-gray);margin-top:2px">${cnt} engagement${cnt!==1?"s":""} · ${dc.engaged} of ${dc.total} contacts touched</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+
+// ── AI THEME DETECTION ─────────────────────────────────────
+async function generateThemeDetection() {
+  const btn = document.getElementById("ins-theme-btn");
+  const el  = document.getElementById("ins-themes");
+  if(!el) return;
+  btn.disabled=true; btn.textContent="Detecting…";
+  el.innerHTML='<span style="color:var(--label-gray)">Reading engagement notes…</span>';
+
+  const entries = loadEntries();
+  const today   = new Date();
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+
+  // Build content corpus — summaries and notes from last 12 months
+  const recent = entries
+    .filter(e=>e.date&&new Date(e.date)>=twelveMAgo)
+    .sort((a,b)=>new Date(b.date)-new Date(a.date))
+    .slice(0,60);
+
+  const corpus = recent.map(e=>{
+    const p=TABLE_DATA.find(x=>x.first+" "+x.last===e.contact);
+    return `Contact: ${e.contact} (${p?p.div:""}), ${e.date}, ${e.type||""}
+Summary: ${e.summary||""}
+${e.notes?`Notes: ${e.notes}`:""}
+${e.action?`Next action: ${e.action}`:""}`;
+  }).join("\n\n");
+
+  const divCoverage=[...new Set(TABLE_DATA.map(p=>p.div))].map(div=>{
+    const divEntries=entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo&&TABLE_DATA.find(p=>p.div===div&&p.first+" "+p.last===e.contact));
+    const divTotal=TABLE_DATA.filter(p=>p.div===div).length;
+    return `${div}: ${divEntries.length} engagements across ${divTotal} contacts`;
+  }).join(", ");
+
+  const prompt=`You are an Accenture relationship manager analysing engagement notes for the Macquarie Group Tier 1 account.
+
+Division coverage: ${divCoverage}
+
+Engagement notes from the past 12 months (${recent.length} entries):
+${corpus}
+
+Analyse these notes and identify:
+1. The top 4-5 recurring themes or topics across conversations (e.g. AI strategy, data governance, cost reduction, KYC)
+2. For each theme: which divisions and contacts it appears in, and what it signals as a commercial opportunity
+3. Any notable gaps — topics that should be on the agenda but don't appear in conversations
+4. 2-3 specific origination recommendations based on what you're seeing
+
+Format your response as:
+**Theme [N]: [Theme name]** — [which contacts/divisions, what it signals, commercial opportunity]
+
+Then finish with:
+**Gaps noticed:** [topics absent from conversations]
+**Origination recommendations:** [2-3 specific actions]
+
+Be direct and commercial. Use plain language.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})
+    });
+    const data = await response.json();
+    const text = data.content&&data.content[0]&&data.content[0].text;
+    if(text){
+      // Render with basic markdown-like formatting
+      const formatted = text
+        .replace(/\*\*([^*]+)\*\*/g,'<strong style="color:#2d0057">$1</strong>')
+        .replace(/\n\n/g,"</p><p style='margin:8px 0;line-height:1.65'>")
+        .replace(/\n/g,"<br>");
+      el.innerHTML=`<p style="margin:0;line-height:1.65">${formatted}</p>
+        <div style="font-size:10px;color:var(--label-gray);margin-top:12px;padding-top:8px;border-top:1px solid var(--divider)">
+          Analysed ${recent.length} entries · Generated ${new Date().toLocaleString("en-AU")}
+        </div>`;
+    } else {
+      el.innerHTML='<span style="color:#c0392b">Could not generate themes. Check API connection.</span>';
+    }
+  } catch(err){
+    el.innerHTML=`<span style="color:#c0392b">Error: ${err.message}</span>`;
+  }
+  btn.disabled=false; btn.textContent="↺ Detect themes";
+}
+
+// ── AI NARRATIVE ───────────────────────────────────────────
+async function generateInsightNarrative() {
+  const btn = document.getElementById("ins-gen-btn");
+  const el = document.getElementById("ins-narrative");
+  if(!el) return;
+  btn.disabled = true;
+  btn.textContent = "Generating…";
+  el.innerHTML = '<span style="color:var(--label-gray)">Analysing engagement data…</span>';
+
+  const entries = loadEntries();
+  const today = new Date();
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+  const ninetyAgo = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+
+  // Build context summary for Claude
+  const recent = entries.filter(e=>e.date&&new Date(e.date)>=ninetyAgo);
+  const totalContacts = TABLE_DATA.length;
+  const engagedContacts = new Set(entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).map(e=>e.contact)).size;
+  const zeroEngaged = totalContacts - engagedContacts;
+  const byDiv = {};
+  TABLE_DATA.forEach(p=>{if(!byDiv[p.div])byDiv[p.div]={total:0,eng:0};byDiv[p.div].total++;});
+  entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+    const p=TABLE_DATA.find(x=>x.first+" "+x.last===e.contact);
+    if(p&&byDiv[p.div])byDiv[p.div].eng++;
+  });
+  const divSummary = Object.entries(byDiv).map(([d,v])=>`${d}: ${v.eng}/${v.total} contacts engaged`).join(", ");
+  const recentSummaries = recent.slice(0,15).map(e=>`${e.contact} (${e.type||"engagement"}): ${e.summary||""}`).join("\n");
+  const atRisk = TABLE_DATA.filter(p=>p.relLabel==="- 1 At risk").map(p=>p.first+" "+p.last).join(", ");
+  const upcomingEvts = EVENTS_DATA.filter(e=>new Date(e.date)>today).length;
+
+  const prompt = `You are an Accenture relationship manager analysing engagement data for the Macquarie Group Tier 1 account.
+
+Data summary:
+- Total contacts: ${totalContacts} across MacCap, MAM, BFS, CGM, COG
+- Engaged in past 12 months: ${engagedContacts} (${zeroEngaged} with zero engagements)
+- Division coverage: ${divSummary}
+- At-risk relationships: ${atRisk||"none"}
+- Upcoming events in calendar: ${upcomingEvts}
+- Recent engagements (last 90 days): ${recent.length}
+
+Recent engagement notes:
+${recentSummaries||"No recent entries."}
+
+Write a concise 4-5 sentence portfolio assessment covering: overall engagement health, which divisions or stakeholders need attention, and 1-2 specific actions to increase engagement breadth. Be direct and actionable. Do not use bullet points. Use plain language as if briefing a senior partner.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{role:"user", content: prompt}]
+      })
+    });
+    const data = await response.json();
+    const text = data.content && data.content[0] && data.content[0].text;
+    if(text) {
+      el.innerHTML = `<p style="margin:0;line-height:1.7">${text.replace(/\n\n/g,"</p><p style='margin:8px 0;line-height:1.7'>").replace(/\n/g," ")}</p>
+        <div style="font-size:10px;color:var(--label-gray);margin-top:10px;padding-top:8px;border-top:1px solid var(--divider)">Generated ${new Date().toLocaleString("en-AU")} · Based on ${entries.length} engagement entries</div>`;
+    } else {
+      el.innerHTML = '<span style="color:#c0392b">Could not generate narrative. Check API connection.</span>';
+    }
+  } catch(err) {
+    el.innerHTML = `<span style="color:#c0392b">Error: ${err.message}</span>`;
+  }
+  btn.disabled = false;
+  btn.textContent = "↺ Generate";
+}
+
+
 function showPage(id,tab){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
@@ -4519,6 +5171,8 @@ function showPage(id,tab){
   tab.classList.add("active");
   if(id==="p4")renderDirectory("ALL");
   if(id==="p6")renderEvents();
+  if(id==="p7")renderActivityLog();
+  if(id==="p8")renderInsights();
   _activePage=id;
   window.scrollTo(0,0);
 }
@@ -4535,6 +5189,7 @@ async function refreshAll(){
   renderOverdueAlerts();
   renderHeatmap();
   renderQuarterlyEngagement();
+  renderOverviewInsightCards();
   renderDirectory("ALL");
   populateLeadDropdowns();
   renderLeadsManager();
@@ -4552,4 +5207,246 @@ async function refreshAll(){
 refreshAll();
 </script>
 </body>
-</html>
+</html>// ── INSIGHTS ───────────────────────────────────────────────
+function renderInsights() {
+  const entries = loadEntries();
+  const today   = new Date();
+  const ninetyAgo  = new Date(today); ninetyAgo.setDate(today.getDate()-90);
+  const priorStart = new Date(ninetyAgo); priorStart.setDate(priorStart.getDate()-90);
+  const twelveMAgo = new Date(today); twelveMAgo.setFullYear(today.getFullYear()-1);
+  const REL_C = {"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666666"};
+
+  // ── 2a. Coverage ───────────────────────────────────────────
+  const engaged12m = new Set(entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).map(e=>e.contact));
+  const total = TABLE_DATA.length;
+  const engCount = TABLE_DATA.filter(p=>engaged12m.has(p.first+" "+p.last)).length;
+  const pct = total>0?Math.round((engCount/total)*100):0;
+  const coverColor = pct>=70?"#1a8c66":pct>=40?"#d4830a":"#c0392b";
+  const scoreEl=document.getElementById("ins-coverage-score");
+  const labelEl=document.getElementById("ins-coverage-label");
+  const fillEl =document.getElementById("ins-coverage-fill");
+  if(scoreEl){scoreEl.textContent=pct+"%";scoreEl.style.color=coverColor;}
+  if(labelEl) labelEl.textContent=`${engCount} of ${total} contacts engaged in the past 12 months`;
+  if(fillEl) {fillEl.style.width=pct+"%";fillEl.style.background=coverColor;}
+
+  // ── 2b. Momentum ───────────────────────────────────────────
+  const momEl = document.getElementById("ins-momentum");
+  if(momEl){
+    const momData = TABLE_DATA.map(p=>{
+      const name=p.first+" "+p.last;
+      const recent=entries.filter(e=>e.contact===name&&e.date&&new Date(e.date)>=ninetyAgo).length;
+      const prior =entries.filter(e=>e.contact===name&&e.date&&new Date(e.date)>=priorStart&&new Date(e.date)<ninetyAgo).length;
+      const lastE =entries.filter(e=>e.contact===name&&e.date).sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      return {name,recent,prior,delta:recent-prior,lastDate:lastE?lastE.date:null};
+    }).filter(r=>r.recent>0||r.prior>0).sort((a,b)=>b.recent-a.recent);
+    const rising  = momData.filter(r=>r.delta>0).sort((a,b)=>b.delta-a.delta).slice(0,3);
+    const cooling = momData.filter(r=>r.delta<0).sort((a,b)=>a.delta-b.delta).slice(0,3);
+    const flat    = momData.filter(r=>r.delta===0&&r.recent>0).sort((a,b)=>b.recent-a.recent).slice(0,2);
+    const momRow=(r,type)=>{
+      const arrow=type==="rising"?"↑":type==="cooling"?"↓":"→";
+      const color=type==="rising"?"#1a8c66":type==="cooling"?"#c0392b":"#888";
+      const daysAgo=r.lastDate?Math.floor((today-new Date(r.lastDate))/(1000*60*60*24)):null;
+      return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid var(--divider);font-size:11px">
+        <span style="color:${color};font-weight:700;font-size:15px;width:14px;flex-shrink:0">${arrow}</span>
+        <span style="flex:1;font-weight:600;color:var(--dark-gray);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.name}</span>
+        <span style="color:var(--label-gray);white-space:nowrap;flex-shrink:0">${daysAgo!==null?daysAgo+"d ago":""}</span>
+        <span style="color:${color};font-weight:700;font-size:10px;flex-shrink:0">${r.delta>0?"+":""}${r.delta||"="}</span>
+      </div>`;
+    };
+    let html="";
+    if(rising.length){html+=`<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin-bottom:3px">Rising</div>${rising.map(r=>momRow(r,"rising")).join("")}`;}
+    if(cooling.length){html+=`<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin:8px 0 3px">Cooling</div>${cooling.map(r=>momRow(r,"cooling")).join("")}`;}
+    if(flat.length){html+=`<div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin:8px 0 3px">Stable</div>${flat.map(r=>momRow(r,"flat")).join("")}`;}
+    if(!html) html=`<div style="font-size:11px;color:var(--label-gray)">No engagement data yet.</div>`;
+    momEl.innerHTML=html;
+  }
+
+  // ── 2c. White space ────────────────────────────────────────
+  const wsEl = document.getElementById("ins-whitespace");
+  if(wsEl){
+    const whitespace=TABLE_DATA.filter(p=>!engaged12m.has(p.first+" "+p.last))
+      .sort((a,b)=>{
+        const o={"+ 3 Strong":0,"+ 2 Good":1,"+ 1 Mild":2,"0 Neutral":3,"- 1 At risk":4,"Not engaged":5};
+        return (o[a.relLabel]??3)-(o[b.relLabel]??3);
+      });
+    if(!whitespace.length){
+      wsEl.innerHTML=`<div style="font-size:12px;color:#1a8c66;font-weight:600">✓ All contacts engaged in the past 12 months.</div>`;
+    } else {
+      const byDiv={};
+      whitespace.forEach(p=>{if(!byDiv[p.div])byDiv[p.div]=[];byDiv[p.div].push(p);});
+      wsEl.innerHTML=`<div style="font-size:28px;font-weight:700;color:#8e5dbf;margin-bottom:4px">${whitespace.length}</div>`
+        +Object.entries(byDiv).sort((a,b)=>b[1].length-a[1].length).map(([div,contacts])=>`
+          <div style="margin-bottom:8px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--label-gray);margin-bottom:4px">${div} (${contacts.length})</div>
+            ${contacts.map(p=>{
+              const matchedEvts=EVENTS_DATA.filter(ev=>new Date(ev.date)>today&&getStakeholderMatches(ev).some(m=>m.first+" "+m.last===p.first+" "+p.last)).length;
+              return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;border-bottom:1px solid var(--divider)">
+                <span style="flex:1;font-weight:600;color:var(--dark-gray)">${p.first} ${p.last}</span>
+                <span style="font-size:10px;font-weight:700;color:${REL_C[p.relLabel]||"#aaa"}">${p.relLabel}</span>
+                ${matchedEvts>0?`<span onclick="document.querySelectorAll('.nav-tab').forEach((t,i)=>t.classList.toggle('active',i===3));document.querySelectorAll('.page').forEach(pg=>pg.classList.remove('active'));document.getElementById('p6').classList.add('active');_activePage='p6';renderEvents();" style="font-size:10px;color:#a100ff;cursor:pointer;white-space:nowrap">${matchedEvts} event${matchedEvts>1?"s":""} →</span>`:`<span style="font-size:10px;color:var(--label-gray)">no events</span>`}
+              </div>`;
+            }).join("")}
+          </div>`).join("");
+    }
+  }
+
+  // ── 3. Engagement quality ──────────────────────────────────
+  // 3a. By type
+  const typeEl = document.getElementById("ins-by-type");
+  if(typeEl){
+    const typeCounts={};
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const t=e.type||"Unknown"; typeCounts[t]=(typeCounts[t]||0)+1;
+    });
+    const maxType=Math.max(1,...Object.values(typeCounts));
+    const TYPE_C={"Meeting — in person":"#2d0057","Meeting — virtual":"#5b2d8e","Call":"#8e5dbf","Working session":"#1a5fa5","Social / event":"#d4830a","Demo":"#1a8c66","Email / written":"#aaaaaa"};
+    typeEl.innerHTML=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1]).map(([type,cnt])=>`
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="color:var(--dark-gray);font-weight:600">${type}</span>
+          <span style="color:var(--label-gray)">${cnt} (${Math.round(cnt/Math.max(1,entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).length)*100)}%)</span>
+        </div>
+        <div style="background:var(--divider);border-radius:3px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${Math.round((cnt/maxType)*100)}%;background:${TYPE_C[type]||"#5b2d8e"};border-radius:3px"></div>
+        </div>
+      </div>`).join("") || `<div style="font-size:12px;color:var(--label-gray)">No entries yet.</div>`;
+  }
+
+  // 3b. Follow-through rate by owner
+  const ftEl = document.getElementById("ins-followthrough");
+  if(ftEl){
+    const ownerStats={};
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const o=(e.owner||"unknown").split(".")[0];
+      if(!ownerStats[o])ownerStats[o]={total:0,withAction:0};
+      ownerStats[o].total++;
+      if(e.action&&e.action.trim()) ownerStats[o].withAction++;
+    });
+    const overall=Object.values(ownerStats).reduce((a,b)=>({total:a.total+b.total,withAction:a.withAction+b.withAction}),{total:0,withAction:0});
+    const overallPct=overall.total>0?Math.round((overall.withAction/overall.total)*100):0;
+    const overallColor=overallPct>=70?"#1a8c66":overallPct>=40?"#d4830a":"#c0392b";
+    ftEl.innerHTML=`<div style="font-size:28px;font-weight:700;color:${overallColor};margin-bottom:4px">${overallPct}%</div>
+      <div style="font-size:11px;color:var(--label-gray);margin-bottom:12px">of entries have a next action logged</div>`
+      +Object.entries(ownerStats).sort((a,b)=>b[1].total-a[1].total).map(([owner,s])=>{
+        const pct=s.total>0?Math.round((s.withAction/s.total)*100):0;
+        const c=pct>=70?"#1a8c66":pct>=40?"#d4830a":"#c0392b";
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+            <span style="font-weight:600;color:var(--dark-gray)">${owner}</span>
+            <span style="color:${c};font-weight:700">${pct}% (${s.withAction}/${s.total})</span>
+          </div>
+          <div style="background:var(--divider);border-radius:3px;height:6px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${c};border-radius:3px"></div>
+          </div>
+        </div>`;
+      }).join("") || `<div style="font-size:12px;color:var(--label-gray)">No entries yet.</div>`;
+  }
+
+  // ── 4. Relationship trajectory ─────────────────────────────
+  const trajEl = document.getElementById("ins-trajectory");
+  if(trajEl){
+    const REL_ORDER={"+ 3 Strong":4,"+ 2 Good":3,"+ 1 Mild":2,"0 Neutral":1,"- 1 At risk":-1,"Not engaged":0};
+    const contactEntries={};
+    entries.filter(e=>e.health&&e.date).forEach(e=>{
+      if(!contactEntries[e.contact])contactEntries[e.contact]=[];
+      contactEntries[e.contact].push({date:e.date,health:e.health});
+    });
+    const trajectories=Object.entries(contactEntries)
+      .filter(([,es])=>es.length>=3)
+      .map(([contact,es])=>{
+        const sorted=es.sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const scores=sorted.map(e=>REL_ORDER[e.health]??1);
+        const first=scores[0]; const last=scores[scores.length-1];
+        const trend=last>first?"improving":last<first?"declining":"stable";
+        return {contact,entries:sorted,scores,trend};
+      })
+      .sort((a,b)=>{
+        const order={declining:0,stable:1,improving:2};
+        return (order[a.trend]??1)-(order[b.trend]??1);
+      });
+
+    if(!trajectories.length){
+      trajEl.innerHTML=`<div style="font-size:12px;color:var(--label-gray);padding:12px 0">Not enough health-tagged entries yet. Tag relationship health when logging engagements to unlock this view.</div>`;
+    } else {
+      const DOT_C={"+ 3 Strong":"#2d0057","+ 2 Good":"#5b2d8e","+ 1 Mild":"#8e5dbf","0 Neutral":"#aaaaaa","- 1 At risk":"#c0392b","Not engaged":"#666"};
+      const TREND_C={improving:"#1a8c66",stable:"#888",declining:"#c0392b"};
+      const TREND_ARROW={improving:"↑ Improving",stable:"→ Stable",declining:"↓ Declining"};
+      trajEl.innerHTML=trajectories.map(t=>`
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--divider)">
+          <div style="min-width:140px;font-size:12px;font-weight:600;color:var(--dark-gray)">${t.contact}</div>
+          <div style="display:flex;align-items:center;gap:4px;flex:1;flex-wrap:wrap">
+            ${t.entries.map((e,i)=>`
+              <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+                <div style="width:12px;height:12px;border-radius:50%;background:${DOT_C[e.health]||"#aaa"}" title="${e.health} · ${e.date}"></div>
+                ${i<t.entries.length-1?`<div style="font-size:8px;color:var(--label-gray)">→</div>`:""}
+              </div>`).join("")}
+          </div>
+          <div style="font-size:11px;font-weight:700;color:${TREND_C[t.trend]};white-space:nowrap;flex-shrink:0">${TREND_ARROW[t.trend]}</div>
+        </div>`).join("");
+    }
+  }
+
+  // ── Concentration panels (owner + division) ────────────────
+  const ownerEl = document.getElementById("ins-by-owner");
+  if(ownerEl){
+    const ownerMap={};
+    const ownerContacts={};
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const o=(e.owner||"unknown").split(".")[0];
+      ownerMap[o]=(ownerMap[o]||0)+1;
+    });
+    TABLE_DATA.forEach(p=>{
+      const o=(p.owner||"unknown").split(".")[0];
+      if(!ownerContacts[o])ownerContacts[o]={total:0,engaged:0};
+      ownerContacts[o].total++;
+      if(entries.some(e=>e.contact===p.first+" "+p.last&&e.date&&new Date(e.date)>=twelveMAgo))ownerContacts[o].engaged++;
+    });
+    const maxOwner=Math.max(1,...Object.values(ownerMap));
+    ownerEl.innerHTML=Object.entries(ownerMap).sort((a,b)=>b[1]-a[1]).map(([owner,cnt])=>{
+      const oc=ownerContacts[owner]||{total:0,engaged:0};
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="font-weight:700;color:var(--dark-gray)">${owner}</span>
+          <span style="color:var(--label-gray)">${cnt} eng · ${oc.engaged}/${oc.total} contacts</span>
+        </div>
+        <div style="background:var(--divider);border-radius:3px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${Math.round((cnt/maxOwner)*100)}%;background:#5b2d8e;border-radius:3px"></div>
+        </div>
+      </div>`;
+    }).join("")||`<div style="font-size:12px;color:var(--label-gray)">No data yet.</div>`;
+  }
+
+  const divEl = document.getElementById("ins-by-div");
+  if(divEl){
+    const divMap={};
+    const divContacts={};
+    TABLE_DATA.forEach(p=>{
+      if(!divContacts[p.div])divContacts[p.div]={total:0,engaged:0};
+      divContacts[p.div].total++;
+      if(entries.some(e=>e.contact===p.first+" "+p.last&&e.date&&new Date(e.date)>=twelveMAgo))divContacts[p.div].engaged++;
+    });
+    entries.filter(e=>e.date&&new Date(e.date)>=twelveMAgo).forEach(e=>{
+      const p=TABLE_DATA.find(x=>x.first+" "+x.last===e.contact);
+      if(p)divMap[p.div]=(divMap[p.div]||0)+1;
+    });
+    const maxDiv=Math.max(1,...Object.values(divMap));
+    const allDivs=[...new Set(TABLE_DATA.map(p=>p.div))].filter(Boolean);
+    divEl.innerHTML=allDivs.sort((a,b)=>(divMap[b]||0)-(divMap[a]||0)).map(div=>{
+      const cnt=divMap[div]||0;
+      const dc=divContacts[div]||{total:0,engaged:0};
+      const coverPct=dc.total>0?Math.round((dc.engaged/dc.total)*100):0;
+      const coverColor=coverPct>=70?"#1a8c66":coverPct>=40?"#d4830a":"#c0392b";
+      return `<div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+          <span style="font-weight:700;color:var(--dark-gray)">${div}</span>
+          <span style="color:${coverColor};font-weight:700">${coverPct}% coverage</span>
+        </div>
+        <div style="background:var(--divider);border-radius:3px;height:7px;overflow:hidden">
+          <div style="height:100%;width:${cnt>0?Math.round((cnt/maxDiv)*100):2}%;background:#5b2d8e;border-radius:3px"></div>
+        </div>
+        <div style="font-size:10px;color:var(--label-gray);margin-top:2px">${cnt} engagement${cnt!==1?"s":""} · ${dc.engaged}/${dc.total} contacts touched</div>
+      </div>`;
+    }).join("");
+  }
+}
+
