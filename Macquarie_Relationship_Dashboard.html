@@ -393,7 +393,7 @@ tbody tr:hover td{background:var(--lavender-2)}
     <div class="kpi"><div class="kpi-l">Engaged this FY</div><div class="kpi-v" id="kpi-engaged" style="color:var(--green)">—</div><div class="kpi-s" id="kpi-engaged-sub">Loading…</div></div>
     <div class="kpi"><div class="kpi-l">Engaged 3+ times this FY</div><div class="kpi-v" id="kpi-engaged3" style="color:var(--blue)">—</div><div class="kpi-s" id="kpi-engaged3-sub">Loading…</div></div>
     <div class="kpi"><div class="kpi-l">Zero engagements this FY</div><div class="kpi-v" id="kpi-zero" style="color:var(--red)">—</div><div class="kpi-s" id="kpi-zero-sub">Loading…</div></div>
-    <div class="kpi"><div class="kpi-l">Average ARS</div><div class="kpi-v" id="kpi-ars" style="color:var(--purple-plum)">—</div><div class="kpi-s" id="kpi-ars-sub">Avg across all contacts</div></div>
+    <div class="kpi"><div class="kpi-l">Portfolio coverage</div><div class="kpi-v" id="kpi-ars" style="color:var(--purple-plum)">—</div><div class="kpi-s" id="kpi-ars-sub">Avg across all contacts</div></div>
   </div>
 
   <!-- ROW: Coverage + Latest Engagements + VIPs -->
@@ -2757,15 +2757,15 @@ function reconcile(){
     const pd=PEOPLE.find(d=>`${d.first} ${d.last}`===fullName);
     if(td){
       td.eng=(td._baseEng||0)+entries.filter(x=>x.contact===fullName).length;
-      const lH=entries.filter(x=>x.contact===fullName&&x.health).sort((a,b)=>b.id-a.id)[0];
+      const lH=entries.filter(x=>x.contact===fullName&&x.health).sort((a,b)=>new Date(b.date||"2000-01-01")-new Date(a.date||"2000-01-01"))[0];
       if(lH)td.relLabel=lH.health;
-      const lA=entries.filter(x=>x.contact===fullName&&x.action).sort((a,b)=>b.id-a.id)[0];
+      const lA=entries.filter(x=>x.contact===fullName&&x.action).sort((a,b)=>new Date(b.date||"2000-01-01")-new Date(a.date||"2000-01-01"))[0];
       if(lA)td.upcoming=lA.action;
       td.logNotes=entries.filter(x=>x.contact===fullName);
     }
     if(pd){
       pd.eng=(pd._baseEng||0)+entries.filter(x=>x.contact===fullName).length;
-      const lH=entries.filter(x=>x.contact===fullName&&x.health).sort((a,b)=>b.id-a.id)[0];
+      const lH=entries.filter(x=>x.contact===fullName&&x.health).sort((a,b)=>new Date(b.date||"2000-01-01")-new Date(a.date||"2000-01-01"))[0];
       if(lH)pd.relLabel=lH.health;
       pd.logNotes=entries.filter(x=>x.contact===fullName);
     }
@@ -2906,10 +2906,11 @@ function refreshOverview(){
   if(kpiEngaged3) kpiEngaged3.textContent = engaged3;
   if(kpiZero)     kpiZero.textContent     = zero;
 
-  // ARS — use latest non-null quarter
-  const arsLatest = [...ARS_DATA].reverse().find(q => q.score !== null);
-  if(kpiARS)    kpiARS.textContent    = arsLatest ? arsLatest.score.toFixed(1) : "—";
-  if(kpiARSsub) kpiARSsub.textContent = arsLatest ? `${arsLatest.quarter} avg` : "No data yet";
+  // ARS KPI — show coverage % instead (ARS removed)
+  const coverPct = total>0 ? Math.round((engaged/total)*100) : 0;
+  const coverColor = coverPct>=70?"var(--green)":coverPct>=40?"var(--amber-text)":"var(--red)";
+  if(kpiARS)    { kpiARS.textContent = coverPct+"%"; kpiARS.style.color = coverColor; }
+  if(kpiARSsub) kpiARSsub.textContent = "12-month portfolio coverage";
 
   // Sub-labels
   const sub1 = document.getElementById("kpi-engaged-sub");
@@ -3777,7 +3778,7 @@ function showMiniProfile(name,data){
   const miniExtras=loadProfileExtras()[slug]||{};
   const hasBio=mini.bio||miniExtras.freeNotes;
   const intelBadge=miniExtras.aiIntel?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--purple-primary);color:#fff;padding:2px 8px">AI enriched</span>`:mini.intel==="internal"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--green-bg);color:var(--green-text);padding:2px 8px">Internal notes</span>`:mini.intel==="external"?`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--lavender);color:var(--purple-deep);padding:2px 8px">External research</span>`:`<span style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--neutral-light);color:var(--label-gray);padding:2px 8px">No profile yet — click Enrich</span>`;
-  const liveEntries=(d.logNotes||[]).slice().sort((a,b)=>b.id-a.id);
+  const liveEntries=(d.logNotes||[]).slice().sort((a,b)=>new Date(b.date||b.entryDate||"2000-01-01")-new Date(a.date||a.entryDate||"2000-01-01"));
 
   // Build interests panel from extras if available
   const hasInterests=(miniExtras.interests&&miniExtras.interests.length)||(miniExtras.personal&&miniExtras.personal.length)||(miniExtras.hooks&&miniExtras.hooks.length);
@@ -5065,6 +5066,7 @@ function showPage(id,tab){
   document.querySelectorAll(".nav-tab").forEach(t=>t.classList.remove("active"));
   tab.classList.add("active");
   if(id==="p4")renderDirectory("ALL");
+  if(id==="p5"){renderLeadsManager();renderEtypesManager();renderDivsManager();renderLocsManager();}
   if(id==="p6")renderEvents();
   if(id==="p7")renderActivityLog();
   if(id==="p8")renderInsights();
